@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openholter"
+version = "0.3.0"
+description = "EKG-tallennin Polar H10 -sykevyölle"
+requires-python = ">=3.9"
+license = { text = "AGPL-3.0-or-later" }
+authors = [{ name = "Joonas Wilska" }]
+dependencies = [
+    "bleak>=0.22",
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "websockets>=12",
+    "numpy>=1.24",
+    "reportlab>=4.0,<4.3",  # 4.3+ needs Python 3.10; the Mac mini runs Apple's 3.9
+]
+
+[project.optional-dependencies]
+# Stage 5 onwards
+analysis = ["neurokit2>=0.2.9", "scipy>=1.10", "wfdb>=4.1"]
+
+[project.scripts]
+openholter = "openholter.__main__:main"
+
+[tool.setuptools]
+packages = ["openholter"]
+
+[tool.setuptools.package-data]
+openholter = ["static/*", "static/vendor/*"]
