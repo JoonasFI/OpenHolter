@@ -25,7 +25,8 @@ from .storage import list_session_dirs, read_meta, write_json_atomic
 
 log = logging.getLogger(__name__)
 
-ANALYSIS_VERSION = 5  # 4: premature beats from ECG R peaks + QRS morphology; 5: AF episodes, runs, adaptive threshold
+ANALYSIS_VERSION = 6  # 4: premature beats from ECG R peaks + QRS morphology; 5: AF episodes, runs, adaptive threshold;
+# 6: local-threshold QRS detector with search-back, P wave required to be absent for an AF episode
 
 
 def result_path(session_dir: Path) -> Path:

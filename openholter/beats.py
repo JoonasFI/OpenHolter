@@ -1,4 +1,4 @@
-"""Beat detection and premature-beat classification from the ECG itself (analysis v5).
+"""Beat detection and premature-beat classification from the ECG itself (analysis v6).
 
 The strap's own RR intervals (BLE Heart Rate service) are convenient but opaque: while
 the strap is being put on or taken off, or when its detector slips, they produce
@@ -6,9 +6,9 @@ short-long pairs that look exactly like ectopic beats. Here R peaks are found in
 130 Hz ECG directly:
 
 1. Pan–Tompkins style detection: band-pass (difference of moving averages, ~5–15 Hz),
-   derivative, squaring, 150 ms moving-window integration, adaptive threshold per 8 s
-   block, 250 ms refractory period; the R peak is the largest |baseline-removed ECG|
-   near the integrated peak. (Unchanged since v4.)
+   derivative, squaring, 150 ms moving-window integration. The threshold follows the last
+   beats (v6), with search-back over long gaps and T-wave rejection; the R peak is the
+   largest |baseline-removed ECG| within ±100 ms of the integrated peak.
 2. Artefact rejection: beats in segments whose amplitude is far above the recording's
    typical QRS amplitude, beats across data gaps, and the first/last minute (strap being
    put on / taken off) are excluded.
@@ -17,8 +17,9 @@ short-long pairs that look exactly like ectopic beats. Here R peaks are found in
    QRS width difference and amplitude ratio. At 130 Hz one sample is 7.7 ms.
 4. Irregular rhythm (v5): per beat, the median normalised RR difference over 31 intervals
    (minimum over lags 1–3, so bigeminy/trigeminy stay "regular"; intervals next to clearly
-   ventricular beats left out). Episodes ≥ 30 s above 0.10 are reported as irregular rhythm
-   (fits atrial fibrillation) and no SVES are labelled inside them.
+   ventricular beats left out). Episodes ≥ 30 s above 0.05 with no visible P wave (v6: the
+   −240…−60 ms segments of nearby beats do not average into a repeating wave) are reported
+   as irregular rhythm (fits atrial fibrillation) and no SVES are labelled inside them.
 5. Premature beats (v5): RR shorter than the local reference by 12–20 %, the required
    amount scaled to 3 × the robust local spread of RR. The reference is the larger of the
    centred median of pair means and the same median over the beats before (so that a long
@@ -52,6 +53,74 @@ def _movavg(x: np.ndarray, k: int) -> np.ndarray:
     return (c[k:] - c[:-k]) / k
 
 
+# Detector parameters (v6). Tuned on MIT-BIH DS1 only.
+DET_REFR = 0.20       # s: two QRS cannot be closer than this
+DET_K = 0.40          # threshold = noise level + k × (signal level − noise level)
+DET_HIST = 8          # signal level: median height of the last 8 accepted peaks
+DET_SEARCH = 1.5      # search back when the gap exceeds 1.5 × median of the last 8 RR
+DET_BACK_K = 0.5      # in search-back the threshold is this × the normal one
+DET_T_S, DET_T_RATIO = 0.42, 0.5  # within 420 ms a peak under 0.5 × the previous one is a T wave
+DET_FLOOR = 0.12      # never below 12 % of the recording's typical peak (lost contact, noise)
+DET_LOC_PRE, DET_LOC_POST = 0.10, 0.10  # R is the largest |baseline-removed ECG| in this window
+
+
+def _pick_peaks(h: np.ndarray, cand: np.ndarray, fs: float) -> List[int]:
+    """Adaptive-threshold peak picking with T-wave rejection and search-back (after Pan–Tompkins).
+
+    Everything is local to the last few beats: one very tall beat cannot hide its neighbours,
+    which a threshold fixed per block did. `h` are peak heights, `cand` their sample indices.
+    """
+    n = len(cand)
+    typical = float(np.median(h[h >= np.percentile(h, 50)]))
+    floor = DET_FLOOR * typical
+    spk: List[float] = [typical]
+    npk = 0.1 * typical
+    rrs: List[int] = []
+    keep: List[int] = []  # indices into cand
+    last_rej: List[int] = []  # rejected since the last accepted peak
+    t_gap, refr = int(DET_T_S * fs), int(DET_REFR * fs)
+
+    def level() -> float:
+        return max(floor, npk + DET_K * (float(np.median(spk[-DET_HIST:])) - npk))
+
+    def accept(j: int) -> None:
+        if keep:
+            rrs.append(int(cand[j] - cand[keep[-1]]))
+        keep.append(j)
+        spk.append(float(h[j]))
+
+    for j in range(n):
+        if keep and cand[j] - cand[keep[-1]] < refr:
+            if h[j] > h[keep[-1]]:  # same complex, higher peak
+                spk[-1] = float(h[j])
+                keep[-1] = j
+            continue
+        # search back: the gap has grown too long, take the highest rejected peak in it
+        if keep and rrs and last_rej:
+            med = float(np.median(rrs[-DET_HIST:]))
+            if cand[j] - cand[keep[-1]] > DET_SEARCH * med:
+                # not the T wave of the last beat: inside the T window a peak must be tall to count
+                ok_rej = [q for q in last_rej if cand[q] - cand[keep[-1]] >= refr and cand[j] - cand[q] >= refr
+                          and (cand[q] - cand[keep[-1]] >= t_gap or h[q] >= DET_T_RATIO * h[keep[-1]])]
+                if ok_rej:
+                    q = max(ok_rej, key=lambda v: h[v])
+                    if h[q] >= max(floor, DET_BACK_K * level()):
+                        accept(q)
+                        last_rej = [v for v in last_rej if v > q]
+        thr = level()
+        if h[j] >= thr:
+            if keep and cand[j] - cand[keep[-1]] < t_gap and h[j] < DET_T_RATIO * h[keep[-1]]:
+                npk = 0.875 * npk + 0.125 * float(h[j])  # T wave
+                last_rej.append(j)
+                continue
+            accept(j)
+            last_rej = []
+        else:
+            npk = 0.875 * npk + 0.125 * float(h[j])
+            last_rej.append(j)
+    return keep
+
+
 def detect_r_peaks(t: np.ndarray, uv: np.ndarray, fs: float) -> Tuple[np.ndarray, np.ndarray]:
     """Indices of R peaks and the baseline-removed signal they were located on."""
     if len(uv) < fs * 5:
@@ -60,36 +129,26 @@ def detect_r_peaks(t: np.ndarray, uv: np.ndarray, fs: float) -> Tuple[np.ndarray
     base = x - _movavg(x, fs * 1.0)  # baseline wander removed, for locating R
     band = _movavg(x - _movavg(x, round(fs / 5)), 3)  # crude 5–15 Hz band-pass
     d = np.diff(band, prepend=band[0])
-    e = _movavg(d * d, round(0.15 * fs))
-    # adaptive threshold: 35 % of the 98th percentile of the energy in 8 s blocks (smoothed)
-    blk = int(8 * fs)
-    nb = int(np.ceil(len(e) / blk))
-    lvl = np.array([np.percentile(e[i * blk:(i + 1) * blk], 98) for i in range(nb)])
-    lvl = np.maximum(lvl, np.median(lvl) * 0.05)
-    thr = 0.35 * np.repeat(lvl, blk)[: len(e)]
-    cand = np.nonzero((e[1:-1] > thr[1:-1]) & (e[1:-1] >= e[:-2]) & (e[1:-1] > e[2:]))[0] + 1
-    refr = int(0.25 * fs)
-    keep: List[int] = []
-    for i in cand:
-        if keep and i - keep[-1] < refr:
-            if e[i] > e[keep[-1]]:
-                keep[-1] = i
-            continue
-        keep.append(int(i))
-    # integration delays the energy peak: R is the largest |base| in [-150 ms, +50 ms]
-    a, b = int(0.15 * fs), int(0.05 * fs)
+    # square root of the integrated energy: same units as the signal, so a tall beat dominates less
+    e = np.sqrt(_movavg(d * d, round(0.15 * fs)))
+    cand = np.nonzero((e[1:-1] >= e[:-2]) & (e[1:-1] > e[2:]))[0] + 1
+    if len(cand) < 5:
+        return np.zeros(0, dtype=int), base
+    keep = _pick_peaks(e[cand], cand, fs)
+    a, b = int(DET_LOC_PRE * fs), int(DET_LOC_POST * fs)
     r = []
-    for i in keep:
+    for i in cand[keep]:
         lo, hi = max(0, i - a), min(len(base), i + b + 1)
         r.append(lo + int(np.argmax(np.abs(base[lo:hi]))))
     r = np.unique(np.array(r, dtype=int))
     # merge peaks that collapsed onto each other after relocation
     if len(r) > 1:
+        refr = int(DET_REFR * fs)
         r = r[np.concatenate([[True], np.diff(r) >= refr])]
     return r, base
 
 
-# ------------------------------------------------------------------ v5 parameters
+# ------------------------------------------------------------------ classification parameters
 # Tuned on MIT-BIH DS1 only (de Chazal 2004 training half); DS2 and INCART are test data.
 REF_K = 15                 # reference: median of pair means over 2*15+1 beats
 PREM_MIN, PREM_MAX = 0.12, 0.20  # required prematurity: between 12 % and 20 % shorter than reference ...
@@ -103,11 +162,16 @@ STRICT_CORR, STRICT_DW = 0.70, 0.04  # any beat: VES if corr < 0.70 (best shift)
 STRICT_AMP = 1.5           # ... or corr < 0.70 and amplitude >= 1.5 × template
 STRICT_CORR0, STRICT_CORR_S = 0.0, 0.80  # ... or inverted at the R peak (corr < 0), < 0.8 at best shift, wide
 AF_WIN = 31                # irregular-rhythm window (intervals)
-AF_THR = 0.10              # median normalised successive difference (min over lags 1-3)
+AF_THR = 0.05              # median normalised successive difference (min over lags 1-3)
 AF_MIN_VALID = 0.2         # at least 20 % of the window must be usable intervals
 AF_MIN_S, AF_MERGE_S = 30.0, 10.0
 AF_PAD_S = 10.0
+P_PRE, P_POST = 0.24, 0.06  # window searched for the P wave, before the R peak (s)
+P_MIN_BEATS = 10
+P_COH, P_AMP = 0.75, 0.05   # P wave present: coherence >= 0.75 and height >= 5 % of the QRS
+P_SMOOTH = 15               # beats either side, median
 RUN_MIN = 3
+MORPH_REACH = 40           # template from normal beats within this many beats
 LONG_RUN_BPM = 100.0       # runs of >= RUN_RATE_FROM beats must be faster than this (tachycardia)
 RUN_RATE_FROM = 3
 
@@ -187,12 +251,13 @@ def _widths(w: np.ndarray, fs: float) -> np.ndarray:
 
 
 def morphology(base: np.ndarray, r: np.ndarray, fs: float, normal: np.ndarray,
-               block: int = 16, reach: int = 40, shift_s: float = 0.04) -> Dict[str, np.ndarray]:
+               block: int = 16, reach: int = 0, shift_s: float = 0.04) -> Dict[str, np.ndarray]:
     """QRS correlation, width difference and amplitude ratio of every beat against the local
     dominant-beat template (median of up to 30 `normal` beats within ±`reach` beats).
 
     The correlation is the best over shifts of up to ±40 ms: the detector puts the fiducial point
     on the largest deflection, which for an RS-shaped complex can be the R or the S wave."""
+    reach = reach or MORPH_REACH
     pre, post = int(QRS_PRE * fs), int(QRS_POST * fs)
     m = int(round(shift_s * fs))
     L = pre + post + 1
@@ -201,6 +266,7 @@ def morphology(base: np.ndarray, r: np.ndarray, fs: float, normal: np.ndarray,
     n = len(r)
     corr = np.full(n, np.nan)
     corr0 = np.full(n, np.nan)
+    shift = np.zeros(n, dtype=int)
     dw = np.full(n, np.nan)
     amp = np.full(n, np.nan)
     use = normal & inside
@@ -222,6 +288,7 @@ def morphology(base: np.ndarray, r: np.ndarray, fs: float, normal: np.ndarray,
             sn = np.sqrt(np.sum(seg * seg, axis=1))
             with np.errstate(invalid="ignore", divide="ignore"):
                 c = np.where(sn > 0, seg @ tc / (sn * tn), -np.inf)
+            shift[s:e][c > best] = sh
             best = np.maximum(best, c)
             if sh == 0:
                 corr0[s:e] = np.where(np.isfinite(c), c, np.nan)
@@ -230,7 +297,41 @@ def morphology(base: np.ndarray, r: np.ndarray, fs: float, normal: np.ndarray,
         dw[s:e] = _widths(w[s:e], fs) - _widths(tpl[None, :], fs)[0]
     corr[~inside] = np.nan
     corr0[~inside] = np.nan
-    return {"corr": corr0, "corr_shift": corr, "dw": dw, "amp": amp}
+    return {"corr": corr0, "corr_shift": corr, "dw": dw, "amp": amp, "shift": shift}
+
+
+def p_wave_presence(base: np.ndarray, r: np.ndarray, fs: float, good: np.ndarray,
+                    reach: int = 20, block: int = 8) -> Tuple[np.ndarray, np.ndarray]:
+    """Per beat: is there a repeating wave before the QRS? Returns (coherence, relative amplitude).
+
+    The −240…−60 ms segments of nearby sinus-like beats are averaged in two halves. A P wave at a
+    fixed distance from the QRS makes the two averages alike (coherence near 1), and their shape
+    has height; in atrial fibrillation there is nothing locked to the QRS, so they do not match.
+    """
+    n = len(r)
+    a, b = int(P_PRE * fs), int(P_POST * fs)
+    L = a - b
+    inside = (r - a >= 0) & (r - b < len(base))
+    w = np.zeros((n, L))
+    w[inside] = base[r[inside, None] + np.arange(-a, -b)]
+    ramp = np.linspace(0.0, 1.0, L)
+    e0, e1 = w[:, :3].mean(axis=1, keepdims=True), w[:, -3:].mean(axis=1, keepdims=True)
+    w = w - (e0 + (e1 - e0) * ramp)  # a straight line between the ends of the segment is not a wave
+    coh, amp = np.full(n, np.nan), np.full(n, np.nan)
+    use = good & inside
+    if not use.any():
+        return coh, amp
+    qrs = float(np.median(np.abs(base[r[use]])))
+    for s in range(0, n, block):
+        e = min(n, s + block)
+        c = np.nonzero(use[max(0, s - reach):min(n, e + reach)])[0] + max(0, s - reach)
+        if len(c) < P_MIN_BEATS:
+            continue
+        odd, even = w[c[::2]].mean(axis=0), w[c[1::2]].mean(axis=0)
+        if odd.std() > 0 and even.std() > 0:
+            coh[s:e] = np.corrcoef(odd, even)[0, 1]
+        amp[s:e] = np.ptp(np.median(w[c], axis=0)) / max(qrs, 1e-9)
+    return coh, amp
 
 
 def classify_beats(t: np.ndarray, uv: np.ndarray, fs: float, duration: float,
@@ -329,7 +430,14 @@ def classify_beats(t: np.ndarray, uv: np.ndarray, fs: float, duration: float,
     irr = irregularity(rr, good_pair & nshape[1:] & nshape[:-1])
     irr_beat = np.full(nb, np.nan)
     irr_beat[1:] = irr
-    eps = af_episodes(rt, np.where(ok, irr_beat, np.nan))
+    # ... and only when no P wave is seen: frequent atrial extra beats are irregular too, but the
+    # sinus beats between them still have a P wave
+    sinus_like = ok & nshape & ~ves_morph & ~prem0 & (np.nan_to_num(prev) >= 0.45)
+    coh, pamp = p_wave_presence(base, r, fs, sinus_like)
+    coh_s = _nanmedian_rows(_sliding(coh, P_SMOOTH), 5)
+    amp_s = _nanmedian_rows(_sliding(pamp, P_SMOOTH), 5)
+    p_seen = (coh_s >= P_COH) & (amp_s >= P_AMP)
+    eps = af_episodes(rt, np.where(ok & ~p_seen, irr_beat, np.nan))
     in_af = np.zeros(nb, bool)
     for a0, b0 in eps:
         in_af |= (rt >= a0) & (rt <= b0)

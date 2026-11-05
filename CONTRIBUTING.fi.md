@@ -11,9 +11,9 @@ Kiitos, että haluat auttaa! Virheilmoitukset, parannusehdotukset ja koodi ovat 
 - Koodin on toimittava Python 3.9:llä (macOS:n Command Line Tools -Python).
 - Ei pilvipalveluja, ulkoista analytiikkaa eikä telemetriaa: data pysyy käyttäjän koneella.
 - Analyysiin vaikuttavat muutokset: aja myös validointi molemmilla aineistoilla
-  (`python -m openholter validate --mitdb <kansio> --incartdb <kansio>`, ks. `docs/VALIDATION.md`)
+  (`python -m openholter validate --mitdb <kansio> --incartdb <kansio> --svdb <kansio> --afdb <kansio>`, ks. `docs/VALIDATION.md`)
   ja liitä tulokset pull requestiin, myös jos ne heikkenevät. Säädä parametreja vain MIT-BIH:n DS1-puoliskolla.
-  DS2 ja INCART ovat testidataa, ja niiden tulokset raportoidaan ilman uudelleensäätöä.
+  Muut aineistot ovat testidataa, ja niiden tulokset raportoidaan ilman uudelleensäätöä.
 
 ## Contributor License Agreement (CLA)
 

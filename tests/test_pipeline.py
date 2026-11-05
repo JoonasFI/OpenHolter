@@ -194,9 +194,9 @@ def test_v5_sves_runs_af_and_late_ves():
     t = 0.5
     while t < dur + 5:
         rr = 1.0 * (1 + 0.04 * np.sin(2 * np.pi * 0.25 * t)) * (1 + rng.normal(0, 0.008))
-        if 600 <= t < 780:  # atrial fibrillation: irregularly irregular, normal QRS
+        if 600 <= t < 780:  # atrial fibrillation: irregularly irregular, normal QRS, no P wave
             t += rng.uniform(0.5, 1.2)
-            beats.append((t, "N"))
+            beats.append((t, "F"))
             continue
         k = len(beats)
         if 100 < t < 590 and k % 23 == 0:  # SVES: 30 % early, the next interval only a normal one (sinus reset)
@@ -247,6 +247,34 @@ def test_v5_sves_runs_af_and_late_ves():
     ect = ectopy_ecg(tt, uv, fs, dur, None, None, 0)
     assert ect["af_episodes"] == af and ect["runs"] == res["runs"] and ect["af_seconds"] > 140
     assert ect["ves_morphology_only"] >= len(late)
+
+
+def test_frequent_atrial_beats_are_not_af():
+    """An irregular rhythm with P waves (frequent atrial extra beats) is not reported as AF, and its
+    SVES are kept. This is what v5 got wrong: it took such recordings for atrial fibrillation."""
+    from openholter.beats import classify_beats
+    from openholter.simulator import SyntheticBody
+    rng = np.random.default_rng(8)
+    dur = 900.0
+    beats, sves = [(0.5, "N")], []
+    t = 0.5
+    while t < dur + 5:
+        rr = 1.0 + rng.normal(0, 0.01)
+        if len(beats) > 3 and rng.random() < 0.3 and beats[-1][0] not in sves:
+            t += rr * rng.uniform(0.6, 0.75)
+            sves.append(t)
+        else:
+            t += rr
+        beats.append((t, "N"))
+    body = SyntheticBody(seed=8, night=False)
+    body.beats = beats
+    fs = 130.0
+    uv = body.ecg(0, int(dur * fs), fs).astype(float)
+    res = classify_beats(np.arange(len(uv)) / fs, uv, fs, dur, None)
+    assert res["af_episodes"] == []
+    st = np.array([d["t"] for d in res["details"] if d["kind"] == "sves"])
+    inner = [x for x in sves if 61 < x < dur - 61]
+    assert np.mean([len(st) > 0 and np.min(np.abs(st - x)) < 0.06 for x in inner]) > 0.8
 
 
 if __name__ == "__main__":

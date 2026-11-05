@@ -6,7 +6,7 @@ This page describes how OpenHolter's beat and extra-beat analysis has been teste
 The weaknesses are reported too, including the places where the new version is worse than the old one. You can rerun
 the test yourself and should get a bit-for-bit identical result.
 
-**Tested version:** OpenHolter 0.3.0, analysis version 5 (`openholter/beats.py`), tested 3 November 2026.
+**Latest version:** analysis version 6 (`openholter/beats.py`), tested 5 November 2026, see [Analysis version 6](#analysis-version-6-latest). Analysis version 5 was tested on 3 November 2026.
 The results of the previous version (analysis version 4) are [kept unchanged below](#analysis-version-4-earlier-result-unchanged).
 
 **Raw results and per-record tables** (`docs/validation/`):
@@ -21,6 +21,91 @@ VES/SVES viite = reference count, löydetty = found, Väärä hälytys normaalis
 
 > OpenHolter is not a medical device. The validation describes the algorithm's performance on known research
 > data, not whether it is suitable for diagnosis. It is not.
+
+## Analysis version 6 (latest)
+
+Version 6 was made because v5's SVES detection did not generalise and QRS detection limited everything else. The v5 and
+v4 sections below are unchanged.
+
+### Results
+
+Parameters were tuned on DS1 only and locked. All datasets were then run once, and nothing was changed afterwards.
+**Only SVDB and AFDB are a clean test**: they were downloaded for this round and opened only after locking. DS2 and INCART
+results were seen with v5, and the causes found there guided the design of v6, although no numbers were tuned on them.
+Their improvement is therefore probably optimistic. Values are Se / +P in per cent.
+
+| Dataset | QRS v5 → v6 | VES v5 → v6 | SVES v5 → v6 |
+|---|---:|---:|---:|
+| **SVDB, 78 records (clean test)** | 99.2 / 99.9 → **99.9 / 99.4** | 61.9 / 82.2 → **59.6 / 79.5** | 49.4 / 76.6 → **53.6 / 75.1** |
+| DS2 (seen) | 97.9 / 99.9 → 99.9 / 99.7 | 70.6 / 93.1 → 82.6 / 91.8 | 10.9 / 43.4 → 12.7 / 48.2 |
+| INCART (seen) | 95.3 / 99.6 → 99.8 / 99.0 | 59.3 / 89.7 → 78.1 / 89.9 | 70.1 / 57.1 → 87.6 / 66.3 |
+| DS1 (tuning data, optimistic) | 97.3 / 99.9 → 99.8 / 99.8 | 65.8 / 92.0 → 82.2 / 90.0 | 70.4 / 83.6 → 74.1 / 82.1 |
+| MIT-BIH all | 97.4 / 99.9 → 99.9 / 99.7 | 68.0 / 92.5 → 82.4 / 90.8 | 30.4 / 68.3 → 32.9 / 69.4 |
+
+Single extra beats (both neighbours normal), sensitivity; any extra-beat mark counts as found:
+
+| Dataset | VES all single | VES typical | SVES all single | SVES typical |
+|---|---:|---:|---:|---:|
+| SVDB (clean test) | 74.2 → 74.0 | 89.4 → 88.5 | 52.7 → **71.5** | 63.1 → **90.8** |
+| MIT-BIH all | 76.1 → 90.9 | 79.4 → 96.0 | 61.6 → 73.3 | 72.8 → 90.0 |
+| INCART (seen) | 65.7 → 85.7 | 73.7 → 92.3 | 77.1 → 95.7 | 79.5 → 98.0 |
+
+Atrial fibrillation and irregular rhythm:
+
+| Dataset and measure | v5 | v6 |
+|---|---:|---:|
+| **AFDB, 23 records, 233 h, second by second (clean test): Se / +P** | 83.3 / 95.2 | **80.9 / 99.1** |
+| AFDB: non-AF time classified correctly (specificity) | 97.1 | 99.5 |
+| AFDB: records where at least half of the AF was found | 21 / 23 | 18 / 23 |
+| MIT-BIH all, by beat: Se / +P | 82.4 / 87.1 | 93.4 / 75.6 |
+| INCART, by beat: Se / +P (2 AF records) | 0 / 0 | 27.6 / 44.7 |
+| SVDB: records with an episode reported (no rhythm annotations, so correctness cannot be judged) | 25 | 13 |
+
+Runs Se / +P: SVDB 26.6 / 45.3 → 28.0 / 41.5; DS2 2.4 / 57.1 → 5.3 / 39.1; INCART 24.1 / 33.6 → 57.2 / 51.3.
+Per-record tables are in `docs/validation/{mitdb,incartdb,svdb,afdb}-v6-*` and `{svdb,afdb}-v5-*` (v5 was run on the new
+datasets for comparison).
+
+### Interpretation
+
+- **Beat detection is now at a good level** on all datasets (Se 99.8–99.9 %). There are slightly more false detections than
+  before, especially on INCART (+P 99.0 %).
+- **Typical single SVES improved clearly on the clean test** (63 → 91 %), while the overall SVES figure improved only a little.
+  For an ordinary user this is the most important improvement.
+- **False atrial fibrillation alarms fell on the clean test** (+P 95 → 99 %, specificity 97.1 → 99.5 %). The price is slightly
+  lower sensitivity, and over half of the AF is missed in five records out of 23.
+- **VES did not improve on the clean test** but got slightly worse (61.9 / 82.2 → 59.6 / 79.5). The improvement elsewhere was
+  large (MIT-BIH 68 → 82 %). The weaker SVDB result shows that the VES improvement does not generalise to all data.
+
+SVES and VES counts are still indicative only. Treatment decisions must not be based on them.
+
+### What changed
+
+1. **QRS detector.** v5's threshold was fixed per 8 s block, so one tall beat raised it enough to hide neighbouring beats and wide
+   VES. v6's threshold follows the last beats (threshold = noise level + 0.4 × (signal level − noise level); signal level is the
+   median of the last 8 peaks). There is also Pan–Tompkins style search-back (when a gap exceeds 1.5 times the usual, the highest
+   rejected peak is rechecked at half the threshold) and T-wave rejection (within 420 ms, under half of the previous peak).
+2. **Atrial fibrillation requires the P wave to be absent.** Irregularity alone confused frequent atrial extra beats with AF.
+   v6 averages the −240…−60 ms segments of nearby beats in two halves. A repeating P wave makes the halves alike. The P wave counts
+   as visible when their correlation is at least 0.75 and its height at least 5 % of the QRS. An AF episode needs no visible P wave
+   and irregularity above 0.05 (v5 used irregularity above 0.10 alone).
+3. **Tuning and testing.** Tuned on DS1, about 40 variants tried. A wider template window was tried and not adopted. Readers for SVDB
+   and AFDB and a simulator test for frequent atrial extra beats were added.
+
+The analysis result fields are the same as in v5, so the user interface needs no changes.
+
+### Known weaknesses
+
+- **One fault can reject a whole run.** In record 865 (SVDB) a run of about 1,000 beats went entirely unmarked in v6, although v5 found
+  it: found SVES dropped from 1,740 to 677. This one record lowered SVDB's overall SVES sensitivity by about 10.6 percentage points. The rule accepts a sequence as a
+  whole. The exact trigger has not been established.
+- **False AF episodes on MIT-BIH:** +P fell from 87 to 76 %; for example record 200 has 819 beats in episodes without AF. In record 222
+  false SVES increased (9 → 71).
+- **INCART's AF:** only part of records I49 and I50 is found (Se 28 %).
+- **Records where an atrial beat is the dominant rhythm** (MIT 232, SVDB 822) go almost entirely undetected.
+- **More false VES marks,** especially in noisy records (INCART I54 156 → 267, I01 273 → 337).
+- **AF detection has been tested only on Holter leads.** The P-wave height in the H10's chest lead
+  can differ, so the 5 % limit must be checked on real H10 data.
+- **No untouched datasets remain.** SVDB and AFDB have now been seen as well. The next round needs a new test dataset.
 
 ## Summary: v5 compared with v4
 
@@ -264,6 +349,13 @@ Neither dataset is distributed with OpenHolter. They are downloaded from PhysioN
 `SHA256SUMS.txt` (MIT-BIH: 704 files, INCART: 230 files, all matched). In INCART's `SHA256SUMS.txt` the hash and name are separated
 by a single space, so `shasum -c` does not read it directly (see [Run it yourself](#run-it-yourself)).
 
+**[MIT-BIH Supraventricular Arrhythmia Database](https://physionet.org/content/svdb/1.0.0/)** (SVDB; Greenwald et al. 1990):
+78 half-hour two-channel records, 128 Hz, first channel, same EC57 rules.
+**[MIT-BIH Atrial Fibrillation Database](https://physionet.org/content/afdb/1.0.0/)** (AFDB; Moody & Mark 1983): 23 records of about
+10 hours, 250 Hz, first channel. The beat annotations are unaudited, so only the rhythm is scored, second by second, against the
+`(AFIB` and `(AFL` annotations, leaving out the first and last minute. Both are licensed under Open Data Commons Attribution 1.0, and
+the files matched `SHA256SUMS.txt` (416 and 155 files).
+
 ## Method
 
 The test follows **ANSI/AAMI EC57** (testing of arrhythmia algorithms) as in v4:
@@ -415,8 +507,15 @@ curl -L -o incartdb.zip https://physionet.org/static/published-projects/incartdb
 unzip incartdb.zip -d incartdb
 cd incartdb/files && sed 's/ /  /' SHA256SUMS.txt | shasum -a 256 -c - && cd ../..
 
-# 3. run the validation (under a minute for both)
-python -m openholter validate --mitdb mit-bih-arrhythmia-database-1.0.0 --incartdb incartdb/files --out docs/validation
+# 3. download SVDB (55 MB) and AFDB (461 MB) the same way (the checksum file has a single space between hash and name)
+curl -LO https://physionet.org/static/published-projects/svdb/mit-bih-supraventricular-arrhythmia-database-1.0.0.zip
+unzip mit-bih-supraventricular-arrhythmia-database-1.0.0.zip
+curl -L -o afdb.zip https://physionet.org/static/published-projects/afdb/mit-bih-atrial-fibrillation-database-1.0.0.zip
+unzip afdb.zip -d afdb
+
+# 4. run the validation (a few minutes, AFDB holds 233 hours)
+python -m openholter validate --mitdb mit-bih-arrhythmia-database-1.0.0 --incartdb incartdb/files \
+  --svdb mit-bih-supraventricular-arrhythmia-database-1.0.0 --afdb afdb/files --out docs/validation
 ```
 
 The command writes `docs/validation/<dataset>-v<analysis version>-results.json` and `-records.md`. The MIT-BIH JSON contains the
@@ -430,6 +529,10 @@ the result gets worse. Tune only on DS1 and say what you tuned.
 - Moody GB, Mark RG. The impact of the MIT-BIH Arrhythmia Database. *IEEE Eng Med Biol* 20(3):45–50 (2001).
 - Tihonenko V, Khaustov A, Ivanov S, Rivin A, Yakushenko E. St Petersburg INCART 12-lead Arrhythmia Database.
   PhysioNet (2008). doi:10.13026/C2V88N.
+- Greenwald SD, Patil RS, Mark RG. Improved detection and classification of arrhythmias in noise-corrupted
+  electrocardiograms using contextual information. *Computers in Cardiology* 17:461–464 (1990). (SVDB)
+- Moody GB, Mark RG. A new method for detecting atrial fibrillation using R-R intervals.
+  *Computers in Cardiology* 10:227–230 (1983). (AFDB)
 - Goldberger AL et al. PhysioBank, PhysioToolkit, and PhysioNet. *Circulation* 101(23):e215–e220 (2000).
 - ANSI/AAMI EC57: Testing and reporting performance results of cardiac rhythm and ST segment measurement algorithms.
 - de Chazal P, O'Dwyer M, Reilly RB. Automatic classification of heartbeats using ECG morphology and heartbeat

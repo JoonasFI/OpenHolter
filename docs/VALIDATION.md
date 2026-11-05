@@ -6,7 +6,7 @@ Tämä sivu kertoo, miten OpenHolterin lyönti- ja lisälyöntianalyysi on testa
 Myös heikot kohdat on kerrottu, ja myös ne kohdat, joissa uusi versio on vanhaa huonompi. Testin voi ajaa itse
 uudelleen, ja tuloksen pitäisi olla bitilleen sama.
 
-**Testattu versio:** OpenHolter 0.3.0, analyysiversio 5 (`openholter/beats.py`), testattu 3.11.2026.
+**Uusin versio:** analyysiversio 6 (`openholter/beats.py`), testattu 5.11.2026, ks. [Analyysiversio 6](#analyysiversio-6-uusin). Analyysiversio 5 testattiin 3.11.2026.
 Edellisen version (analyysiversio 4) tulokset ovat [alempana ennallaan](#analyysiversio-4-aiempi-tulos-ennallaan).
 
 **Raakatulokset ja tallennekohtaiset taulukot** (`docs/validation/`):
@@ -18,6 +18,92 @@ Edellisen version (analyysiversio 4) tulokset ovat [alempana ennallaan](#analyys
 
 > OpenHolter ei ole lääkinnällinen laite. Validointi kertoo algoritmin suorituskyvystä tunnetussa
 > tutkimusaineistossa, ei siitä, sopiiko se diagnoosiin. Se ei sovi.
+
+## Analyysiversio 6 (uusin)
+
+Versio 6 tehtiin, koska v5:n SVES ei yleistynyt ja QRS-tunnistus rajoitti kaikkea muuta. Alla olevat v5:n ja v4:n
+osiot ovat ennallaan.
+
+### Tulokset
+
+Parametrit säädettiin vain DS1:llä ja lukittiin. Sen jälkeen kaikki aineistot ajettiin kerran, eikä mitään muutettu.
+**Puhdas testi ovat vain SVDB ja AFDB**, koska ne ladattiin tätä kierrosta varten ja avattiin vasta lukituksen jälkeen. DS2:n ja
+INCARTin tuloksia nähtiin v5:ssä, ja niistä selvinneet syyt ohjasivat v6:n suunnittelua, vaikka numeroita ei
+säädetty niillä. Niiden parannus on siksi todennäköisesti optimistinen. Luvut ovat Se / +P prosentteina.
+
+| Aineisto | QRS v5 → v6 | VES v5 → v6 | SVES v5 → v6 |
+|---|---:|---:|---:|
+| **SVDB, 78 tallennetta (puhdas testi)** | 99,2 / 99,9 → **99,9 / 99,4** | 61,9 / 82,2 → **59,6 / 79,5** | 49,4 / 76,6 → **53,6 / 75,1** |
+| DS2 (nähty) | 97,9 / 99,9 → 99,9 / 99,7 | 70,6 / 93,1 → 82,6 / 91,8 | 10,9 / 43,4 → 12,7 / 48,2 |
+| INCART (nähty) | 95,3 / 99,6 → 99,8 / 99,0 | 59,3 / 89,7 → 78,1 / 89,9 | 70,1 / 57,1 → 87,6 / 66,3 |
+| DS1 (säätödata, optimistinen) | 97,3 / 99,9 → 99,8 / 99,8 | 65,8 / 92,0 → 82,2 / 90,0 | 70,4 / 83,6 → 74,1 / 82,1 |
+| MIT-BIH kaikki | 97,4 / 99,9 → 99,9 / 99,7 | 68,0 / 92,5 → 82,4 / 90,8 | 30,4 / 68,3 → 32,9 / 69,4 |
+
+Yksittäiset lisälyönnit (molemmat naapurit normaaleja), herkkyys; löydetyksi lasketaan mikä tahansa lisälyöntimerkintä:
+
+| Aineisto | VES kaikki yksittäiset | VES tyypillinen | SVES kaikki yksittäiset | SVES tyypillinen |
+|---|---:|---:|---:|---:|
+| SVDB (puhdas testi) | 74,2 → 74,0 | 89,4 → 88,5 | 52,7 → **71,5** | 63,1 → **90,8** |
+| MIT-BIH kaikki | 76,1 → 90,9 | 79,4 → 96,0 | 61,6 → 73,3 | 72,8 → 90,0 |
+| INCART (nähty) | 65,7 → 85,7 | 73,7 → 92,3 | 77,1 → 95,7 | 79,5 → 98,0 |
+
+Eteisvärinä ja epäsäännöllinen rytmi:
+
+| Aineisto ja mittari | v5 | v6 |
+|---|---:|---:|
+| **AFDB, 23 tallennetta, 233 h, sekunneittain (puhdas testi): Se / +P** | 83,3 / 95,2 | **80,9 / 99,1** |
+| AFDB: ei-eteisvärinäajasta oikein luokiteltu (spesifisyys) | 97,1 | 99,5 |
+| AFDB: tallenteita, joista löytyi vähintään puolet eteisvärinästä | 21 / 23 | 18 / 23 |
+| MIT-BIH kaikki, lyönneittäin: Se / +P | 82,4 / 87,1 | 93,4 / 75,6 |
+| INCART, lyönneittäin: Se / +P (2 eteisvärinätallennetta) | 0 / 0 | 27,6 / 44,7 |
+| SVDB: tallenteita, joissa ilmoitettiin jakso (ei rytmimerkintöjä, joten oikeellisuutta ei voi arvioida) | 25 | 13 |
+
+Sarjat Se / +P: SVDB 26,6 / 45,3 → 28,0 / 41,5; DS2 2,4 / 57,1 → 5,3 / 39,1; INCART 24,1 / 33,6 → 57,2 / 51,3.
+Tallennekohtaiset taulukot ovat tiedostoissa
+`docs/validation/{mitdb,incartdb,svdb,afdb}-v6-*` ja `{svdb,afdb}-v5-*` (v5 on ajettu uusilla aineistoilla vertailuksi).
+
+### Tulkinta
+
+- **Lyöntien tunnistus on nyt hyvällä tasolla** kaikissa aineistoissa (Se 99,8–99,9 %). Vääriä tunnistuksia on hieman
+  enemmän kuin ennen, varsinkin INCARTissa (+P 99,0 %).
+- **Tyypilliset yksittäiset SVES-lyönnit parantuivat puhtaassa testissä selvästi** (63 → 91 %), kun taas koko SVES-luku
+  parani vain vähän. Tavalliselle käyttäjälle tämä on tärkein parannus.
+- **Eteisvärinän väärät hälytykset vähenivät puhtaassa testissä** (+P 95 → 99 %, spesifisyys 97,1 → 99,5 %). Hintana
+  herkkyys laski hieman, ja yli puolet eteisvärinästä jää löytymättä viidessä tallenteessa 23:sta.
+- **VES ei parantunut puhtaassa testissä**, vaan heikkeni hieman (61,9 / 82,2 → 59,6 / 79,5). Muissa aineistoissa parannus oli suuri
+  (MIT-BIH 68 → 82 %). SVDB:n heikompi tulos näyttää, että VES-parannus ei yleisty kaikkeen dataan.
+
+SVES- ja VES-määriä pitää edelleen pitää suuntaa antavina. Lukuihin ei pidä perustaa hoitopäätöksiä.
+
+### Mitä muutettiin
+
+1. **QRS-tunnistin.** v5:n kynnys oli kiinteä 8 sekunnin lohkossa, joten yksi korkea lyönti nosti sen niin, että viereiset
+   lyönnit ja leveät VES-lyönnit jäivät alle. v6:n kynnys seuraa viimeisiä lyöntejä (kynnys = kohinataso + 0,4 ×
+   (signaalitaso − kohinataso); signaalitaso on 8 viime huipun mediaani). Lisäksi on Pan–Tompkins-tyyppinen
+   takaisinhaku (jos väli kasvaa yli 1,5-kertaiseksi, korkein hylätty huippu tarkistetaan puolikkaalla kynnyksellä) ja
+   T-aallon hylkäys (420 ms:n sisällä alle puolet edellisen huipusta).
+2. **Eteisvärinä vaatii P-aallon puuttumisen.** Pelkkä epäsäännöllisyys sekoitti tiheät eteislisälyönnit eteisvärinään.
+   v6 keskiarvoistaa lähilyöntien −240…−60 ms:n jaksot kahdessa puoliskossa. Toistuva P-aalto saa puoliskot
+   samanlaisiksi. P-aalto katsotaan näkyväksi, kun niiden korrelaatio on vähintään 0,75 ja korkeus vähintään 5 % QRS:stä.
+   Eteisvärinäjakso syntyy vain, jos P-aaltoa ei näy ja epäsäännöllisyys ylittää 0,05 (v5:ssä pelkkä raja 0,10).
+3. **Säätö ja testaus.** Säädettiin DS1:llä. Kokeiltiin noin 40 muunnelmaa. Mallin laajempi ikkuna kokeiltiin mutta ei otettu käyttöön.
+   Lisäksi lisättiin SVDB:n ja AFDB:n lukijat ja simulaattoritesti tiheille eteislisälyönneille.
+
+Analyysin tuloskentät ovat samat kuin v5:ssä, joten käyttöliittymä ei vaadi muutoksia.
+
+### Tunnetut heikkoudet
+
+- **Yksi virhe voi hylätä koko sarjan.** Tallenteessa 865 (SVDB) noin 1 000 lyönnin sarja jäi v6:ssa kokonaan
+  merkitsemättä, kun v5 löysi sen: SVES-löydöt putosivat 1 740:stä 677:ään. Tämä yksi tallenne laski SVDB:n koko
+  SVES-herkkyyttä noin 10,6 prosenttiyksikköä. Sääntö hyväksyy jonon kokonaisuutena. Tarkkaa laukaisijaa ei ole selvitetty.
+- **Vääriä eteisvärinäjaksoja MIT-BIH:ssä:** +P laski 87:stä 76 %:iin, esimerkiksi tallenteessa 200 on 819 lyöntiä
+  jaksoissa ilman eteisvärinää. Tallenteessa 222 SVES-väärät lisääntyivät (9 → 71).
+- **INCARTin eteisvärinä:** tallenteista I49 ja I50 löytyy vain osa (Se 28 %).
+- **Tallenteet, joissa eteislyönti on vallitseva rytmi** (MIT 232, SVDB 822), jäävät lähes kokonaan löytymättä.
+- **Vääriä VES-merkintöjä lisää** erityisesti kohinaisissa tallenteissa (INCART I54 156 → 267, I01 273 → 337).
+- **Eteisvärinän tunnistus on testattu vain Holter-kytkennöillä.** P-aallon
+  korkeus H10:n rintakytkennässä voi olla erilainen, joten raja 5 % pitää tarkistaa oikealla H10-datalla.
+- **Koskemattomia aineistoja ei enää ole.** Myös SVDB ja AFDB on nyt nähty. Seuraava kierros tarvitsee uuden testiaineiston.
 
 ## Yhteenveto: v5 verrattuna v4:ään
 
@@ -278,6 +364,13 @@ PhysioNetin `SHA256SUMS.txt`-tiedostoa vasten (MIT-BIH: 704 tiedostoa, INCART: 2
 INCARTin `SHA256SUMS.txt`:ssä tiiviste ja nimi erotetaan yhdellä välilyönnillä, joten `shasum -c` ei lue sitä
 suoraan (ks. [Aja itse](#aja-itse)).
 
+**[MIT-BIH Supraventricular Arrhythmia Database](https://physionet.org/content/svdb/1.0.0/)** (SVDB; Greenwald ym. 1990):
+78 puolen tunnin kaksikanavaista tallennetta, 128 Hz, ensimmäinen kanava, samat EC57-säännöt.
+**[MIT-BIH Atrial Fibrillation Database](https://physionet.org/content/afdb/1.0.0/)** (AFDB; Moody & Mark 1983): 23
+noin 10 tunnin tallennetta, 250 Hz, ensimmäinen kanava. Lyöntimerkinnät eivät ole tarkastettuja, joten vain rytmi
+pisteytetään sekunneittain merkintöjä `(AFIB` ja `(AFL` vasten, ensimmäinen ja viimeinen minuutti pois. Molempien
+lisenssi on Open Data Commons Attribution 1.0, ja tiedostot täsmäsivät `SHA256SUMS.txt`:ään (416 ja 155 tiedostoa).
+
 ## Menetelmä
 
 Testi noudattaa standardia **ANSI/AAMI EC57** (rytmihäiriöalgoritmien testaus) samoin kuin v4:ssä:
@@ -467,8 +560,15 @@ curl -L -o incartdb.zip https://physionet.org/static/published-projects/incartdb
 unzip incartdb.zip -d incartdb
 cd incartdb/files && sed 's/ /  /' SHA256SUMS.txt | shasum -a 256 -c - && cd ../..
 
-# 3. aja validointi (alle minuutti molemmille)
-python -m openholter validate --mitdb mit-bih-arrhythmia-database-1.0.0 --incartdb incartdb/files --out docs/validation
+# 3. lataa SVDB (55 Mt) ja AFDB (461 Mt) samalla tavalla (tiedostossa yksi välilyönti tiivisteen ja nimen välissä)
+curl -LO https://physionet.org/static/published-projects/svdb/mit-bih-supraventricular-arrhythmia-database-1.0.0.zip
+unzip mit-bih-supraventricular-arrhythmia-database-1.0.0.zip
+curl -L -o afdb.zip https://physionet.org/static/published-projects/afdb/mit-bih-atrial-fibrillation-database-1.0.0.zip
+unzip afdb.zip -d afdb
+
+# 4. aja validointi (muutama minuutti, AFDB:ssä 233 tuntia)
+python -m openholter validate --mitdb mit-bih-arrhythmia-database-1.0.0 --incartdb incartdb/files \
+  --svdb mit-bih-supraventricular-arrhythmia-database-1.0.0 --afdb afdb/files --out docs/validation
 ```
 
 Komento kirjoittaa tiedostot `docs/validation/<aineisto>-v<analyysiversio>-results.json` ja `-records.md`.
@@ -482,6 +582,10 @@ pull requestiin, myös silloin, kun tulos heikkenee. Säädä vain DS1:llä ja k
 - Moody GB, Mark RG. The impact of the MIT-BIH Arrhythmia Database. *IEEE Eng Med Biol* 20(3):45–50 (2001).
 - Tihonenko V, Khaustov A, Ivanov S, Rivin A, Yakushenko E. St Petersburg INCART 12-lead Arrhythmia Database.
   PhysioNet (2008). doi:10.13026/C2V88N.
+- Greenwald SD, Patil RS, Mark RG. Improved detection and classification of arrhythmias in noise-corrupted
+  electrocardiograms using contextual information. *Computers in Cardiology* 17:461–464 (1990). (SVDB)
+- Moody GB, Mark RG. A new method for detecting atrial fibrillation using R-R intervals.
+  *Computers in Cardiology* 10:227–230 (1983). (AFDB)
 - Goldberger AL ym. PhysioBank, PhysioToolkit, and PhysioNet. *Circulation* 101(23):e215–e220 (2000).
 - ANSI/AAMI EC57: Testing and reporting performance results of cardiac rhythm and ST segment measurement algorithms.
 - de Chazal P, O'Dwyer M, Reilly RB. Automatic classification of heartbeats using ECG morphology and heartbeat

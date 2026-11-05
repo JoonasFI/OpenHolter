@@ -5,6 +5,8 @@ PhysioNet's SHA256SUMS.txt and run:
 
     python -m openholter validate --mitdb /path/to/mit-bih-arrhythmia-database-1.0.0
     python -m openholter validate --incartdb /path/to/incart/files
+    python -m openholter validate --svdb /path/to/mit-bih-supraventricular-arrhythmia-database-1.0.0
+    python -m openholter validate --afdb /path/to/mit-bih-atrial-fibrillation-database/files
 
 MIT-BIH results are also given separately for the de Chazal et al. (2004) halves DS1 and
 DS2. Analysis v5 was tuned on DS1 only; DS2 and INCART are held-out test data.
@@ -12,6 +14,12 @@ DS2. Analysis v5 was tuned on DS1 only; DS2 and INCART are held-out test data.
 INCART (St Petersburg INCART 12-lead Arrhythmia Database): 75 records of 30 min at 257 Hz,
 format 16; lead II is used, resampled 257 → 130 Hz. The same EC57 rules apply (there are
 no paced records).
+
+SVDB (MIT-BIH Supraventricular Arrhythmia Database): 78 records of 30 min at 128 Hz, first
+channel, same rules. AFDB (MIT-BIH Atrial Fibrillation Database): 23 records of about 10 h at
+250 Hz with rhythm annotations only, so only irregular-rhythm episodes are scored, second by
+second, against the (AFIB and (AFL annotations. Analysis v6 was tuned on DS1 only and SVDB and
+AFDB were run only after its parameters were locked; DS2 and INCART had been seen with v5.
 
 What is done, so that the numbers can be checked and reproduced:
 
@@ -39,7 +47,7 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
-from .beats import classify_beats, detect_r_peaks
+from .beats import EDGE_S, classify_beats, detect_r_peaks
 
 FS_OUT = 130.0
 TOL = 0.150
@@ -70,7 +78,7 @@ def read_header(path: Path) -> Dict[str, Any]:
     sigs = []
     for ln in lines[1:1 + int(nsig)]:
         f = ln.split()
-        gain = float(f[2].split("(")[0].split("/")[0])
+        gain = float(f[2].split("(")[0].split("/")[0]) or 200.0  # WFDB: gain 0 means the default, 200 adu/mV
         baseline = int(f[2].split("(")[1].split(")")[0]) if "(" in f[2] else int(f[4])
         sigs.append({"file": f[0], "fmt": f[1], "gain": gain, "baseline": baseline, "desc": " ".join(f[8:])})
     return {"name": name, "nsig": int(nsig), "fs": float(fs), "nsamp": int(nsamp), "signals": sigs}
@@ -395,7 +403,65 @@ DATABASES = {
     "mitdb": {"title": "MIT-BIH Arrhythmia Database 1.0.0 (PhysioNet)", "lead": "", "paced": PACED},
     "incartdb": {"title": "St Petersburg INCART 12-lead Arrhythmia Database 1.0.0 (PhysioNet)", "lead": "II",
                  "paced": set()},
+    "svdb": {"title": "MIT-BIH Supraventricular Arrhythmia Database 1.0.0 (PhysioNet)", "lead": "", "paced": set()},
 }
+AFDB_TITLE = "MIT-BIH Atrial Fibrillation Database 1.0.0 (PhysioNet)"
+
+
+def run_af_record(db: Path, rec: str) -> Dict[str, Any]:
+    """Irregular-rhythm episodes vs the rhythm annotations, second by second (first and last minute out)."""
+    h = read_header(db / f"{rec}.hea")
+    uv, sig = read_signal(db, h)
+    x = resample(uv, h["fs"], FS_OUT)
+    t = np.arange(len(x)) / FS_OUT
+    duration = len(x) / FS_OUT
+    samp, codes, aux = read_atr(db / f"{rec}.atr")
+    ref = _rhythm_spans(samp / h["fs"], codes, aux, duration, ("(AFIB", "(AFL"))
+    t0 = time.perf_counter()
+    res = classify_beats(t, x, FS_OUT, duration, None)
+    elapsed = time.perf_counter() - t0
+    secs = np.arange(EDGE_S, duration - EDGE_S)
+    in_ref = _excluded(secs, ref)
+    in_det = _excluded(secs, [(e["start"], e["end"]) for e in res["af_episodes"]])
+    return {"record": rec, "lead": sig["desc"], "duration_s": round(duration, 1), "elapsed_s": round(elapsed, 2),
+            "ref_s": int(in_ref.sum()), "det_s": int(in_det.sum()), "both_s": int((in_ref & in_det).sum()),
+            "scored_s": int(len(secs)), "episodes": len(res["af_episodes"]), "ref_episodes": len(ref)}
+
+
+def summarize_af(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
+    ref, det, both = (sum(r[k] for r in rows) for k in ("ref_s", "det_s", "both_s"))
+    total = sum(r["scored_s"] for r in rows)
+    with_ref = [r for r in rows if r["ref_s"] >= 60]
+    per_rec = [100.0 * r["both_s"] / r["ref_s"] for r in with_ref]
+    return {"records": len(rows), "scored_h": round(total / 3600, 1), "ref_h": round(ref / 3600, 1),
+            "det_h": round(det / 3600, 1), "se": _ratio(both, ref), "ppv": _ratio(both, det),
+            "specificity": _ratio(total - ref - det + both, total - ref),
+            "records_with_ref": len(with_ref), "records_found_half": sum(1 for v in per_rec if v >= 50.0)}
+
+
+def validate_afdb(db: Path, out: Path) -> Dict[str, Any]:
+    recs = [r for r in (db / "RECORDS").read_text().split() if (db / f"{r}.dat").exists()]
+    rows = []
+    for rec in recs:
+        row = run_af_record(db, rec)
+        rows.append(row)
+        print(f"{rec}: AF ref {row['ref_s']} s, found {row['both_s']} s, reported {row['det_s']} s", flush=True)
+    from . import __version__
+    from .analysis import ANALYSIS_VERSION
+    result = {"openholter_version": __version__, "analysis_version": ANALYSIS_VERSION, "database": AFDB_TITLE,
+              "fs_hz": FS_OUT, "end_excluded_s": EDGE_S, "summary": summarize_af(rows), "records": rows}
+    out.mkdir(parents=True, exist_ok=True)
+    stem = f"afdb-v{ANALYSIS_VERSION}"
+    (out / f"{stem}-results.json").write_text(json.dumps(result, indent=1, ensure_ascii=False))
+    L = [f"<!-- generated by `python -m openholter validate`, OpenHolter {__version__}, analysis v{ANALYSIS_VERSION} -->",
+         f"Aineisto: {AFDB_TITLE}, analyysiversio {ANALYSIS_VERSION}. Mitattu sekunneittain.", "",
+         "| Tallenne | Kesto h | Viite: eteisvärinä/-lepatus s | Löydetty s | Se % | Ilmoitettu s | +P % |",
+         "|---|---:|---:|---:|---:|---:|---:|"]
+    for r in rows:
+        L.append(f"| {r['record']} | {_pct(r['duration_s'] / 3600)} | {r['ref_s']} | {r['both_s']} | "
+                 f"{_pct(_ratio(r['both_s'], r['ref_s']))} | {r['det_s']} | {_pct(_ratio(r['both_s'], r['det_s']))} |")
+    (out / f"{stem}-records.md").write_text("\n".join(L) + "\n")
+    return result
 
 
 def run_all(db: Path, kind: str = "mitdb", records: Any = None, verbose: bool = True) -> List[Dict[str, Any]]:

@@ -51,7 +51,8 @@ def beat_wave(t: np.ndarray, kind: str, rr: float) -> np.ndarray:
     if kind == "V":
         return (_gauss(t, -0.01, 0.032, 1500) + _gauss(t, 0.06, 0.03, -650)
                 + _gauss(t, qt + 0.05, 0.075, -420))
-    return (_gauss(t, -0.17, 0.024, 110) + _gauss(t, -0.028, 0.009, -110) + _gauss(t, 0.0, 0.011, 1250)
+    p_wave = 0.0 if kind == "F" else _gauss(t, -0.17, 0.024, 110)  # "F": atrial fibrillation, no P wave
+    return (p_wave + _gauss(t, -0.028, 0.009, -110) + _gauss(t, 0.0, 0.011, 1250)
             + _gauss(t, 0.03, 0.011, -320) + _gauss(t, qt, 0.055, 290))
 
 

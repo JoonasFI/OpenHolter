@@ -24,39 +24,40 @@ const METHODS_HTML_EN = `
   </details>
   <details id="lisalyonnit"><summary>Extra beats</summary>
     <ul>
-      <li><b>R peaks are detected from the ECG</b> in the style of Pan–Tompkins: band-pass (about 5–15 Hz), derivative, squaring, 150 ms moving-window integration and an adaptive threshold in 8 s blocks, 250 ms refractory period. The R peak is the largest baseline-corrected deflection near the integrated peak. The strap's own RR intervals are not used, because its detector often misses wide extra beats.</li>
+      <li><b>R peaks are detected from the ECG</b> in the style of Pan–Tompkins: band-pass (about 5–15 Hz), derivative, squaring, 150 ms moving-window integration and a threshold that follows the latest beats, 200 ms refractory period. A missing beat is searched for in long gaps with a lower threshold, and T waves are rejected. The R peak is the largest baseline-corrected deflection near the integrated peak. The strap's own RR intervals are not used, because its detector often misses wide extra beats.</li>
       <li><b>Artefacts are rejected:</b> the first and last minute of a recording (putting the strap on and taking it off), periods without contact, Bluetooth gaps, and beats whose amplitude or surrounding (±1 s) range is more than three times the recording's typical value.</li>
       <li>A beat is <b>premature</b> when its RR interval is 12–20 % shorter than the local reference; the amount required grows with the local heart-rate variability (3 × spread). An <b>SVES</b> additionally needs a sudden shortening (below 90 % of the previous interval) and an interval after it at least as long as the premature one and at least 85 % of the reference, since a supraventricular beat is usually not followed by a full pause. A <b>VES</b> needs the next interval to be at least 95 % of the reference. The pause is <i>compensatory</i> when the two intervals add up to 1.75–2.25 times the reference. <b>Couplet</b> = two premature beats in a row, <b>run</b> = at least three in a row above 100/min.</li>
       <li><b>Shape:</b> the beat is compared with the median template of the surrounding normal beats (QRS window −80…+120 ms). If the correlation is below 0.85 or the QRS is at least 40 ms wider than the template → <b>VES</b> (probably ventricular), otherwise <b>SVES</b> (probably supraventricular). At 130 Hz one sample is 7.7 ms, so the width is a coarse estimate. In addition, every beat is compared with the template: a clearly different, wide or large QRS is a <b>VES</b> even when the beat does not come early (correlation below 0.70 even at the best ±40 ms shift, neighbouring beats fitting the template).</li>
       <li>The reference is the moving median over 31 beats of the pair means of consecutive intervals ((RR<sub>i</sub> + RR<sub>i+1</sub>) / 2). A full compensatory pause does not change the pair mean, so the reference stays correct even in bigeminy. For long runs, the reference from the preceding beats is used so that a tachycardia does not drag its own reference down.</li>
-      <li><b>Irregular rhythm:</b> if successive RR intervals vary strongly and without pattern for at least 30 s (median over a 31-interval window above 10 %), the episode is reported as an irregular rhythm compatible with atrial fibrillation. This is not a diagnosis. No SVES are marked during it. Bigeminy and trigeminy do not trigger it, because their pattern repeats.</li>
+      <li><b>Irregular rhythm:</b> if RR intervals vary without pattern (median over a 31-interval window above 5 %) and no repeating P wave is seen before the QRS for at least 30 s, the episode is reported as an irregular rhythm compatible with atrial fibrillation. This is not a diagnosis. No SVES are marked during it. Bigeminy and trigeminy do not trigger it, because their pattern repeats.</li>
       <li><b>Bigeminy run:</b> at least three premature beats on every other beat.</li>
       <li>By posture, the share of extra beats is computed from the beats that occurred in each posture, and the rate per hour is relative to the time spent in that posture.</li>
-      <li><b>Limitations:</b> a single-lead chest ECG does not see every shape difference, so the VES/SVES split is indicative. About a third of VES beats are still missed, especially in ventricular tachycardia. SVES detection is unreliable: frequent atrial extra beats and atrial tachycardias can be taken for an irregular rhythm and then are not marked. Irregular-rhythm detection did not work on every test database. See <a href="#/about/validointi">Validation</a>. Without ECG, the strap's RR intervals are used as a fallback.</li>
+      <li><b>Limitations:</b> a single-lead chest ECG does not see every shape difference, so the VES/SVES split is indicative. Some VES beats are missed and some marks are false: the result varies a lot by dataset. The overall SVES count is unreliable, and a single fault can reject a whole run. Some atrial fibrillation is missed, especially when the ventricular response is even. The P-wave limit has been checked only on Holter leads, not on the H10. See <a href="#/about/validointi">Validation</a>. Without ECG, the strap's RR intervals are used as a fallback.</li>
     </ul>
   </details>
-  <details id="validointi"><summary>Validation: MIT-BIH and INCART</summary>
+  <details id="validointi"><summary>Validation: MIT-BIH, INCART, SVDB and AFDB</summary>
     <ul>
-      <li>The beat analysis has been tested on the <b>MIT-BIH Arrhythmia Database</b> (PhysioNet): 48 half-hour Holter recordings, about 87,000 beats, each labelled by two cardiologists. It was also tested on the St Petersburg <b>INCART</b> database (75 recordings, lead II). The test follows the ANSI/AAMI EC57 standard: classes N/S/V/F/Q, a 150 ms match window, comparison starting at 5 minutes, paced records excluded from the extra-beat statistics.</li>
-      <li>The signal was resampled to 130 Hz and analysed with the same code as your own recordings. Version 5 was tuned only on half of MIT-BIH (DS1). The other half (DS2) and the INCART database (75 recordings, 257 Hz) are test data that was not used for tuning.</li>
+      <li>The beat analysis has been tested on the <b>MIT-BIH Arrhythmia Database</b> (PhysioNet): 48 half-hour Holter recordings, about 87,000 beats, each labelled by two cardiologists. It was also tested on the St Petersburg <b>INCART</b> database (75 recordings, lead II), <b>SVDB</b> (MIT-BIH Supraventricular, 78 recordings) and <b>AFDB</b> (MIT-BIH Atrial Fibrillation, 23 recordings, 233 hours). The test follows the ANSI/AAMI EC57 standard: classes N/S/V/F/Q, a 150 ms match window, comparison starting at 5 minutes, paced records excluded from the extra-beat statistics.</li>
+      <li>The signal was resampled to 130 Hz and analysed with the same code as your own recordings. Version 6 was tuned only on half of MIT-BIH (DS1). <b>SVDB and AFDB are the clean test:</b> they were opened only after the parameters were locked. MIT-BIH and INCART had been seen with the previous version, so their figures are probably optimistic.</li>
     </ul>
     <div class="table-scroll"><table class="val-table">
-      <thead><tr><th>Sensitivity / precision</th><th>MIT-BIH (44)</th><th>INCART (75)</th></tr></thead>
+      <thead><tr><th>Sensitivity / precision</th><th>SVDB, clean test (78)</th><th>MIT-BIH (44)</th><th>INCART (75)</th></tr></thead>
       <tbody>
-        <tr><td>Beat (QRS) detection</td><td>97.4 / 99.9 %</td><td>95.3 / 99.6 %</td></tr>
-        <tr><td>VES</td><td>68.0 / 92.5 %</td><td>59.3 / 89.7 %</td></tr>
-        <tr><td>VES, without atrial fibrillation</td><td>68.0 / 95.3 %</td><td>59.2 / 89.7 %</td></tr>
-        <tr><td>VES, typical single + pause</td><td>79.4 %</td><td>73.7 %</td></tr>
-        <tr><td>SVES</td><td>30.4 / 68.3 %</td><td>70.1 / 57.1 %</td></tr>
-        <tr><td>SVES, typical single + pause</td><td>72.8 %</td><td>79.5 %</td></tr>
-        <tr><td>Irregular rhythm (atrial fibrillation), beats</td><td>82.4 / 87.1 %</td><td>0 / 0 %</td></tr>
+        <tr><td>Beat (QRS) detection</td><td>99.9 / 99.4 %</td><td>99.9 / 99.7 %</td><td>99.8 / 99.0 %</td></tr>
+        <tr><td>VES</td><td>59.6 / 79.5 %</td><td>82.4 / 90.8 %</td><td>78.1 / 89.9 %</td></tr>
+        <tr><td>VES, without atrial fibrillation records</td><td>59.6 / 79.5 %</td><td>80.8 / 95.2 %</td><td>78.0 / 89.9 %</td></tr>
+        <tr><td>VES, typical single + pause</td><td>88.5 %</td><td>96.0 %</td><td>92.3 %</td></tr>
+        <tr><td>SVES</td><td>53.6 / 75.1 %</td><td>32.9 / 69.4 %</td><td>87.6 / 66.3 %</td></tr>
+        <tr><td>SVES, typical single + pause</td><td>90.8 %</td><td>90.0 %</td><td>98.0 %</td></tr>
+        <tr><td>Irregular rhythm (atrial fibrillation), beats</td><td>–</td><td>93.4 / 75.6 %</td><td>27.6 / 44.7 %</td></tr>
       </tbody>
     </table></div>
     <ul>
       <li><b>Sensitivity</b> = how many of the true beats were found. <b>Precision</b> (+P) = how many of the program's marks were correct.</li>
-      <li><b>Interpretation:</b> beats are found reliably. A VES mark is usually correct, and version 5 finds about two out of three VES beats (v4: half), because the shape of every beat is now checked. SVES detection is still unreliable: the improvement was large on the tuning data, but on the test data (DS2, INCART) sensitivity even dropped compared with version 4, because an irregular rhythm taken for atrial fibrillation also suppresses true SVES marks. Irregular-rhythm episodes and runs are reported but are indicative only: the two atrial fibrillation recordings in INCART were not recognised.</li>
-      <li><b>Limitation:</b> MIT-BIH and INCART were recorded with Holter devices using limb leads, not with a Polar H10. The result describes the algorithm, not directly the accuracy reachable with the strap.</li>
-      <li>The full report, per-record results and instructions to repeat the test: <span class="mono">docs/VALIDATION.en.md</span> in the source code. Tested version: OpenHolter 0.3.0, analysis version 5.</li>
+      <li><b>Atrial fibrillation, clean test</b> (AFDB, second by second): sensitivity 80.9 %, precision 99.1 %.</li>
+      <li><b>Interpretation:</b> beats are found reliably, and typical single extra beats are found in about 9 out of 10 cases. Overall VES and SVES counts are indicative: on the clean test about 60 % of VES and 54 % of SVES beats were found, and VES did not improve from the previous version. An atrial fibrillation alarm is usually right on the clean test, but some fibrillation is missed.</li>
+      <li><b>Limitation:</b> The databases were recorded with Holter devices, not with a Polar H10. The result describes the algorithm, not directly the accuracy reachable with the strap.</li>
+      <li>The full report, per-record results and instructions to repeat the test: <span class="mono">docs/VALIDATION.en.md</span> in the source code. Tested version: OpenHolter 0.3.0, analysis version 6.</li>
     </ul>
   </details>
   <details id="hrv"><summary>Heart rate variability (HRV)</summary>

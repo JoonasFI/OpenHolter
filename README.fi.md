@@ -26,21 +26,32 @@ ja tekee PDF-raportin, jossa on lääkäriä varten koko EKG. Kaikki data pysyy 
 ## Tulokset lyhyesti
 
 Lyöntianalyysi on testattu samoin kuin kaupalliset rytmihäiriöalgoritmit: kardiologien merkitsemiä vertailuaineistoja
-vastaan ANSI/AAMI EC57 -standardin mukaisesti: [MIT-BIH Arrhythmia Database](https://physionet.org/content/mitdb/1.0.0/) ja
-[St Petersburg INCART 12-lead Arrhythmia Database](https://physionet.org/content/incartdb/1.0.0/) (PhysioNet). Versio 5 säädettiin vain MIT-BIH:n puoliskolla (DS1).
-Toinen puolisko (DS2) ja INCART (75 tallennetta, noin 142 000 lyöntiä) ovat koskematonta testidataa.
+vastaan ANSI/AAMI EC57 -standardin mukaisesti: [MIT-BIH Arrhythmia Database](https://physionet.org/content/mitdb/1.0.0/),
+[St Petersburg INCART 12-lead Arrhythmia Database](https://physionet.org/content/incartdb/1.0.0/),
+[MIT-BIH Supraventricular Arrhythmia Database](https://physionet.org/content/svdb/1.0.0/) (SVDB) ja
+[MIT-BIH Atrial Fibrillation Database](https://physionet.org/content/afdb/1.0.0/) (AFDB), kaikki PhysioNetistä.
+Analyysiversio 6 säädettiin vain MIT-BIH:n puoliskolla (DS1). **SVDB ja AFDB ovat puhdas testi:** ne avattiin vasta, kun parametrit oli
+lukittu. MIT-BIH ja INCART oli nähty edellisen version yhteydessä, joten niiden luvut ovat todennäköisesti optimistisia.
 
-| Herkkyys / osuvuus | [MIT-BIH](https://physionet.org/content/mitdb/1.0.0/) (44 tallennetta) | [INCART](https://physionet.org/content/incartdb/1.0.0/) (75 tallennetta) |
-|---|---:|---:|
-| **Lyöntien (QRS) tunnistus** | **97,4 % / 99,9 %** | **95,3 % / 99,6 %** |
-| **VES** (kammioperäiset lisälyönnit) | **68,0 % / 92,5 %** | **59,3 % / 89,7 %** |
-| VES, tyypillinen yksittäinen + tauko | 79,4 % | 73,7 % |
-| SVES (eteisperäiset lisälyönnit) | 30,4 % / 68,3 % | 70,1 % / 57,1 % |
+| Herkkyys / osuvuus | **SVDB, puhdas testi** (78 tallennetta) | MIT-BIH (44 tallennetta) | INCART (75 tallennetta) |
+|---|---:|---:|---:|
+| **Lyöntien (QRS) tunnistus** | **99,9 % / 99,4 %** | 99,9 % / 99,7 % | 99,8 % / 99,0 % |
+| **VES** (kammioperäiset lisälyönnit) | **59,6 % / 79,5 %** | 82,4 % / 90,8 % | 78,1 % / 89,9 % |
+| VES, tyypillinen yksittäinen + tauko | 88,5 % | 96,0 % | 92,3 % |
+| **SVES** (eteisperäiset lisälyönnit) | **53,6 % / 75,1 %** | 32,9 % / 69,4 % | 87,6 % / 66,3 % |
+| SVES, tyypillinen yksittäinen + tauko | 90,8 % | 90,0 % | 98,0 % |
 
-- **Lyönnit löytyvät luotettavasti:** 97 % kaikista sydämenlyönneistä lähes ilman vääriä löydöksiä.
-- **VES-merkintä on yleensä oikea** (noin 9/10), ja VES-lyönneistä löytyy noin kaksi kolmesta (versio 4: puolet).
-  Tyypillisistä yksittäisistä, taukoon päättyvistä lisälyönneistä, jotka ovat yleisimpiä, löytyy noin 3/4.
-- **SVES-tunnistus ei ole vielä luotettava**, ks. [Tunnetut heikkoudet](#tunnetut-heikkoudet-ja-seuraava-versio).
+Eteisvärinä AFDB:ssä, puhdas testi (233 tuntia, sekunneittain): **80,9 % / 99,1 %**.
+
+- **Lyönnit löytyvät luotettavasti:** 99,8–99,9 % kaikista sydämenlyönneistä, vääriä löydöksiä on vähän.
+- **Tyypilliset yksittäiset lisälyönnit**, jotka ovat yleisimpiä, löytyvät noin 9 tapauksessa 10:stä.
+- **VES- ja SVES-kokonaismäärät ovat edelleen suuntaa antavia:** puhtaassa testissä VES-lyönneistä löytyi noin 60 % ja SVES-lyönneistä
+  54 %. VES-merkinnöistä noin 8/10 ja SVES-merkinnöistä 3/4 oli oikeita. Ks. [Tunnetut heikkoudet](#tunnetut-heikkoudet-ja-seuraava-versio).
+
+**Uutta analyysiversiossa 6:** uusi lyöntitunnistin, jonka kynnys seuraa viimeisiä lyöntejä, nosti QRS-herkkyyden MIT-BIH:ssä 97,4 %:sta
+99,9 %:iin. Puhtaassa testissä tyypillisten yksittäisten SVES-lyöntien herkkyys nousi 63 %:sta 91 %:iin. Eteisvärinä vaatii nyt P-aallon
+puuttumisen, mikä nosti sen osuvuuden puhtaassa testissä 95 %:sta 99 %:iin. VES-kokonaistulos ei parantunut puhtaassa testissä
+(61,9 / 82,2 % → 59,6 / 79,5 %).
 
 Menetelmä, tallennekohtaiset taulukot ja ohje testin toistamiseen: [docs/VALIDATION.md](docs/VALIDATION.md).
 Luvut kuvaavat algoritmia vertailuaineiston Holter-tallenteilla; H10:n rintakytkentä on erilainen (ks. alla).
@@ -72,19 +83,19 @@ Luvut kuvaavat algoritmia vertailuaineiston Holter-tallenteilla; H10:n rintakytk
 - **Trendit**, **roskakori** (30 päivän säilytys) ja **asetukset** selaimessa.
 - **Suomi ja englanti** käyttöliittymässä ja PDF:ssä (valinta yläpalkissa).
 - **Analyysi paranee myös jälkikäteen:** se lasketaan aina raakadatasta, joten parempi versio analysoi myös vanhat tallenteet uudelleen.
-- **Avoimesti validoitu** MIT-BIH- ja INCART-tietokannoilla.
+- **Avoimesti validoitu** MIT-BIH-, INCART-, SVDB- ja AFDB-tietokannoilla.
 
 ## Tunnetut heikkoudet ja seuraava versio
 
-Kerromme heikkoudet yhtä tarkasti kuin vahvuudet. Versiossa 5:
+Kerromme heikkoudet yhtä tarkasti kuin vahvuudet. Versiossa 6:
 
-- **VES-määrä on todennäköisesti alakanttiin.** Noin kolmannes VES-lyönneistä jää edelleen löytymättä, erityisesti
-  kammiotakykardioissa ja kun QRS on pieni tai epätavallisen muotoinen (MIT-BIH-tallenteet 203, 208, 228).
-- **SVES-määrä voi olla väärin kumpaankin suuntaan.** SVES-merkinnöistä 30–40 % voi olla vääriä, ja moni oikea jää löytymättä.
-  Versio 5 paransi SVES:ää paljon säätödatassa, mutta **ei testidatassa**: DS2:lla ja INCARTilla se on heikompi kuin versio 4.
-  Syy: tiheät eteislisälyönnit ja eteistakykardiat voivat näyttää epäsäännölliseltä rytmiltä, eikä sen aikana merkitä SVES-lyöntejä.
-- **Epäsäännöllisen rytmin (eteisvärinän) tunnistus on vain suuntaa antava.** MIT-BIH:ssa se löytää 82 % tällaisten jaksojen
-  lyönneistä, mutta INCARTissa se ei tunnistanut kumpaakaan kahdesta eteisvärinätallenteesta ja antoi vääriä jaksoja 12 tallenteessa.
+- **VES-määrä on todennäköisesti alakanttiin, ja osa merkinnöistä on vääriä.** Puhtaassa testissä noin 40 % VES-lyönneistä jäi
+  löytymättä, ja noin joka viides merkintä oli väärä. Tulos vaihtelee paljon aineistoittain (MIT-BIH:ssä löytyy 82 %).
+- **SVES-määrä voi olla väärin kumpaankin suuntaan.** Puhtaassa testissä noin puolet löytyi, ja noin joka neljäs merkintä oli väärä.
+  Tallenteet, joissa eteislyönti on vallitseva rytmi (MIT-BIH 232, SVDB 822), jäävät lähes kokonaan löytymättä. Yksi virhe voi myös
+  hylätä koko sarjan: SVDB-tallenteessa 865 noin 1 000 lyöntiä jäi merkitsemättä.
+- **Epäsäännöllisen rytmin (eteisvärinän) tunnistus on vain suuntaa antava.** Puhtaassa testissä väärät hälytykset ovat harvinaisia, mutta
+  yli puolet eteisvärinästä jäi löytymättä 5 tallenteessa 23:sta. INCARTissa löytyi 28 %, ja MIT-BIH:ssä joka neljäs ilmoitettu lyönti oli väärä.
 - **Eri laite, eri kytkentä.** Vertailuaineistot on nauhoitettu Holter-laitteilla raajakytkennöillä. H10 mittaa yhden
   rintakytkennän 130 Hz:llä, josta P-aaltoa ja QRS-muotoa on vaikeampi tulkita kuin 12-kytkentäisestä EKG:stä.
   Tarkkuutta itse vyön kanssa ei ole vielä mitattu vertailulaitetta vastaan.
@@ -92,17 +103,16 @@ Kerromme heikkoudet yhtä tarkasti kuin vahvuudet. Versiossa 5:
   Löytymättä jäänyt lisälyönti on käyrällä, sitä ei vain ole korostettu. Siksi raportissa on koko EKG, ja siksi
   oiremerkinnät ovat tärkeitä: ne osoittavat kohdat, jotka kannattaa tarkistaa.
 
-**Suunnitelma versioon 6:**
+**Suunnitelma seuraavaan versioon:**
 
-1. **SVES ilman epäsäännöllisen rytmin ansaa:** eteisperäiset lyönnit merkitään myös epäsäännöllisillä jaksoilla, kun niissä
-   on toistuva kuvio, ja eteisperäiset sarjat ja takykardiat raportoidaan erikseen sen sijaan, että ne estäisivät merkinnät.
-2. **Parempi eteisvärinän tunnistus:** epäsäännöllisyys yhdistetään entropiatyyppisiin mittareihin ja toistuvan kuvion puuttumiseen,
-   ja validointi tehdään INCARTin lisäksi eteisvärinään erikoistuneella aineistolla (MIT-BIH Atrial Fibrillation Database).
-3. **Vähemmän löytymättömiä VES-lyöntejä:** useita lyöntimalleja tallennetta kohden yhden sijaan sekä parempi pienten ja leveiden
-   QRS-kompleksien ja kammioperäisten sarjojen tunnistus.
+1. **Sarjat kestävät yhden virheen:** yksittäinen ongelmalyönti ei saa enää hylätä koko sarjaa (SVDB 865).
+2. **Parempi eteisvärinän tunnistus:** vähemmän löytymättömiä jaksoja, myös kun kammiovaste on melko tasainen.
+3. **Vähemmän löytymättömiä ja vääriä VES-lyöntejä:** useita lyöntimalleja tallennetta kohden yhden sijaan ja parempi kammioperäisten
+   sarjojen tunnistus.
 4. **Validointi itse vyöllä:** H10 puettuna samaan aikaan kliinisen Holterin kanssa ja tulosten vertailu lyönti lyönniltä.
-5. **Samat säännöt kuin nyt:** säätö vain DS1:llä, testidata ajetaan kerran parametrien lukitsemisen jälkeen, ja kaikki tulokset
-   julkaistaan, myös heikentyneet.
+   Erityisesti P-aallon raja on tarkistettu vain Holter-kytkennöillä.
+5. **Samat säännöt kuin nyt:** säätö vain DS1:llä, uusi koskematon testiaineisto ajetaan kerran parametrien lukitsemisen jälkeen, ja kaikki
+   tulokset julkaistaan, myös heikentyneet.
 
 Apu kaikissa näissä on erittäin tervetullutta, ks. [CONTRIBUTING.fi.md](CONTRIBUTING.fi.md).
 

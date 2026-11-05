@@ -26,21 +26,31 @@ and gives you a PDF report with the full ECG for your doctor. All data stays on 
 ## Results at a glance
 
 The beat analysis has been tested the way commercial arrhythmia algorithms are: against cardiologist-labelled reference
-databases, following ANSI/AAMI EC57: the [MIT-BIH Arrhythmia Database](https://physionet.org/content/mitdb/1.0.0/) and the
-[St Petersburg INCART 12-lead Arrhythmia Database](https://physionet.org/content/incartdb/1.0.0/) (PhysioNet). Version 5 was tuned only on half of MIT-BIH (DS1);
-the other half (DS2) and INCART (75 recordings, about 142,000 beats) are untouched test data.
+databases, following ANSI/AAMI EC57: the [MIT-BIH Arrhythmia Database](https://physionet.org/content/mitdb/1.0.0/), the
+[St Petersburg INCART 12-lead Arrhythmia Database](https://physionet.org/content/incartdb/1.0.0/), the
+[MIT-BIH Supraventricular Arrhythmia Database](https://physionet.org/content/svdb/1.0.0/) (SVDB) and the
+[MIT-BIH Atrial Fibrillation Database](https://physionet.org/content/afdb/1.0.0/) (AFDB), all from PhysioNet.
+Analysis version 6 was tuned only on half of MIT-BIH (DS1). **SVDB and AFDB are the clean test:** they were opened only after the
+parameters were locked. MIT-BIH and INCART had been seen with the previous version, so their figures are probably optimistic.
 
-| Sensitivity / precision | [MIT-BIH](https://physionet.org/content/mitdb/1.0.0/) (44 recordings) | [INCART](https://physionet.org/content/incartdb/1.0.0/) (75 recordings) |
-|---|---:|---:|
-| **Beat (QRS) detection** | **97.4 % / 99.9 %** | **95.3 % / 99.6 %** |
-| **VES** (ventricular extra beats) | **68.0 % / 92.5 %** | **59.3 % / 89.7 %** |
-| VES, typical single beat + pause | 79.4 % | 73.7 % |
-| SVES (supraventricular extra beats) | 30.4 % / 68.3 % | 70.1 % / 57.1 % |
+| Sensitivity / precision | **SVDB, clean test** (78 recordings) | MIT-BIH (44 recordings) | INCART (75 recordings) |
+|---|---:|---:|---:|
+| **Beat (QRS) detection** | **99.9 % / 99.4 %** | 99.9 % / 99.7 % | 99.8 % / 99.0 % |
+| **VES** (ventricular extra beats) | **59.6 % / 79.5 %** | 82.4 % / 90.8 % | 78.1 % / 89.9 % |
+| VES, typical single beat + pause | 88.5 % | 96.0 % | 92.3 % |
+| **SVES** (supraventricular extra beats) | **53.6 % / 75.1 %** | 32.9 % / 69.4 % | 87.6 % / 66.3 % |
+| SVES, typical single beat + pause | 90.8 % | 90.0 % | 98.0 % |
 
-- **Beats are found reliably**: 97 % of all heartbeats, with almost no false detections.
-- **A VES mark is usually right** (about 9 out of 10), and about two out of three VES beats are found
-  (version 4: half). Typical single extra beats followed by a pause, the most common kind, are found in about 3 out of 4 cases.
-- **SVES detection is not yet reliable**, see [Known weaknesses](#known-weaknesses-and-what-comes-next).
+Atrial fibrillation on AFDB, clean test (233 hours, second by second): **80.9 % / 99.1 %**.
+
+- **Beats are found reliably**: 99.8–99.9 % of all heartbeats, with few false detections.
+- **Typical single extra beats**, the most common kind, are found in about 9 out of 10 cases.
+- **Overall VES and SVES counts are still indicative**: on the clean test about 60 % of VES and 54 % of SVES beats were found, and
+  about 8 out of 10 VES marks and 3 out of 4 SVES marks were right. See [Known weaknesses](#known-weaknesses-and-what-comes-next).
+
+**New in analysis version 6:** a new beat detector, whose threshold follows the latest beats, took QRS sensitivity on MIT-BIH from 97.4 % to
+99.9 %. On the clean test, typical single SVES rose from 63 % to 91 %. Atrial fibrillation now requires a missing P wave, which took
+its precision on the clean test from 95 % to 99 %. Overall VES did not improve on the clean test (61.9 / 82.2 % → 59.6 / 79.5 %).
 
 Full method, per-record tables and how to rerun the test yourself: [docs/VALIDATION.en.md](docs/VALIDATION.en.md).
 The numbers are for the algorithm on reference Holter recordings; the H10's chest lead is different (see below).
@@ -72,19 +82,19 @@ The numbers are for the algorithm on reference Holter recordings; the H10's ches
 - **Trends** across recordings, **trash** with 30-day retention, **settings** in the browser.
 - **Finnish and English** user interface and PDF (switch in the top bar).
 - **Analysis improves retroactively:** it is always recomputed from the raw data, so a better version also re-analyses old recordings.
-- **Validated openly** against the MIT-BIH and INCART databases.
+- **Validated openly** against the MIT-BIH, INCART, SVDB and AFDB databases.
 
 ## Known weaknesses and what comes next
 
-We publish the weaknesses with the same care as the strengths. In version 5:
+We publish the weaknesses with the same care as the strengths. In version 6:
 
-- **The VES count is probably too low.** About a third of VES beats are still missed, especially in ventricular
-  tachycardia and when the QRS is small or unusually shaped (MIT-BIH records 203, 208, 228).
-- **The SVES count can be wrong in both directions.** 30–40 % of SVES marks may be false, and many true ones are missed.
-  Version 5 improved SVES a lot on the tuning data, but **not on the test data**: on DS2 and INCART it is weaker than version 4.
-  The reason is that frequent atrial extra beats and atrial tachycardias can look like an irregular rhythm, and no SVES are marked during one.
-- **Irregular-rhythm (atrial fibrillation) detection is indicative only.** On MIT-BIH it finds 82 % of the beats in such episodes,
-  but on INCART it found neither of the two atrial fibrillation recordings and gave false episodes in 12 recordings.
+- **The VES count is probably too low, and some marks are wrong.** On the clean test about 40 % of VES beats were missed and about 1 in 5
+  marks was false. The result varies a lot by dataset (MIT-BIH finds 82 %).
+- **The SVES count can be wrong in both directions.** On the clean test about half were found, and about 1 in 4 marks was false.
+  Recordings where an atrial beat is the dominant rhythm (MIT-BIH 232, SVDB 822) go almost entirely undetected. A single fault can also
+  reject a whole run: in SVDB record 865 about 1,000 beats went unmarked.
+- **Irregular-rhythm (atrial fibrillation) detection is indicative only.** False alarms are rare on the clean test, but over half of the
+  fibrillation was missed in 5 of its 23 recordings. On INCART it found 28 %, and on MIT-BIH 1 in 4 reported beats was false.
 - **Different device, different lead.** The reference databases were recorded with Holter devices using limb leads.
   The H10 records one chest lead at 130 Hz, which shows P waves and QRS shape less clearly than a 12-lead ECG.
   The accuracy with the strap itself has not yet been measured against a reference.
@@ -92,16 +102,15 @@ We publish the weaknesses with the same care as the strengths. In version 5:
   A missed extra beat is still in the trace, just not highlighted. That is why the full ECG is in the report and why
   symptom marks matter: they point to the moments worth checking.
 
-**Plan for version 6:**
+**Plan for the next version:**
 
-1. **SVES without the irregular-rhythm trap:** keep marking supraventricular beats inside irregular stretches when they
-   follow a repeating pattern, and report atrial runs and tachycardias separately instead of suppressing them.
-2. **Better atrial fibrillation detection:** combine irregularity with entropy-type measures and the absence of a repeating pattern,
-   and validate on a dedicated atrial fibrillation database (MIT-BIH Atrial Fibrillation Database) in addition to INCART.
-3. **Fewer missed VES:** several beat templates per recording instead of one, and better detection of small or wide QRS complexes and ventricular runs.
+1. **Runs that survive one fault:** a single problem beat must no longer reject a whole run (SVDB 865).
+2. **Better atrial fibrillation detection:** fewer missed episodes, also where the ventricular response is fairly even.
+3. **Fewer missed and false VES:** several beat templates per recording instead of one, and better detection of ventricular runs.
 4. **Validation with the strap itself:** recordings with the H10 worn together with a clinical Holter, compared beat by beat.
-5. **Same rules as now:** tuning only on DS1, test data used once after the parameters are locked, and every result
-   published, including the ones that get worse.
+   The P-wave limit in particular has been checked only on Holter leads.
+5. **Same rules as now:** tuning only on DS1, a new untouched test dataset used once after the parameters are locked, and every
+   result published, including the ones that get worse.
 
 Contributions to any of these are very welcome, see [CONTRIBUTING.md](CONTRIBUTING.md).
 

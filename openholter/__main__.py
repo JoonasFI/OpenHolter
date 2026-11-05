@@ -149,19 +149,21 @@ def main() -> None:
     sn.add_argument("--seed", type=int, default=11)
     sub.add_parser("set-password", help="aseta käyttöliittymän salasana (basic auth)")
     sub.add_parser("doctor", help="tarkista ympäristö ja Bluetooth-oikeus")
-    va = sub.add_parser("validate", help="validoi lyöntianalyysi MIT-BIH- ja/tai INCART-tietokantaa vasten")
+    va = sub.add_parser("validate", help="validoi lyöntianalyysi PhysioNet-tietokantoja vasten")
     va.add_argument("--mitdb", type=Path, help="puretun MIT-BIH Arrhythmia Database -kansion polku")
     va.add_argument("--incartdb", type=Path, help="puretun St Petersburg INCART -tietokannan kansio (jossa I01.hea …)")
+    va.add_argument("--svdb", type=Path, help="puretun MIT-BIH Supraventricular Arrhythmia Database -kansion polku")
+    va.add_argument("--afdb", type=Path, help="puretun MIT-BIH Atrial Fibrillation Database -kansion polku (files)")
     va.add_argument("--out", type=Path, default=Path("docs/validation"))
     args = p.parse_args()
     if args.cmd == "validate":
         from .analysis import ANALYSIS_VERSION
-        from .validation import validate
-        if not args.mitdb and not args.incartdb:
-            p.error("anna --mitdb ja/tai --incartdb")
-        for kind, db in (("mitdb", args.mitdb), ("incartdb", args.incartdb)):
+        from .validation import validate, validate_afdb
+        if not (args.mitdb or args.incartdb or args.svdb or args.afdb):
+            p.error("anna ainakin yksi: --mitdb, --incartdb, --svdb, --afdb")
+        for kind, db in (("mitdb", args.mitdb), ("incartdb", args.incartdb), ("svdb", args.svdb), ("afdb", args.afdb)):
             if db:
-                validate(db, args.out, kind)
+                validate_afdb(db, args.out) if kind == "afdb" else validate(db, args.out, kind)
                 print(f"Tulokset: {args.out / f'{kind}-v{ANALYSIS_VERSION}-results.json'}")
         return
     cfg = load_config()

@@ -1880,39 +1880,40 @@ const METHODS_HTML = `
   </details>
   <details id="lisalyonnit"><summary>Lisälyönnit</summary>
     <ul>
-      <li><b>R-piikit tunnistetaan EKG:stä</b> Pan–Tompkins-tyyppisesti: kaistanpäästö (noin 5–15 Hz), derivaatta, neliöinti, 150 ms:n liukuva integrointi ja 8 s:n lohkoissa mukautuva kynnys, 250 ms:n refraktaariaika. R-piikki on suurin perustasokorjattu poikkeama integroidun huipun lähellä. Vyön omia RR-välejä ei käytetä, koska vyön oma tunnistus jättää leveät lisälyönnit usein huomaamatta.</li>
+      <li><b>R-piikit tunnistetaan EKG:stä</b> Pan–Tompkins-tyyppisesti: kaistanpäästö (noin 5–15 Hz), derivaatta, neliöinti, 150 ms:n liukuva integrointi ja viimeisiä lyöntejä seuraava kynnys, 200 ms:n refraktaariaika. Pitkältä väliltä haetaan puuttuva lyönti matalammalla kynnyksellä, ja T-aallot hylätään. R-piikki on suurin perustasokorjattu poikkeama integroidun huipun lähellä. Vyön omia RR-välejä ei käytetä, koska vyön oma tunnistus jättää leveät lisälyönnit usein huomaamatta.</li>
       <li><b>Häiriöt hylätään:</b> tallenteen ensimmäinen ja viimeinen minuutti (vyön pukeminen ja riisuminen), kontaktittomat jaksot, Bluetooth-katkot sekä lyönnit, joiden amplitudi tai ympäristön (±1 s) vaihteluväli on yli kolminkertainen tallenteen tavalliseen nähden.</li>
       <li>Lyönti on <b>ennenaikainen</b>, kun sen RR-väli on 12–20 % paikallista viitearvoa lyhyempi. Vaadittu määrä kasvaa paikallisen sykevaihtelun mukaan (3 × hajonta). <b>SVES</b> vaatii lisäksi äkillisen lyhenemisen (alle 90 % edellisestä välistä) ja sen, että seuraava väli on vähintään yhtä pitkä kuin ennenaikainen väli ja vähintään 85 % viitteestä. Eteisperäistä lyöntiä ei yleensä seuraa täysi tauko. <b>VES</b>:ltä vaaditaan, että seuraava väli on vähintään 95 % viitteestä. Tauko on <i>kompensatorinen</i>, kun välien summa on 1,75–2,25 kertaa viite. <b>Pari</b> = kaksi ennenaikaista peräkkäin, <b>sarja</b> = vähintään kolme peräkkäin yli 100/min.</li>
       <li><b>Muoto:</b> lyöntiä verrataan ympäröivien normaalien lyöntien mediaanimalliin (QRS-ikkuna −80…+120 ms). Jos korrelaatio on alle 0,85 tai QRS on vähintään 40 ms mallia leveämpi → <b>VES</b> (todennäköisesti kammioperäinen), muuten <b>SVES</b> (todennäköisesti eteisperäinen). 130 Hz:llä yksi näyte on 7,7 ms, joten leveys on karkea arvio. Lisäksi jokaista lyöntiä verrataan malliin: selvästi poikkeava, leveä tai suuri QRS on <b>VES</b>, vaikka lyönti ei tulisi etuajassa (korrelaatio alle 0,70 parhaallakin ±40 ms:n siirrolla, naapurilyönnit malliin sopivia).</li>
       <li>Viitearvo on peräkkäisten välien parikeskiarvon ((RR<sub>i</sub> + RR<sub>i+1</sub>) / 2) liukuva mediaani 31 lyönnin yli. Täysi kompensatorinen tauko ei muuta parikeskiarvoa, joten viite pysyy oikeana myös bigeminiassa. Pitkissä sarjoissa käytetään edeltävien lyöntien viitearvoa, jottei takykardia vedä omaa viitettään alas.</li>
-      <li><b>Epäsäännöllinen rytmi:</b> jos peräkkäisten sykevälien vaihtelu on suurta ja kuviotonta vähintään 30 s (31 välin ikkunan mediaani yli 10 %), jakso raportoidaan epäsäännöllisenä rytminä, joka sopii eteisvärinään. Tämä ei ole diagnoosi. Jakson aikana SVES-merkintöjä ei tehdä. Bigeminia ja trigeminia eivät laukaise tätä, koska niissä kuvio toistuu.</li>
+      <li><b>Epäsäännöllinen rytmi:</b> jos sykevälit vaihtelevat kuviottomasti (31 välin ikkunan mediaani yli 5 %) eikä ennen QRS:ää näy toistuvaa P-aaltoa vähintään 30 s:n aikana, jakso raportoidaan epäsäännöllisenä rytminä, joka sopii eteisvärinään. Tämä ei ole diagnoosi. Jakson aikana SVES-merkintöjä ei tehdä. Bigeminia ja trigeminia eivät laukaise tätä, koska niissä kuvio toistuu.</li>
       <li><b>Bigeminiajakso:</b> vähintään kolme ennenaikaista lyöntiä joka toisena lyöntinä.</li>
       <li>Asennoittain lisälyöntien osuus lasketaan kussakin asennossa tapahtuneista lyönneistä, ja määrä tunnissa suhteutetaan asennossa vietettyyn aikaan.</li>
-      <li><b>Rajoitukset:</b> yksikytkentäinen rintakehä-EKG ei näe kaikkia muotoeroja, joten VES/SVES-jako on suuntaa antava. Noin kolmannes VES-lyönneistä jää edelleen löytymättä, erityisesti kammiotakykardioissa. SVES-tunnistus on epäluotettava: tiheät eteislisälyönnit ja eteistakykardiat voivat tulla tulkituiksi epäsäännölliseksi rytmiksi, jolloin niitä ei merkitä. Epäsäännöllisen rytmin tunnistus ei toiminut kaikilla testiaineistoilla. Katso <a href="#/about/validointi">Validointi</a>. Jos EKG:tä ei ole, käytetään varalla vyön RR-välejä.</li>
+      <li><b>Rajoitukset:</b> yksikytkentäinen rintakehä-EKG ei näe kaikkia muotoeroja, joten VES/SVES-jako on suuntaa antava. Osa VES-lyönneistä jää löytymättä, ja osa merkinnöistä on vääriä: tulos vaihtelee paljon aineistoittain. SVES-kokonaismäärä on epäluotettava, ja yksi virhe voi hylätä koko sarjan. Eteisvärinää jää löytymättä, varsinkin kun kammiovaste on tasainen. P-aallon raja on tarkistettu vain Holter-kytkennöillä, ei H10:llä. Katso <a href="#/about/validointi">Validointi</a>. Jos EKG:tä ei ole, käytetään varalla vyön RR-välejä.</li>
     </ul>
   </details>
-  <details id="validointi"><summary>Validointi: MIT-BIH ja INCART</summary>
+  <details id="validointi"><summary>Validointi: MIT-BIH, INCART, SVDB ja AFDB</summary>
     <ul>
-      <li>Lyöntianalyysi on testattu <b>MIT-BIH Arrhythmia Database</b> -aineistolla (PhysioNet): 48 puolen tunnin Holter-nauhoitusta, noin 87 000 lyöntiä, joista jokaisen on luokitellut kaksi kardiologia. Lisäksi testattiin St Petersburg <b>INCART</b> -tietokannalla (75 tallennetta, kytkentä II). Testi noudattaa ANSI/AAMI EC57 -standardia: luokat N/S/V/F/Q, 150 ms:n osumaikkuna, vertailu 5 minuutin kohdalta alkaen, tahdistetut tallenteet pois lisälyöntitilastoista.</li>
-      <li>Signaali näytteistettiin 130 Hz:iin, ja analyysi ajettiin samalla koodilla kuin omille tallenteille. Versio 5 säädettiin vain MIT-BIH:n puoliskolla DS1. Toinen puolisko (DS2) ja INCART-tietokanta (75 tallennetta, 257 Hz) ovat testidataa, jota ei käytetty säätöön.</li>
+      <li>Lyöntianalyysi on testattu <b>MIT-BIH Arrhythmia Database</b> -aineistolla (PhysioNet): 48 puolen tunnin Holter-nauhoitusta, noin 87 000 lyöntiä, joista jokaisen on luokitellut kaksi kardiologia. Lisäksi testattiin St Petersburg <b>INCART</b> -tietokannalla (75 tallennetta, kytkentä II), <b>SVDB</b>:llä (MIT-BIH Supraventricular, 78 tallennetta) ja <b>AFDB</b>:llä (MIT-BIH Atrial Fibrillation, 23 tallennetta, 233 tuntia). Testi noudattaa ANSI/AAMI EC57 -standardia: luokat N/S/V/F/Q, 150 ms:n osumaikkuna, vertailu 5 minuutin kohdalta alkaen, tahdistetut tallenteet pois lisälyöntitilastoista.</li>
+      <li>Signaali näytteistettiin 130 Hz:iin, ja analyysi ajettiin samalla koodilla kuin omille tallenteille. Versio 6 säädettiin vain MIT-BIH:n puoliskolla DS1. <b>SVDB ja AFDB ovat puhdas testi:</b> ne avattiin vasta parametrien lukitsemisen jälkeen. MIT-BIH ja INCART oli nähty edellisen version yhteydessä, joten niiden luvut ovat todennäköisesti optimistisia.</li>
     </ul>
     <div class="table-scroll"><table class="val-table">
-      <thead><tr><th>Herkkyys / osuvuus</th><th>MIT-BIH (44)</th><th>INCART (75)</th></tr></thead>
+      <thead><tr><th>Herkkyys / osuvuus</th><th>SVDB, puhdas testi (78)</th><th>MIT-BIH (44)</th><th>INCART (75)</th></tr></thead>
       <tbody>
-        <tr><td>Lyöntien (QRS) tunnistus</td><td>97,4 / 99,9 %</td><td>95,3 / 99,6 %</td></tr>
-        <tr><td>VES</td><td>68,0 / 92,5 %</td><td>59,3 / 89,7 %</td></tr>
-        <tr><td>VES, ilman eteisvärinää</td><td>68,0 / 95,3 %</td><td>59,2 / 89,7 %</td></tr>
-        <tr><td>VES, tyypillinen yksittäinen + tauko</td><td>79,4 %</td><td>73,7 %</td></tr>
-        <tr><td>SVES</td><td>30,4 / 68,3 %</td><td>70,1 / 57,1 %</td></tr>
-        <tr><td>SVES, tyypillinen yksittäinen + tauko</td><td>72,8 %</td><td>79,5 %</td></tr>
-        <tr><td>Epäsäännöllinen rytmi (eteisvärinä), lyönnit</td><td>82,4 / 87,1 %</td><td>0 / 0 %</td></tr>
+        <tr><td>Lyöntien (QRS) tunnistus</td><td>99,9 / 99,4 %</td><td>99,9 / 99,7 %</td><td>99,8 / 99,0 %</td></tr>
+        <tr><td>VES</td><td>59,6 / 79,5 %</td><td>82,4 / 90,8 %</td><td>78,1 / 89,9 %</td></tr>
+        <tr><td>VES, ilman eteisvärinätallenteita</td><td>59,6 / 79,5 %</td><td>80,8 / 95,2 %</td><td>78,0 / 89,9 %</td></tr>
+        <tr><td>VES, tyypillinen yksittäinen + tauko</td><td>88,5 %</td><td>96,0 %</td><td>92,3 %</td></tr>
+        <tr><td>SVES</td><td>53,6 / 75,1 %</td><td>32,9 / 69,4 %</td><td>87,6 / 66,3 %</td></tr>
+        <tr><td>SVES, tyypillinen yksittäinen + tauko</td><td>90,8 %</td><td>90,0 %</td><td>98,0 %</td></tr>
+        <tr><td>Epäsäännöllinen rytmi (eteisvärinä), lyönnit</td><td>–</td><td>93,4 / 75,6 %</td><td>27,6 / 44,7 %</td></tr>
       </tbody>
     </table></div>
     <ul>
       <li><b>Herkkyys</b> = kuinka suuri osa oikeista lyönneistä löytyi. <b>Osuvuus</b> = kuinka suuri osa ohjelman merkinnöistä oli oikeita.</li>
-      <li><b>Tulkinta:</b> lyönnit löytyvät luotettavasti. VES-merkintä on yleensä oikea, ja versio 5 löytää VES-lyönneistä noin kaksi kolmesta (v4: puolet), koska muoto tarkistetaan nyt kaikista lyönneistä. SVES-tunnistus on edelleen epäluotettava: säätödatassa parannus oli suuri, mutta testidatassa (DS2, INCART) herkkyys jopa heikkeni versioon 4 verrattuna, koska eteisvärinäksi tulkittu epäsäännöllinen rytmi estää myös oikeita SVES-merkintöjä. Epäsäännöllisen rytmin jaksot ja sarjat raportoidaan, mutta ne ovat suuntaa antavia: INCARTin kahta eteisvärinätallennetta ei tunnistettu.</li>
-      <li><b>Rajoitus:</b> MIT-BIH ja INCART on nauhoitettu Holter-laitteilla raajakytkennöillä, ei Polar H10:llä. Tulos kertoo algoritmista, ei suoraan vyön kanssa saavutettavasta tarkkuudesta.</li>
-      <li>Koko raportti, tallennekohtaiset tulokset ja ohje testin toistamiseen: <span class="mono">docs/VALIDATION.md</span> projektin lähdekoodissa. Testattu versio: OpenHolter 0.3.0, analyysiversio 5.</li>
+      <li><b>Eteisvärinä, puhdas testi</b> (AFDB, sekunneittain): herkkyys 80,9 %, osuvuus 99,1 %.</li>
+      <li><b>Tulkinta:</b> lyönnit löytyvät luotettavasti, ja tyypilliset yksittäiset lisälyönnit löytyvät noin 9 tapauksessa 10:stä. VES- ja SVES-kokonaismäärät ovat suuntaa antavia: puhtaassa testissä VES-lyönneistä löytyi noin 60 % ja SVES-lyönneistä 54 %, ja VES ei parantunut edellisestä versiosta. Eteisvärinähälytys on puhtaassa testissä yleensä oikea, mutta osa eteisvärinästä jää löytymättä.</li>
+      <li><b>Rajoitus:</b> Aineistot on nauhoitettu Holter-laitteilla, ei Polar H10:llä. Tulos kertoo algoritmista, ei suoraan vyön kanssa saavutettavasta tarkkuudesta.</li>
+      <li>Koko raportti, tallennekohtaiset tulokset ja ohje testin toistamiseen: <span class="mono">docs/VALIDATION.md</span> projektin lähdekoodissa. Testattu versio: OpenHolter 0.3.0, analyysiversio 6.</li>
     </ul>
   </details>
   <details id="hrv"><summary>Sykevälivaihtelu (HRV)</summary>

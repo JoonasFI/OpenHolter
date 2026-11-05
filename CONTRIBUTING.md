@@ -11,9 +11,9 @@ Thank you for wanting to help! Bug reports, suggestions and code are all welcome
 - The code must work on Python 3.9 (the macOS Command Line Tools Python).
 - No cloud services, external analytics or telemetry: the data stays on the user's computer.
 - Changes that affect the analysis: also run the validation on both datasets
-  (`python -m openholter validate --mitdb <folder> --incartdb <folder>`, see `docs/VALIDATION.en.md`)
+  (`python -m openholter validate --mitdb <folder> --incartdb <folder> --svdb <folder> --afdb <folder>`, see `docs/VALIDATION.en.md`)
   and include the results in the pull request, also if they get worse. Tune parameters only on the DS1 half of MIT-BIH.
-  DS2 and INCART are test data, and their results are reported without retuning.
+  The other datasets are test data, and their results are reported without retuning.
 - User-visible text: the Finnish string is the key; add the English translation to `openholter/static/i18n-en.js`
   (and `tr(fi, en)` / `T(fi, en)` on the server and in the PDF).
 

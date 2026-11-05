@@ -1,0 +1,7732 @@
+{
+ "openholter_version": "0.3.0",
+ "analysis_version": 6,
+ "database": "St Petersburg INCART 12-lead Arrhythmia Database 1.0.0 (PhysioNet)",
+ "fs_hz": 130.0,
+ "tolerance_s": 0.15,
+ "start_s": 300.0,
+ "end_excluded_s": 60.0,
+ "summary": {
+  "records": 75,
+  "records_class_stats": 75,
+  "subgroups": {
+   "V": {
+    "isolated": {
+     "ref": 13969,
+     "found": 11973,
+     "se": 85.71
+    },
+    "typical": {
+     "ref": 10287,
+     "found": 9493,
+     "se": 92.28
+    }
+   },
+   "S": {
+    "isolated": {
+     "ref": 1518,
+     "found": 1453,
+     "se": 95.72
+    },
+    "typical": {
+     "ref": 1404,
+     "found": 1376,
+     "se": 98.01
+    }
+   }
+  },
+  "qrs": {
+   "ref": 141828,
+   "tp": 141600,
+   "fn": 228,
+   "fp": 1396,
+   "usable": 140274,
+   "se": 99.84,
+   "ppv": 99.02,
+   "usable_pct": 98.9
+  },
+  "confusion": {
+   "N": {
+    "ves": 745,
+    "sves": 482,
+    "premature": 3,
+    "none": 122488
+   },
+   "S": {
+    "ves": 111,
+    "sves": 1400,
+    "premature": 0,
+    "none": 88
+   },
+   "V": {
+    "ves": 12739,
+    "sves": 223,
+    "premature": 0,
+    "none": 3355
+   },
+   "F": {
+    "ves": 20,
+    "sves": 4,
+    "premature": 0,
+    "none": 166
+   },
+   "Q": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0,
+    "none": 4
+   }
+  },
+  "unmatched_events": {
+   "ves": 560,
+   "sves": 2,
+   "premature": 3
+  },
+  "morphology_only_ves": {
+   "N": 218,
+   "S": 0,
+   "V": 407,
+   "F": 14,
+   "Q": 0,
+   "-": 66
+  },
+  "veb": {
+   "ref": 16317,
+   "found_any": 12962,
+   "found_as_ves": 12739,
+   "se_any": 79.44,
+   "se": 78.07,
+   "pred": 14175,
+   "ppv": 89.87
+  },
+  "sveb": {
+   "ref": 1599,
+   "found_any": 1511,
+   "found_as_sves": 1400,
+   "se_any": 94.5,
+   "se": 87.55,
+   "pred": 2111,
+   "ppv": 66.32
+  },
+  "ectopic": {
+   "ref": 17916,
+   "found": 14473,
+   "se": 80.78,
+   "pred": 16292,
+   "ppv": 88.98,
+   "false_on_normal": 1230,
+   "false_no_beat": 565
+  },
+  "af": {
+   "ref_beats": 4137,
+   "det_beats": 2551,
+   "both": 1141,
+   "episodes": 22,
+   "ref_episodes": 2,
+   "det_s": 1984.2,
+   "se": 27.58,
+   "ppv": 44.73,
+   "records_with_ref": 2,
+   "records_with_det": 7,
+   "records_with_det_no_ref": 5
+  },
+  "runs": {
+   "ref": 145,
+   "ref_S": 9,
+   "ref_V": 134,
+   "ref_found": 83,
+   "ref_S_found": 3,
+   "ref_V_found": 79,
+   "det": 160,
+   "det_true": 82,
+   "se": 57.24,
+   "se_S": 33.33,
+   "se_V": 58.96,
+   "ppv": 51.25
+  },
+  "without_af_records": {
+   "records": 73,
+   "veb_se": 78.04,
+   "veb_ppv": 89.86,
+   "sveb_se": 87.55,
+   "sveb_ppv": 67.37
+  }
+ },
+ "records": [
+  {
+   "record": "I01",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.65,
+   "qrs": {
+    "ref": 2219,
+    "tp": 2172,
+    "fn": 47,
+    "fp": 229,
+    "usable": 2170
+   },
+   "confusion": {
+    "N": {
+     "ves": 203,
+     "sves": 41,
+     "premature": 0,
+     "none": 1724
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 230,
+     "sves": 0,
+     "premature": 0,
+     "none": 21
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 134,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 128,
+    "S": 0,
+    "V": 2,
+    "F": 0,
+    "Q": 0,
+    "-": 14
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      251,
+      230
+     ],
+     "typical": [
+      251,
+      230
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 7,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I02",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.65,
+   "qrs": {
+    "ref": 2135,
+    "tp": 2129,
+    "fn": 6,
+    "fp": 22,
+    "usable": 2114
+   },
+   "confusion": {
+    "N": {
+     "ves": 36,
+     "sves": 3,
+     "premature": 0,
+     "none": 1907
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 154,
+     "sves": 0,
+     "premature": 0,
+     "none": 35
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 6,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 10,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      183,
+      149
+     ],
+     "typical": [
+      52,
+      52
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 1,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I03",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.81,
+   "qrs": {
+    "ref": 1939,
+    "tp": 1905,
+    "fn": 34,
+    "fp": 178,
+    "usable": 1893
+   },
+   "confusion": {
+    "N": {
+     "ves": 65,
+     "sves": 7,
+     "premature": 3,
+     "none": 1765
+    },
+    "S": {
+     "ves": 0,
+     "sves": 1,
+     "premature": 0,
+     "none": 1
+    },
+    "V": {
+     "ves": 84,
+     "sves": 0,
+     "premature": 0,
+     "none": 13
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 38,
+    "sves": 0,
+    "premature": 3
+   },
+   "morphology_only_ves": {
+    "N": 4,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 7
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      97,
+      84
+     ],
+     "typical": [
+      95,
+      84
+     ]
+    },
+    "S": {
+     "isolated": [
+      2,
+      1
+     ],
+     "typical": [
+      1,
+      1
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 8,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I04",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.9,
+   "qrs": {
+    "ref": 2079,
+    "tp": 2064,
+    "fn": 15,
+    "fp": 163,
+    "usable": 2014
+   },
+   "confusion": {
+    "N": {
+     "ves": 24,
+     "sves": 9,
+     "premature": 0,
+     "none": 1903
+    },
+    "S": {
+     "ves": 2,
+     "sves": 2,
+     "premature": 0,
+     "none": 7
+    },
+    "V": {
+     "ves": 64,
+     "sves": 6,
+     "premature": 0,
+     "none": 49
+    },
+    "F": {
+     "ves": 4,
+     "sves": 0,
+     "premature": 0,
+     "none": 9
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 22,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 7,
+    "S": 0,
+    "V": 2,
+    "F": 4,
+    "Q": 0,
+    "-": 1
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      111,
+      67
+     ],
+     "typical": [
+      69,
+      60
+     ]
+    },
+    "S": {
+     "isolated": [
+      7,
+      3
+     ],
+     "typical": [
+      1,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 90,
+    "both": 0,
+    "episodes": 1,
+    "ref_episodes": 0,
+    "det_s": 86.1
+   },
+   "runs": {
+    "ref": 1,
+    "ref_S": 1,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 3,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I05",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.64,
+   "qrs": {
+    "ref": 1419,
+    "tp": 1417,
+    "fn": 2,
+    "fp": 16,
+    "usable": 1175
+   },
+   "confusion": {
+    "N": {
+     "ves": 3,
+     "sves": 1,
+     "premature": 0,
+     "none": 1214
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 12,
+     "sves": 0,
+     "premature": 0,
+     "none": 182
+    },
+    "F": {
+     "ves": 4,
+     "sves": 0,
+     "premature": 0,
+     "none": 3
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 7,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 6,
+    "F": 2,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      71,
+      12
+     ],
+     "typical": [
+      37,
+      6
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 9,
+    "ref_S": 0,
+    "ref_V": 9,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I06",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.82,
+   "qrs": {
+    "ref": 2007,
+    "tp": 2007,
+    "fn": 0,
+    "fp": 0,
+    "usable": 2007
+   },
+   "confusion": {
+    "N": {
+     "ves": 1,
+     "sves": 11,
+     "premature": 0,
+     "none": 1951
+    },
+    "S": {
+     "ves": 0,
+     "sves": 35,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 9,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      9,
+      9
+     ],
+     "typical": [
+      9,
+      9
+     ]
+    },
+    "S": {
+     "isolated": [
+      35,
+      35
+     ],
+     "typical": [
+      28,
+      28
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I07",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.83,
+   "qrs": {
+    "ref": 2191,
+    "tp": 2191,
+    "fn": 0,
+    "fp": 2,
+    "usable": 2191
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 8,
+     "premature": 0,
+     "none": 2125
+    },
+    "S": {
+     "ves": 0,
+     "sves": 54,
+     "premature": 0,
+     "none": 3
+    },
+    "V": {
+     "ves": 1,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 1,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 1,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      1,
+      1
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    },
+    "S": {
+     "isolated": [
+      52,
+      52
+     ],
+     "typical": [
+      50,
+      50
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 1,
+    "ref_S": 1,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I08",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.81,
+   "qrs": {
+    "ref": 1744,
+    "tp": 1742,
+    "fn": 2,
+    "fp": 62,
+    "usable": 1739
+   },
+   "confusion": {
+    "N": {
+     "ves": 16,
+     "sves": 8,
+     "premature": 0,
+     "none": 1403
+    },
+    "S": {
+     "ves": 1,
+     "sves": 1,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 268,
+     "sves": 2,
+     "premature": 0,
+     "none": 44
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1
+    }
+   },
+   "unmatched_events": {
+    "ves": 23,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 2,
+    "S": 0,
+    "V": 2,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      302,
+      263
+     ],
+     "typical": [
+      233,
+      208
+     ]
+    },
+    "S": {
+     "isolated": [
+      2,
+      2
+     ],
+     "typical": [
+      2,
+      2
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 6,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I09",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.65,
+   "qrs": {
+    "ref": 2436,
+    "tp": 2436,
+    "fn": 0,
+    "fp": 15,
+    "usable": 2407
+   },
+   "confusion": {
+    "N": {
+     "ves": 11,
+     "sves": 2,
+     "premature": 0,
+     "none": 2381
+    },
+    "S": {
+     "ves": 3,
+     "sves": 1,
+     "premature": 0,
+     "none": 4
+    },
+    "V": {
+     "ves": 13,
+     "sves": 0,
+     "premature": 0,
+     "none": 21
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 5,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 3,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 3
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      32,
+      13
+     ],
+     "typical": [
+      28,
+      10
+     ]
+    },
+    "S": {
+     "isolated": [
+      8,
+      4
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 221,
+    "both": 0,
+    "episodes": 2,
+    "ref_episodes": 0,
+    "det_s": 143.6
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 1,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I10",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.56,
+   "qrs": {
+    "ref": 2943,
+    "tp": 2941,
+    "fn": 2,
+    "fp": 3,
+    "usable": 2825
+   },
+   "confusion": {
+    "N": {
+     "ves": 42,
+     "sves": 1,
+     "premature": 0,
+     "none": 2821
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 2,
+     "sves": 0,
+     "premature": 0,
+     "none": 77
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 23,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      79,
+      2
+     ],
+     "typical": [
+      53,
+      1
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I11",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.56,
+   "qrs": {
+    "ref": 1738,
+    "tp": 1738,
+    "fn": 0,
+    "fp": 1,
+    "usable": 1738
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 2,
+     "premature": 0,
+     "none": 1720
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 14
+    },
+    "V": {
+     "ves": 2,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      2,
+      2
+     ],
+     "typical": [
+      2,
+      2
+     ]
+    },
+    "S": {
+     "isolated": [
+      14,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 795,
+    "both": 0,
+    "episodes": 6,
+    "ref_episodes": 0,
+    "det_s": 690.2
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I12",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.65,
+   "qrs": {
+    "ref": 2315,
+    "tp": 2314,
+    "fn": 1,
+    "fp": 1,
+    "usable": 2313
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 2306
+    },
+    "S": {
+     "ves": 0,
+     "sves": 1,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 2,
+     "sves": 0,
+     "premature": 0,
+     "none": 4
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 2
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 1,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      2,
+      1
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    },
+    "S": {
+     "isolated": [
+      1,
+      1
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I13",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.41,
+   "qrs": {
+    "ref": 1627,
+    "tp": 1627,
+    "fn": 0,
+    "fp": 0,
+    "usable": 1627
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1444
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 7,
+     "sves": 0,
+     "premature": 0,
+     "none": 176
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      183,
+      7
+     ],
+     "typical": [
+      7,
+      7
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I14",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.47,
+   "qrs": {
+    "ref": 1485,
+    "tp": 1485,
+    "fn": 0,
+    "fp": 0,
+    "usable": 1485
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1449
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 36
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 1,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 1
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      36,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I15",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.63,
+   "qrs": {
+    "ref": 2139,
+    "tp": 2139,
+    "fn": 0,
+    "fp": 1,
+    "usable": 2139
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 2136
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 1,
+     "sves": 2,
+     "premature": 0,
+     "none": 0
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 1,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      3,
+      3
+     ],
+     "typical": [
+      3,
+      3
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I16",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.67,
+   "qrs": {
+    "ref": 1232,
+    "tp": 1232,
+    "fn": 0,
+    "fp": 5,
+    "usable": 1227
+   },
+   "confusion": {
+    "N": {
+     "ves": 7,
+     "sves": 1,
+     "premature": 0,
+     "none": 1222
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 2
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 1,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      2,
+      0
+     ],
+     "typical": [
+      1,
+      0
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I17",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.62,
+   "qrs": {
+    "ref": 1351,
+    "tp": 1351,
+    "fn": 0,
+    "fp": 4,
+    "usable": 1290
+   },
+   "confusion": {
+    "N": {
+     "ves": 1,
+     "sves": 0,
+     "premature": 0,
+     "none": 1327
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 23
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 1,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 1
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      23,
+      0
+     ],
+     "typical": [
+      3,
+      0
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I18",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.59,
+   "qrs": {
+    "ref": 2516,
+    "tp": 2516,
+    "fn": 0,
+    "fp": 5,
+    "usable": 2516
+   },
+   "confusion": {
+    "N": {
+     "ves": 6,
+     "sves": 1,
+     "premature": 0,
+     "none": 2192
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 256,
+     "sves": 0,
+     "premature": 0,
+     "none": 12
+    },
+    "F": {
+     "ves": 3,
+     "sves": 0,
+     "premature": 0,
+     "none": 46
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 1,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 4,
+    "S": 0,
+    "V": 114,
+    "F": 3,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      268,
+      256
+     ],
+     "typical": [
+      102,
+      101
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I19",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.66,
+   "qrs": {
+    "ref": 1644,
+    "tp": 1644,
+    "fn": 0,
+    "fp": 3,
+    "usable": 1644
+   },
+   "confusion": {
+    "N": {
+     "ves": 1,
+     "sves": 0,
+     "premature": 0,
+     "none": 950
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 647,
+     "sves": 0,
+     "premature": 0,
+     "none": 46
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 2,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 4,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      693,
+      647
+     ],
+     "typical": [
+      593,
+      587
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 1,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I20",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.66,
+   "qrs": {
+    "ref": 2196,
+    "tp": 2183,
+    "fn": 13,
+    "fp": 4,
+    "usable": 2172
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 10,
+     "premature": 0,
+     "none": 1964
+    },
+    "S": {
+     "ves": 1,
+     "sves": 113,
+     "premature": 0,
+     "none": 5
+    },
+    "V": {
+     "ves": 57,
+     "sves": 2,
+     "premature": 0,
+     "none": 43
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 1,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 1,
+    "F": 0,
+    "Q": 0,
+    "-": 1
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      100,
+      59
+     ],
+     "typical": [
+      77,
+      52
+     ]
+    },
+    "S": {
+     "isolated": [
+      109,
+      104
+     ],
+     "typical": [
+      101,
+      96
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I21",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.71,
+   "qrs": {
+    "ref": 1754,
+    "tp": 1754,
+    "fn": 0,
+    "fp": 1,
+    "usable": 1754
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 14,
+     "premature": 0,
+     "none": 1656
+    },
+    "S": {
+     "ves": 0,
+     "sves": 72,
+     "premature": 0,
+     "none": 5
+    },
+    "V": {
+     "ves": 6,
+     "sves": 0,
+     "premature": 0,
+     "none": 1
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      7,
+      6
+     ],
+     "typical": [
+      6,
+      6
+     ]
+    },
+    "S": {
+     "isolated": [
+      64,
+      59
+     ],
+     "typical": [
+      53,
+      50
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 1,
+    "ref_S": 1,
+    "ref_V": 0,
+    "ref_found": 1,
+    "ref_S_found": 1,
+    "ref_V_found": 0,
+    "det": 1,
+    "det_true": 1
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I22",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.69,
+   "qrs": {
+    "ref": 2556,
+    "tp": 2545,
+    "fn": 11,
+    "fp": 1,
+    "usable": 2526
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 14,
+     "premature": 0,
+     "none": 2269
+    },
+    "S": {
+     "ves": 0,
+     "sves": 107,
+     "premature": 0,
+     "none": 4
+    },
+    "V": {
+     "ves": 73,
+     "sves": 11,
+     "premature": 0,
+     "none": 78
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 2,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      147,
+      83
+     ],
+     "typical": [
+      79,
+      60
+     ]
+    },
+    "S": {
+     "isolated": [
+      107,
+      103
+     ],
+     "typical": [
+      94,
+      94
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 1,
+    "ref_S": 0,
+    "ref_V": 1,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I23",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.78,
+   "qrs": {
+    "ref": 1811,
+    "tp": 1811,
+    "fn": 0,
+    "fp": 0,
+    "usable": 1811
+   },
+   "confusion": {
+    "N": {
+     "ves": 6,
+     "sves": 0,
+     "premature": 0,
+     "none": 1796
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 8,
+     "sves": 1,
+     "premature": 0,
+     "none": 0
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      9,
+      9
+     ],
+     "typical": [
+      9,
+      9
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I24",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.57,
+   "qrs": {
+    "ref": 1990,
+    "tp": 1990,
+    "fn": 0,
+    "fp": 0,
+    "usable": 1990
+   },
+   "confusion": {
+    "N": {
+     "ves": 3,
+     "sves": 0,
+     "premature": 0,
+     "none": 1981
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 3,
+     "sves": 3,
+     "premature": 0,
+     "none": 0
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      6,
+      6
+     ],
+     "typical": [
+      6,
+      6
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I25",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.77,
+   "qrs": {
+    "ref": 1373,
+    "tp": 1369,
+    "fn": 4,
+    "fp": 19,
+    "usable": 1369
+   },
+   "confusion": {
+    "N": {
+     "ves": 5,
+     "sves": 0,
+     "premature": 0,
+     "none": 1362
+    },
+    "S": {
+     "ves": 0,
+     "sves": 1,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 5
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 9,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    },
+    "S": {
+     "isolated": [
+      1,
+      1
+     ],
+     "typical": [
+      1,
+      1
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 1,
+    "ref_S": 0,
+    "ref_V": 1,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 1,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I26",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.73,
+   "qrs": {
+    "ref": 1215,
+    "tp": 1215,
+    "fn": 0,
+    "fp": 4,
+    "usable": 1215
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 1,
+     "premature": 0,
+     "none": 1209
+    },
+    "S": {
+     "ves": 0,
+     "sves": 1,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 1,
+     "sves": 0,
+     "premature": 0,
+     "none": 3
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 3,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    },
+    "S": {
+     "isolated": [
+      1,
+      1
+     ],
+     "typical": [
+      1,
+      1
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I27",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.5,
+   "qrs": {
+    "ref": 2075,
+    "tp": 2075,
+    "fn": 0,
+    "fp": 0,
+    "usable": 2072
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1503
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 571,
+     "sves": 0,
+     "premature": 0,
+     "none": 1
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      572,
+      571
+     ],
+     "typical": [
+      572,
+      571
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I28",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.53,
+   "qrs": {
+    "ref": 1364,
+    "tp": 1364,
+    "fn": 0,
+    "fp": 1,
+    "usable": 1356
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1360
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 4,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      4,
+      4
+     ],
+     "typical": [
+      4,
+      4
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 121,
+    "both": 0,
+    "episodes": 2,
+    "ref_episodes": 0,
+    "det_s": 136.7
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I29",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.74,
+   "qrs": {
+    "ref": 2216,
+    "tp": 2211,
+    "fn": 5,
+    "fp": 44,
+    "usable": 2197
+   },
+   "confusion": {
+    "N": {
+     "ves": 30,
+     "sves": 4,
+     "premature": 0,
+     "none": 1493
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 604,
+     "sves": 0,
+     "premature": 0,
+     "none": 85
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 22,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 3,
+    "S": 0,
+    "V": 8,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      474,
+      446
+     ],
+     "typical": [
+      375,
+      364
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 25,
+    "ref_S": 0,
+    "ref_V": 25,
+    "ref_found": 15,
+    "ref_S_found": 0,
+    "ref_V_found": 15,
+    "det": 20,
+    "det_true": 14
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I30",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.75,
+   "qrs": {
+    "ref": 2041,
+    "tp": 2039,
+    "fn": 2,
+    "fp": 15,
+    "usable": 2039
+   },
+   "confusion": {
+    "N": {
+     "ves": 2,
+     "sves": 4,
+     "premature": 0,
+     "none": 1378
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 553,
+     "sves": 14,
+     "premature": 0,
+     "none": 90
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 7,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 6,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      409,
+      399
+     ],
+     "typical": [
+      390,
+      381
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 17,
+    "ref_S": 0,
+    "ref_V": 17,
+    "ref_found": 7,
+    "ref_S_found": 0,
+    "ref_V_found": 7,
+    "det": 9,
+    "det_true": 7
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I31",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.64,
+   "qrs": {
+    "ref": 2488,
+    "tp": 2483,
+    "fn": 5,
+    "fp": 22,
+    "usable": 2470
+   },
+   "confusion": {
+    "N": {
+     "ves": 7,
+     "sves": 5,
+     "premature": 0,
+     "none": 1341
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 1078,
+     "sves": 2,
+     "premature": 0,
+     "none": 55
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 5,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 7,
+    "F": 0,
+    "Q": 0,
+    "-": 2
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      799,
+      766
+     ],
+     "typical": [
+      536,
+      518
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 44,
+    "ref_S": 0,
+    "ref_V": 44,
+    "ref_found": 43,
+    "ref_S_found": 0,
+    "ref_V_found": 43,
+    "det": 45,
+    "det_true": 43
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I32",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.54,
+   "qrs": {
+    "ref": 1319,
+    "tp": 1319,
+    "fn": 0,
+    "fp": 1,
+    "usable": 1319
+   },
+   "confusion": {
+    "N": {
+     "ves": 2,
+     "sves": 1,
+     "premature": 0,
+     "none": 1264
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 35,
+     "sves": 0,
+     "premature": 0,
+     "none": 17
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 1,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      44,
+      27
+     ],
+     "typical": [
+      11,
+      9
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I33",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.71,
+   "qrs": {
+    "ref": 1467,
+    "tp": 1466,
+    "fn": 1,
+    "fp": 5,
+    "usable": 1465
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 5,
+     "premature": 0,
+     "none": 991
+    },
+    "S": {
+     "ves": 1,
+     "sves": 452,
+     "premature": 0,
+     "none": 17
+    },
+    "V": {
+     "ves": 1,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 2,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 1,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      1,
+      1
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    },
+    "S": {
+     "isolated": [
+      462,
+      450
+     ],
+     "typical": [
+      432,
+      422
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 1,
+    "ref_S": 1,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I34",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.65,
+   "qrs": {
+    "ref": 1571,
+    "tp": 1567,
+    "fn": 4,
+    "fp": 3,
+    "usable": 1567
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 2,
+     "premature": 0,
+     "none": 1082
+    },
+    "S": {
+     "ves": 8,
+     "sves": 470,
+     "premature": 0,
+     "none": 9
+    },
+    "V": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 2,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 1
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    },
+    "S": {
+     "isolated": [
+      482,
+      477
+     ],
+     "typical": [
+      481,
+      477
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 1,
+    "ref_S": 1,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I35",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.55,
+   "qrs": {
+    "ref": 2978,
+    "tp": 2978,
+    "fn": 0,
+    "fp": 0,
+    "usable": 2978
+   },
+   "confusion": {
+    "N": {
+     "ves": 1,
+     "sves": 116,
+     "premature": 0,
+     "none": 2477
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 161,
+     "sves": 2,
+     "premature": 0,
+     "none": 206
+    },
+    "F": {
+     "ves": 0,
+     "sves": 1,
+     "premature": 0,
+     "none": 14
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 1,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      353,
+      149
+     ],
+     "typical": [
+      84,
+      78
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 1,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I36",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.49,
+   "qrs": {
+    "ref": 3017,
+    "tp": 3016,
+    "fn": 1,
+    "fp": 0,
+    "usable": 3016
+   },
+   "confusion": {
+    "N": {
+     "ves": 1,
+     "sves": 1,
+     "premature": 0,
+     "none": 2631
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 130,
+     "sves": 0,
+     "premature": 0,
+     "none": 242
+    },
+    "F": {
+     "ves": 0,
+     "sves": 1,
+     "premature": 0,
+     "none": 11
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      290,
+      93
+     ],
+     "typical": [
+      64,
+      60
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I37",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.4,
+   "qrs": {
+    "ref": 1976,
+    "tp": 1976,
+    "fn": 0,
+    "fp": 0,
+    "usable": 1976
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 11,
+     "premature": 0,
+     "none": 1601
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 348,
+     "sves": 0,
+     "premature": 0,
+     "none": 16
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      362,
+      346
+     ],
+     "typical": [
+      325,
+      321
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 1,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I38",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.69,
+   "qrs": {
+    "ref": 2149,
+    "tp": 2148,
+    "fn": 1,
+    "fp": 8,
+    "usable": 2145
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 1,
+     "premature": 0,
+     "none": 1728
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 396,
+     "sves": 13,
+     "premature": 0,
+     "none": 10
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1
+    }
+   },
+   "unmatched_events": {
+    "ves": 5,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 8,
+    "F": 0,
+    "Q": 0,
+    "-": 1
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      348,
+      343
+     ],
+     "typical": [
+      299,
+      296
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 1,
+    "ref_S": 0,
+    "ref_V": 1,
+    "ref_found": 1,
+    "ref_S_found": 0,
+    "ref_V_found": 1,
+    "det": 3,
+    "det_true": 1
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I39",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.7,
+   "qrs": {
+    "ref": 1330,
+    "tp": 1330,
+    "fn": 0,
+    "fp": 2,
+    "usable": 1330
+   },
+   "confusion": {
+    "N": {
+     "ves": 1,
+     "sves": 2,
+     "premature": 0,
+     "none": 1083
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 243,
+     "sves": 0,
+     "premature": 0,
+     "none": 1
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 1,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      244,
+      243
+     ],
+     "typical": [
+      244,
+      243
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I40",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.73,
+   "qrs": {
+    "ref": 2182,
+    "tp": 2177,
+    "fn": 5,
+    "fp": 36,
+    "usable": 1990
+   },
+   "confusion": {
+    "N": {
+     "ves": 35,
+     "sves": 2,
+     "premature": 0,
+     "none": 2049
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 4
+    },
+    "V": {
+     "ves": 2,
+     "sves": 0,
+     "premature": 0,
+     "none": 90
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 15,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 12,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 1
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      92,
+      2
+     ],
+     "typical": [
+      87,
+      2
+     ]
+    },
+    "S": {
+     "isolated": [
+      1,
+      0
+     ],
+     "typical": [
+      1,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 1,
+    "ref_S": 1,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I41",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.79,
+   "qrs": {
+    "ref": 1313,
+    "tp": 1313,
+    "fn": 0,
+    "fp": 9,
+    "usable": 1313
+   },
+   "confusion": {
+    "N": {
+     "ves": 14,
+     "sves": 18,
+     "premature": 0,
+     "none": 1277
+    },
+    "S": {
+     "ves": 0,
+     "sves": 3,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 1,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 4,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 1,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 2
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      1,
+      1
+     ],
+     "typical": [
+      1,
+      1
+     ]
+    },
+    "S": {
+     "isolated": [
+      3,
+      3
+     ],
+     "typical": [
+      2,
+      2
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I42",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.48,
+   "qrs": {
+    "ref": 2597,
+    "tp": 2595,
+    "fn": 2,
+    "fp": 1,
+    "usable": 2595
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1290
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 919,
+     "sves": 133,
+     "premature": 0,
+     "none": 246
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 9
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 20,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      1093,
+      1036
+     ],
+     "typical": [
+      420,
+      420
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 5,
+    "ref_S": 0,
+    "ref_V": 5,
+    "ref_found": 1,
+    "ref_S_found": 0,
+    "ref_V_found": 1,
+    "det": 1,
+    "det_true": 1
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I43",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.58,
+   "qrs": {
+    "ref": 1759,
+    "tp": 1757,
+    "fn": 2,
+    "fp": 0,
+    "usable": 1757
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 866
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 872,
+     "sves": 0,
+     "premature": 0,
+     "none": 19
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 2
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      843,
+      837
+     ],
+     "typical": [
+      682,
+      681
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 2,
+    "ref_S": 0,
+    "ref_V": 2,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I44",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.58,
+   "qrs": {
+    "ref": 1994,
+    "tp": 1994,
+    "fn": 0,
+    "fp": 0,
+    "usable": 1994
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1449
+    },
+    "S": {
+     "ves": 0,
+     "sves": 7,
+     "premature": 0,
+     "none": 1
+    },
+    "V": {
+     "ves": 522,
+     "sves": 0,
+     "premature": 0,
+     "none": 15
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      536,
+      521
+     ],
+     "typical": [
+      490,
+      490
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 1,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 1,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 1,
+    "det_true": 1
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I45",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.67,
+   "qrs": {
+    "ref": 1538,
+    "tp": 1538,
+    "fn": 0,
+    "fp": 0,
+    "usable": 1538
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 2,
+     "premature": 0,
+     "none": 1159
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 366,
+     "sves": 0,
+     "premature": 0,
+     "none": 11
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      377,
+      366
+     ],
+     "typical": [
+      371,
+      365
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I46",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.62,
+   "qrs": {
+    "ref": 2193,
+    "tp": 2193,
+    "fn": 0,
+    "fp": 1,
+    "usable": 2193
+   },
+   "confusion": {
+    "N": {
+     "ves": 3,
+     "sves": 0,
+     "premature": 0,
+     "none": 1849
+    },
+    "S": {
+     "ves": 0,
+     "sves": 1,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 272,
+     "sves": 0,
+     "premature": 0,
+     "none": 65
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 3
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 2,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      337,
+      272
+     ],
+     "typical": [
+      167,
+      167
+     ]
+    },
+    "S": {
+     "isolated": [
+      1,
+      1
+     ],
+     "typical": [
+      1,
+      1
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I47",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.77,
+   "qrs": {
+    "ref": 1565,
+    "tp": 1565,
+    "fn": 0,
+    "fp": 2,
+    "usable": 1556
+   },
+   "confusion": {
+    "N": {
+     "ves": 14,
+     "sves": 31,
+     "premature": 0,
+     "none": 1452
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1
+    },
+    "V": {
+     "ves": 58,
+     "sves": 0,
+     "premature": 0,
+     "none": 9
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 2,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 1,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      67,
+      58
+     ],
+     "typical": [
+      36,
+      32
+     ]
+    },
+    "S": {
+     "isolated": [
+      1,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 1,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I48",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.75,
+   "qrs": {
+    "ref": 1886,
+    "tp": 1886,
+    "fn": 0,
+    "fp": 8,
+    "usable": 1757
+   },
+   "confusion": {
+    "N": {
+     "ves": 11,
+     "sves": 10,
+     "premature": 0,
+     "none": 1677
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 57,
+     "sves": 0,
+     "premature": 0,
+     "none": 131
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      186,
+      57
+     ],
+     "typical": [
+      176,
+      52
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I49",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.57,
+   "qrs": {
+    "ref": 1718,
+    "tp": 1718,
+    "fn": 0,
+    "fp": 0,
+    "usable": 1718
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 28,
+     "premature": 0,
+     "none": 1663
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 27,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      27,
+      27
+     ],
+     "typical": [
+      11,
+      11
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": true,
+   "af": {
+    "ref_beats": 1718,
+    "det_beats": 354,
+    "both": 354,
+    "episodes": 4,
+    "ref_episodes": 1,
+    "det_s": 303.2
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I50",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.62,
+   "qrs": {
+    "ref": 2419,
+    "tp": 2419,
+    "fn": 0,
+    "fp": 1,
+    "usable": 2419
+   },
+   "confusion": {
+    "N": {
+     "ves": 1,
+     "sves": 5,
+     "premature": 0,
+     "none": 2409
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 2,
+     "sves": 0,
+     "premature": 0,
+     "none": 2
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 1,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 1,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      4,
+      2
+     ],
+     "typical": [
+      1,
+      1
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": true,
+   "af": {
+    "ref_beats": 2419,
+    "det_beats": 787,
+    "both": 787,
+    "episodes": 6,
+    "ref_episodes": 1,
+    "det_s": 495.5
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I51",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.56,
+   "qrs": {
+    "ref": 2299,
+    "tp": 2299,
+    "fn": 0,
+    "fp": 0,
+    "usable": 2299
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 7,
+     "premature": 0,
+     "none": 1715
+    },
+    "S": {
+     "ves": 0,
+     "sves": 3,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 557,
+     "sves": 0,
+     "premature": 0,
+     "none": 16
+    },
+    "F": {
+     "ves": 0,
+     "sves": 1,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      573,
+      557
+     ],
+     "typical": [
+      536,
+      534
+     ]
+    },
+    "S": {
+     "isolated": [
+      3,
+      3
+     ],
+     "typical": [
+      1,
+      1
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I52",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.49,
+   "qrs": {
+    "ref": 1403,
+    "tp": 1403,
+    "fn": 0,
+    "fp": 0,
+    "usable": 1403
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1326
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 77,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      77,
+      77
+     ],
+     "typical": [
+      77,
+      77
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I53",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.66,
+   "qrs": {
+    "ref": 1793,
+    "tp": 1793,
+    "fn": 0,
+    "fp": 1,
+    "usable": 1793
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 915
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 877,
+     "sves": 0,
+     "premature": 0,
+     "none": 1
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 1,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      876,
+      875
+     ],
+     "typical": [
+      857,
+      856
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I54",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.71,
+   "qrs": {
+    "ref": 1926,
+    "tp": 1882,
+    "fn": 44,
+    "fp": 343,
+    "usable": 1866
+   },
+   "confusion": {
+    "N": {
+     "ves": 100,
+     "sves": 10,
+     "premature": 0,
+     "none": 1796
+    },
+    "S": {
+     "ves": 0,
+     "sves": 1,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 12,
+     "sves": 0,
+     "premature": 0,
+     "none": 7
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 167,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 1,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 29
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      12,
+      9
+     ],
+     "typical": [
+      11,
+      8
+     ]
+    },
+    "S": {
+     "isolated": [
+      1,
+      1
+     ],
+     "typical": [
+      1,
+      1
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 1,
+    "ref_S": 0,
+    "ref_V": 1,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 19,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I55",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.61,
+   "qrs": {
+    "ref": 1716,
+    "tp": 1716,
+    "fn": 0,
+    "fp": 10,
+    "usable": 1716
+   },
+   "confusion": {
+    "N": {
+     "ves": 3,
+     "sves": 0,
+     "premature": 0,
+     "none": 1699
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 9,
+     "sves": 0,
+     "premature": 0,
+     "none": 5
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 6,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 1
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      9,
+      9
+     ],
+     "typical": [
+      9,
+      9
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 1,
+    "ref_S": 0,
+    "ref_V": 1,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I56",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.6,
+   "qrs": {
+    "ref": 1330,
+    "tp": 1330,
+    "fn": 0,
+    "fp": 0,
+    "usable": 1326
+   },
+   "confusion": {
+    "N": {
+     "ves": 1,
+     "sves": 1,
+     "premature": 0,
+     "none": 1299
+    },
+    "S": {
+     "ves": 0,
+     "sves": 23,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 2,
+     "sves": 1,
+     "premature": 0,
+     "none": 3
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      6,
+      3
+     ],
+     "typical": [
+      6,
+      3
+     ]
+    },
+    "S": {
+     "isolated": [
+      23,
+      23
+     ],
+     "typical": [
+      22,
+      22
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I57",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.69,
+   "qrs": {
+    "ref": 2305,
+    "tp": 2305,
+    "fn": 0,
+    "fp": 4,
+    "usable": 2296
+   },
+   "confusion": {
+    "N": {
+     "ves": 2,
+     "sves": 1,
+     "premature": 0,
+     "none": 2282
+    },
+    "S": {
+     "ves": 0,
+     "sves": 3,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 10,
+     "sves": 0,
+     "premature": 0,
+     "none": 4
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 2
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 2,
+    "S": 0,
+    "V": 4,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      12,
+      8
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    },
+    "S": {
+     "isolated": [
+      3,
+      3
+     ],
+     "typical": [
+      2,
+      2
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I58",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.75,
+   "qrs": {
+    "ref": 1881,
+    "tp": 1880,
+    "fn": 1,
+    "fp": 5,
+    "usable": 1880
+   },
+   "confusion": {
+    "N": {
+     "ves": 5,
+     "sves": 1,
+     "premature": 0,
+     "none": 1868
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 5,
+     "sves": 0,
+     "premature": 0,
+     "none": 2
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 2,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 2,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      5,
+      3
+     ],
+     "typical": [
+      4,
+      2
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I59",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.54,
+   "qrs": {
+    "ref": 1809,
+    "tp": 1808,
+    "fn": 1,
+    "fp": 11,
+    "usable": 1808
+   },
+   "confusion": {
+    "N": {
+     "ves": 7,
+     "sves": 0,
+     "premature": 0,
+     "none": 1721
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 79,
+     "sves": 0,
+     "premature": 0,
+     "none": 2
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 2,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 2,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      64,
+      63
+     ],
+     "typical": [
+      20,
+      20
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 3,
+    "ref_S": 0,
+    "ref_V": 3,
+    "ref_found": 2,
+    "ref_S_found": 0,
+    "ref_V_found": 2,
+    "det": 4,
+    "det_true": 2
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I60",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.6,
+   "qrs": {
+    "ref": 2048,
+    "tp": 2048,
+    "fn": 0,
+    "fp": 1,
+    "usable": 2047
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 2048
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 1,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I61",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.47,
+   "qrs": {
+    "ref": 1160,
+    "tp": 1160,
+    "fn": 0,
+    "fp": 0,
+    "usable": 1160
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1159
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1
+    },
+    "V": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 1,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    },
+    "S": {
+     "isolated": [
+      1,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I62",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.7,
+   "qrs": {
+    "ref": 1916,
+    "tp": 1916,
+    "fn": 0,
+    "fp": 2,
+    "usable": 1915
+   },
+   "confusion": {
+    "N": {
+     "ves": 9,
+     "sves": 21,
+     "premature": 0,
+     "none": 1072
+    },
+    "S": {
+     "ves": 0,
+     "sves": 4,
+     "premature": 0,
+     "none": 3
+    },
+    "V": {
+     "ves": 24,
+     "sves": 16,
+     "premature": 0,
+     "none": 755
+    },
+    "F": {
+     "ves": 2,
+     "sves": 1,
+     "premature": 0,
+     "none": 9
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 2,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 1,
+    "S": 0,
+    "V": 4,
+    "F": 0,
+    "Q": 0,
+    "-": 1
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      9,
+      8
+     ],
+     "typical": [
+      7,
+      7
+     ]
+    },
+    "S": {
+     "isolated": [
+      3,
+      3
+     ],
+     "typical": [
+      3,
+      3
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 15,
+    "ref_S": 1,
+    "ref_V": 13,
+    "ref_found": 2,
+    "ref_S_found": 0,
+    "ref_V_found": 2,
+    "det": 3,
+    "det_true": 2
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I63",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.53,
+   "qrs": {
+    "ref": 1585,
+    "tp": 1584,
+    "fn": 1,
+    "fp": 4,
+    "usable": 1582
+   },
+   "confusion": {
+    "N": {
+     "ves": 2,
+     "sves": 2,
+     "premature": 0,
+     "none": 1467
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 92,
+     "sves": 2,
+     "premature": 0,
+     "none": 14
+    },
+    "F": {
+     "ves": 2,
+     "sves": 0,
+     "premature": 0,
+     "none": 4
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 3,
+    "sves": 1,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 2,
+    "S": 0,
+    "V": 13,
+    "F": 2,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      56,
+      50
+     ],
+     "typical": [
+      30,
+      30
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 5,
+    "ref_S": 0,
+    "ref_V": 5,
+    "ref_found": 3,
+    "ref_S_found": 0,
+    "ref_V_found": 3,
+    "det": 3,
+    "det_true": 3
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I64",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.56,
+   "qrs": {
+    "ref": 1517,
+    "tp": 1516,
+    "fn": 1,
+    "fp": 4,
+    "usable": 1515
+   },
+   "confusion": {
+    "N": {
+     "ves": 1,
+     "sves": 0,
+     "premature": 0,
+     "none": 1496
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 15,
+     "sves": 0,
+     "premature": 0,
+     "none": 2
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 3
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 4,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 3,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      8,
+      8
+     ],
+     "typical": [
+      3,
+      3
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 1,
+    "ref_S": 0,
+    "ref_V": 1,
+    "ref_found": 1,
+    "ref_S_found": 0,
+    "ref_V_found": 1,
+    "det": 1,
+    "det_true": 1
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I65",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.61,
+   "qrs": {
+    "ref": 2155,
+    "tp": 2153,
+    "fn": 2,
+    "fp": 4,
+    "usable": 2153
+   },
+   "confusion": {
+    "N": {
+     "ves": 2,
+     "sves": 10,
+     "premature": 0,
+     "none": 1838
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 5
+    },
+    "V": {
+     "ves": 264,
+     "sves": 0,
+     "premature": 0,
+     "none": 32
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 4
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 1,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 2,
+    "S": 0,
+    "V": 19,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      281,
+      251
+     ],
+     "typical": [
+      196,
+      195
+     ]
+    },
+    "S": {
+     "isolated": [
+      4,
+      0
+     ],
+     "typical": [
+      2,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 3,
+    "ref_S": 0,
+    "ref_V": 3,
+    "ref_found": 2,
+    "ref_S_found": 0,
+    "ref_V_found": 2,
+    "det": 4,
+    "det_true": 2
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I66",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.64,
+   "qrs": {
+    "ref": 1850,
+    "tp": 1850,
+    "fn": 0,
+    "fp": 4,
+    "usable": 1850
+   },
+   "confusion": {
+    "N": {
+     "ves": 2,
+     "sves": 7,
+     "premature": 0,
+     "none": 1717
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1
+    },
+    "V": {
+     "ves": 119,
+     "sves": 3,
+     "premature": 0,
+     "none": 1
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 2,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      117,
+      117
+     ],
+     "typical": [
+      69,
+      69
+     ]
+    },
+    "S": {
+     "isolated": [
+      1,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 1,
+    "ref_S": 0,
+    "ref_V": 1,
+    "ref_found": 1,
+    "ref_S_found": 0,
+    "ref_V_found": 1,
+    "det": 2,
+    "det_true": 1
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I67",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.65,
+   "qrs": {
+    "ref": 2408,
+    "tp": 2408,
+    "fn": 0,
+    "fp": 6,
+    "usable": 2408
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 25,
+     "premature": 0,
+     "none": 1947
+    },
+    "S": {
+     "ves": 0,
+     "sves": 4,
+     "premature": 0,
+     "none": 1
+    },
+    "V": {
+     "ves": 424,
+     "sves": 0,
+     "premature": 0,
+     "none": 6
+    },
+    "F": {
+     "ves": 1,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 2,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 16,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      420,
+      416
+     ],
+     "typical": [
+      355,
+      352
+     ]
+    },
+    "S": {
+     "isolated": [
+      1,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 2,
+    "ref_S": 1,
+    "ref_V": 1,
+    "ref_found": 2,
+    "ref_S_found": 1,
+    "ref_V_found": 1,
+    "det": 6,
+    "det_true": 2
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I68",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.62,
+   "qrs": {
+    "ref": 2125,
+    "tp": 2114,
+    "fn": 11,
+    "fp": 85,
+    "usable": 1949
+   },
+   "confusion": {
+    "N": {
+     "ves": 49,
+     "sves": 0,
+     "premature": 0,
+     "none": 1937
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1
+    },
+    "V": {
+     "ves": 8,
+     "sves": 0,
+     "premature": 0,
+     "none": 130
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 38,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 5,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      138,
+      8
+     ],
+     "typical": [
+      138,
+      8
+     ]
+    },
+    "S": {
+     "isolated": [
+      1,
+      0
+     ],
+     "typical": [
+      1,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 5,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I69",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.49,
+   "qrs": {
+    "ref": 1734,
+    "tp": 1733,
+    "fn": 1,
+    "fp": 12,
+    "usable": 1584
+   },
+   "confusion": {
+    "N": {
+     "ves": 6,
+     "sves": 0,
+     "premature": 0,
+     "none": 1594
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 1,
+     "sves": 0,
+     "premature": 0,
+     "none": 133
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 4,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      134,
+      1
+     ],
+     "typical": [
+      134,
+      1
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 1,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I70",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.6,
+   "qrs": {
+    "ref": 1326,
+    "tp": 1326,
+    "fn": 0,
+    "fp": 0,
+    "usable": 1326
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1256
+    },
+    "S": {
+     "ves": 69,
+     "sves": 0,
+     "premature": 0,
+     "none": 1
+    },
+    "V": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    },
+    "S": {
+     "isolated": [
+      70,
+      69
+     ],
+     "typical": [
+      70,
+      69
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I71",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.46,
+   "qrs": {
+    "ref": 1355,
+    "tp": 1355,
+    "fn": 0,
+    "fp": 0,
+    "usable": 1355
+   },
+   "confusion": {
+    "N": {
+     "ves": 3,
+     "sves": 0,
+     "premature": 0,
+     "none": 1323
+    },
+    "S": {
+     "ves": 26,
+     "sves": 3,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    },
+    "S": {
+     "isolated": [
+      25,
+      25
+     ],
+     "typical": [
+      25,
+      25
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 183,
+    "both": 0,
+    "episodes": 1,
+    "ref_episodes": 0,
+    "det_s": 128.9
+   },
+   "runs": {
+    "ref": 1,
+    "ref_S": 1,
+    "ref_V": 0,
+    "ref_found": 1,
+    "ref_S_found": 1,
+    "ref_V_found": 0,
+    "det": 1,
+    "det_true": 1
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I72",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.45,
+   "qrs": {
+    "ref": 1812,
+    "tp": 1812,
+    "fn": 0,
+    "fp": 0,
+    "usable": 1810
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 4,
+     "premature": 0,
+     "none": 1484
+    },
+    "S": {
+     "ves": 0,
+     "sves": 8,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 301,
+     "sves": 10,
+     "premature": 0,
+     "none": 5
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 11,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      302,
+      299
+     ],
+     "typical": [
+      268,
+      268
+     ]
+    },
+    "S": {
+     "isolated": [
+      6,
+      6
+     ],
+     "typical": [
+      5,
+      5
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I73",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.41,
+   "qrs": {
+    "ref": 1585,
+    "tp": 1585,
+    "fn": 0,
+    "fp": 0,
+    "usable": 1585
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 3,
+     "premature": 0,
+     "none": 1502
+    },
+    "S": {
+     "ves": 0,
+     "sves": 29,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 47,
+     "sves": 0,
+     "premature": 0,
+     "none": 4
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 0,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      45,
+      41
+     ],
+     "typical": [
+      40,
+      38
+     ]
+    },
+    "S": {
+     "isolated": [
+      23,
+      23
+     ],
+     "typical": [
+      23,
+      23
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I74",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.48,
+   "qrs": {
+    "ref": 1906,
+    "tp": 1905,
+    "fn": 1,
+    "fp": 2,
+    "usable": 1862
+   },
+   "confusion": {
+    "N": {
+     "ves": 1,
+     "sves": 8,
+     "premature": 0,
+     "none": 1601
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 202,
+     "sves": 0,
+     "premature": 0,
+     "none": 51
+    },
+    "F": {
+     "ves": 4,
+     "sves": 0,
+     "premature": 0,
+     "none": 39
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 2,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 1,
+    "S": 0,
+    "V": 108,
+    "F": 3,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      253,
+      202
+     ],
+     "typical": [
+      56,
+      43
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  },
+  {
+   "record": "I75",
+   "lead": "II",
+   "paced": false,
+   "duration_s": 1800.0,
+   "elapsed_s": 0.41,
+   "qrs": {
+    "ref": 1675,
+    "tp": 1675,
+    "fn": 0,
+    "fp": 0,
+    "usable": 1675
+   },
+   "confusion": {
+    "N": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 1177
+    },
+    "S": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "V": {
+     "ves": 492,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    },
+    "F": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 6
+    },
+    "Q": {
+     "ves": 0,
+     "sves": 0,
+     "premature": 0,
+     "none": 0
+    }
+   },
+   "unmatched_events": {
+    "ves": 0,
+    "sves": 0,
+    "premature": 0
+   },
+   "morphology_only_ves": {
+    "N": 0,
+    "S": 0,
+    "V": 42,
+    "F": 0,
+    "Q": 0,
+    "-": 0
+   },
+   "subgroups": {
+    "V": {
+     "isolated": [
+      492,
+      492
+     ],
+     "typical": [
+      410,
+      410
+     ]
+    },
+    "S": {
+     "isolated": [
+      0,
+      0
+     ],
+     "typical": [
+      0,
+      0
+     ]
+    }
+   },
+   "atrial_fibrillation_or_flutter": false,
+   "af": {
+    "ref_beats": 0,
+    "det_beats": 0,
+    "both": 0,
+    "episodes": 0,
+    "ref_episodes": 0,
+    "det_s": 0
+   },
+   "runs": {
+    "ref": 0,
+    "ref_S": 0,
+    "ref_V": 0,
+    "ref_found": 0,
+    "ref_S_found": 0,
+    "ref_V_found": 0,
+    "det": 0,
+    "det_true": 0
+   },
+   "vf_excluded_s": 0
+  }
+ ]
+}
