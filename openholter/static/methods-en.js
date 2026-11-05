@@ -54,7 +54,7 @@ const METHODS_HTML_EN = `
     </table></div>
     <ul>
       <li><b>Sensitivity</b> = how many of the true beats were found. <b>Precision</b> (+P) = how many of the program's marks were correct.</li>
-      <li><b>Atrial fibrillation, clean test</b> (AFDB, second by second): sensitivity 80.9 %, precision 99.1 %.</li>
+      <li><b>Atrial fibrillation, clean test</b> (AFDB, second by second): sensitivity 80.7 %, precision 99.1 %.</li>
       <li><b>Interpretation:</b> beats are found reliably, and typical single extra beats are found in about 9 out of 10 cases. Overall VES and SVES counts are indicative: on the clean test about 60 % of VES and 54 % of SVES beats were found, and VES did not improve from the previous version. An atrial fibrillation alarm is usually right on the clean test, but some fibrillation is missed.</li>
       <li><b>Limitation:</b> The databases were recorded with Holter devices, not with a Polar H10. The result describes the algorithm, not directly the accuracy reachable with the strap.</li>
       <li>The full report, per-record results and instructions to repeat the test: <span class="mono">docs/VALIDATION.en.md</span> in the source code. Tested version: OpenHolter 0.3.0, analysis version 6.</li>

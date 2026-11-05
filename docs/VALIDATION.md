@@ -26,6 +26,12 @@ osiot ovat ennallaan.
 
 ### Tulokset
 
+> **Korjaus testiajon jälkeen (6.11.2026, versio 0.4.2).** Kun v6 ajettiin ensimmäistä kertaa oikealle H10-tallenteelle, tunnistin
+> löysi 7 000 lyönnin tallenteesta nolla lyöntiä: vyön pukemisen häiriöpiikit nostivat kynnyksen pysyvästi liian korkealle. Validointiaineistoissa
+> tällaista ei ollut. Lisäksi analyysi hidastui jyrkästi pitkissä lyönnittömissä jaksoissa. Molemmat korjattiin, ja kaikki aineistot ajettiin
+> uudelleen. Näkyvä muutos on AFDB:n herkkyys 80,9 → 80,7 %, ja alla ovat korjatun version luvut. Korjausta ei säädetty tulosten perusteella,
+> mutta se tehtiin SVDB:n ja AFDB:n avaamisen jälkeen. Korjauksen jälkeen H10-tallenteiden lyöntimäärät vastaavat v4:ää (7 064 / 7 063 ja 46 585 / 46 467).
+
 Parametrit säädettiin vain DS1:llä ja lukittiin. Sen jälkeen kaikki aineistot ajettiin kerran, eikä mitään muutettu.
 **Puhdas testi ovat vain SVDB ja AFDB**, koska ne ladattiin tätä kierrosta varten ja avattiin vasta lukituksen jälkeen. DS2:n ja
 INCARTin tuloksia nähtiin v5:ssä, ja niistä selvinneet syyt ohjasivat v6:n suunnittelua, vaikka numeroita ei
@@ -51,7 +57,7 @@ Eteisvärinä ja epäsäännöllinen rytmi:
 
 | Aineisto ja mittari | v5 | v6 |
 |---|---:|---:|
-| **AFDB, 23 tallennetta, 233 h, sekunneittain (puhdas testi): Se / +P** | 83,3 / 95,2 | **80,9 / 99,1** |
+| **AFDB, 23 tallennetta, 233 h, sekunneittain (puhdas testi): Se / +P** | 83,3 / 95,2 | **80,7 / 99,1** |
 | AFDB: ei-eteisvärinäajasta oikein luokiteltu (spesifisyys) | 97,1 | 99,5 |
 | AFDB: tallenteita, joista löytyi vähintään puolet eteisvärinästä | 21 / 23 | 18 / 23 |
 | MIT-BIH kaikki, lyönneittäin: Se / +P | 82,4 / 87,1 | 93,4 / 75,6 |

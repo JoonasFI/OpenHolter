@@ -7,6 +7,12 @@ Tallenteet analysoidaan aina raakadatasta, joten uusi analyysiversio koskee myö
 
 Luvut ovat herkkyys / osuvuus. Heikentyneet tulokset kerrotaan yhtä tarkasti kuin parantuneet. Menetelmä ja tallennekohtaiset taulukot: [docs/VALIDATION.md](docs/VALIDATION.md).
 
+## 0.4.2: lyöntitunnistin toipuu häiriöpiikeistä
+
+- **Korjattu vakava virhe (0.4.0 ja 0.4.1):** vyön pukemisen häiriöpiikit saattoivat nostaa lyöntitunnistimen kynnyksen pysyvästi liian korkealle, jolloin tallenteen loppuosasta ei löytynyt yhtään lyöntiä. Virhe löytyi oikeasta H10-tallenteesta: 7 000 lyönnin tallenteesta löytyi nolla lyöntiä. Raakadataa virhe ei koskenut.
+- Nyt taso arvioidaan uudelleen, jos lyöntiä ei ole tullut 3 sekuntiin ja viime sekunneissa näkyy QRS:n kaltainen huippu.
+- Validointi: AFDB:n herkkyys 80,9 → 80,7 %. Muut julkaistut luvut pyöristyvät samoiksi. Analyysiversio on yhä 6, joten jos ajoit version 0.4.0 tai 0.4.1, poista tiedostot `sessions/*/cache/analysis-v6.json`, jotta tallenteet analysoidaan uudelleen.
+
 ## 0.4.1: pitkien taukojen analyysi nopeammaksi
 
 - Korjattu: version 0.4.0 lyöntitunnistin hidastui jyrkästi pitkissä jaksoissa ilman lyöntejä, esimerkiksi kun vyö oli pois päältä. Taaksepäin haetaan nyt enintään 5 sekuntia.

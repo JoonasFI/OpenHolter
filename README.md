@@ -4,7 +4,7 @@
 
 🇫🇮 [Suomeksi](README.fi.md)
 
-**Latest version: 0.4.1 (analysis version 6).** [What changed](CHANGELOG.md) · [Releases](https://github.com/JoonasFI/OpenHolter/releases)
+**Latest version: 0.4.2 (analysis version 6).** [What changed](CHANGELOG.md) · [Releases](https://github.com/JoonasFI/OpenHolter/releases)
 
 ![Live view](docs/screenshots/en/live.png)
 
@@ -43,7 +43,7 @@ parameters were locked. MIT-BIH and INCART had been seen with the previous versi
 | **SVES** (supraventricular extra beats) | **53.6 % / 75.1 %** | 32.9 % / 69.4 % | 87.6 % / 66.3 % |
 | SVES, typical single beat + pause | 90.8 % | 90.0 % | 98.0 % |
 
-Atrial fibrillation on AFDB, clean test (233 hours, second by second): **80.9 % / 99.1 %**.
+Atrial fibrillation on AFDB, clean test (233 hours, second by second): **80.7 % / 99.1 %**.
 
 - **Beats are found reliably**: 99.8–99.9 % of all heartbeats, with few false detections.
 - **Typical single extra beats**, the most common kind, are found in about 9 out of 10 cases.

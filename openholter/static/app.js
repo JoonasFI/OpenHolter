@@ -1910,7 +1910,7 @@ const METHODS_HTML = `
     </table></div>
     <ul>
       <li><b>Herkkyys</b> = kuinka suuri osa oikeista lyönneistä löytyi. <b>Osuvuus</b> = kuinka suuri osa ohjelman merkinnöistä oli oikeita.</li>
-      <li><b>Eteisvärinä, puhdas testi</b> (AFDB, sekunneittain): herkkyys 80,9 %, osuvuus 99,1 %.</li>
+      <li><b>Eteisvärinä, puhdas testi</b> (AFDB, sekunneittain): herkkyys 80,7 %, osuvuus 99,1 %.</li>
       <li><b>Tulkinta:</b> lyönnit löytyvät luotettavasti, ja tyypilliset yksittäiset lisälyönnit löytyvät noin 9 tapauksessa 10:stä. VES- ja SVES-kokonaismäärät ovat suuntaa antavia: puhtaassa testissä VES-lyönneistä löytyi noin 60 % ja SVES-lyönneistä 54 %, ja VES ei parantunut edellisestä versiosta. Eteisvärinähälytys on puhtaassa testissä yleensä oikea, mutta osa eteisvärinästä jää löytymättä.</li>
       <li><b>Rajoitus:</b> Aineistot on nauhoitettu Holter-laitteilla, ei Polar H10:llä. Tulos kertoo algoritmista, ei suoraan vyön kanssa saavutettavasta tarkkuudesta.</li>
       <li>Koko raportti, tallennekohtaiset tulokset ja ohje testin toistamiseen: <span class="mono">docs/VALIDATION.md</span> projektin lähdekoodissa. Testattu versio: OpenHolter 0.3.0, analyysiversio 6.</li>

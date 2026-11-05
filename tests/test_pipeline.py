@@ -293,6 +293,22 @@ def test_long_stretch_without_beats_is_fast():
     assert 110 < len(r) < 130  # and nothing invented from the noise
 
 
+def test_detector_recovers_from_movement_artefact():
+    """Huge spikes while the strap is put on must not raise the threshold for good (found on real H10 data)."""
+    from openholter.beats import detect_r_peaks
+    from openholter.simulator import SyntheticBody
+    fs = 130.0
+    body = SyntheticBody(seed=2, night=False)
+    body.beats = [(0.5 + i, "N") for i in range(320)] + [(1e4, "N")]
+    x = body.ecg(0, int(300 * fs), fs).astype(float)
+    for k in range(8):  # eight spikes about 20 x the QRS, half a second apart
+        i = int((48 + k * 0.5) * fs)
+        x[i:i + 6] += 25000 * (-1) ** k
+    r, _ = detect_r_peaks(np.arange(len(x)) / fs, x, fs)
+    after = r[r > 60 * fs] / fs
+    assert 230 < len(after) < 245  # 240 beats after the artefact
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

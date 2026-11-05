@@ -61,6 +61,8 @@ DET_SEARCH = 1.5      # search back when the gap exceeds 1.5 × median of the la
 DET_BACK_K = 0.5      # in search-back the threshold is this × the normal one
 DET_T_S, DET_T_RATIO = 0.42, 0.5  # within 420 ms a peak under 0.5 × the previous one is a T wave
 DET_BACK_S = 5.0      # search back at most this far: RR intervals over 3 s are not analysed anyway
+DET_RESET_S = 3.0     # no accepted beat for this long: re-estimate the signal and noise levels ...
+DET_RESET_RATIO = 3.0 # ... if the highest recent peak is at least this × their median
 DET_FLOOR = 0.12      # never below 12 % of the recording's typical peak (lost contact, noise)
 DET_LOC_PRE, DET_LOC_POST = 0.10, 0.10  # R is the largest |baseline-removed ECG| in this window
 
@@ -80,6 +82,7 @@ def _pick_peaks(h: np.ndarray, cand: np.ndarray, fs: float) -> List[int]:
     keep: List[int] = []  # indices into cand
     last_rej: List[int] = []  # rejected since the last accepted peak
     t_gap, refr, back_max = int(DET_T_S * fs), int(DET_REFR * fs), int(DET_BACK_S * fs)
+    reset_gap, last_reset = int(DET_RESET_S * fs), 0
 
     def level() -> float:
         return max(floor, npk + DET_K * (float(np.median(spk[-DET_HIST:])) - npk))
@@ -99,6 +102,17 @@ def _pick_peaks(h: np.ndarray, cand: np.ndarray, fs: float) -> List[int]:
         # a stretch without beats (strap off) must not make the list grow: keep only the last few seconds
         if last_rej and cand[j] - cand[last_rej[0]] > back_max:
             last_rej = [q for q in last_rej if cand[j] - cand[q] <= back_max]
+        # no beat for a while: the signal level may have been pushed up by movement artefacts (putting the
+        # strap on), and it only moves with accepted peaks, so it would never come down. Start again from
+        # what the last seconds actually contain.
+        if last_rej and cand[j] - max(cand[keep[-1]] if keep else 0, last_reset) > reset_gap:
+            recent = h[last_rej]
+            last_reset = int(cand[j])
+            # only if something there stands out like a QRS: plain noise must not lower the threshold
+            if recent.max() >= DET_RESET_RATIO * np.median(recent):
+                spk[:] = [float(recent.max())]
+                npk = float(np.median(recent))
+                rrs.clear()
         # search back: the gap has grown too long, take the highest rejected peak in it
         if keep and rrs and last_rej:
             med = float(np.median(rrs[-DET_HIST:]))

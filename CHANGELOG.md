@@ -7,6 +7,12 @@ Recordings are always analysed from the raw data, so a new analysis version also
 
 Figures are sensitivity / precision. Weakened results are listed as carefully as improved ones. Full method and per-record tables: [docs/VALIDATION.en.md](docs/VALIDATION.en.md).
 
+## 0.4.2: the beat detector recovers from artefact spikes
+
+- **Serious bug fixed (0.4.0 and 0.4.1):** artefact spikes while the strap was being put on could raise the beat detector's threshold for good, so that no beats were found in the rest of the recording. It was found on a real H10 recording: zero beats in a 7,000-beat recording. The raw data was not affected.
+- The levels are now re-estimated when no beat has come for 3 seconds and a QRS-like peak shows in the last seconds.
+- Validation: AFDB sensitivity 80.9 → 80.7 %. Other published figures round to the same values. The analysis version is still 6, so if you ran 0.4.0 or 0.4.1, delete `sessions/*/cache/analysis-v6.json` to have your recordings analysed again.
+
 ## 0.4.1: faster analysis of long gaps
 
 - Fixed: the beat detector in 0.4.0 slowed down sharply on long stretches without beats, for example when the strap was off. It now searches back at most 5 seconds.

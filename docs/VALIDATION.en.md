@@ -29,6 +29,12 @@ v4 sections below are unchanged.
 
 ### Results
 
+> **Fix after the test run (6 November 2026, version 0.4.2).** When v6 was first run on a real H10 recording, the detector found zero beats in a
+> 7,000-beat recording: artefact spikes while the strap was being put on raised the threshold for good. The validation datasets contain nothing like
+> this. The analysis also slowed down sharply on long stretches without beats. Both were fixed and all datasets were rerun. The visible change is
+> AFDB sensitivity, 80.9 → 80.7 %, and the figures below are for the fixed version. The fix was not tuned on the results, but it was made after SVDB and
+> AFDB had been opened. After the fix, beat counts on H10 recordings match v4 (7,064 / 7,063 and 46,585 / 46,467).
+
 Parameters were tuned on DS1 only and locked. All datasets were then run once, and nothing was changed afterwards.
 **Only SVDB and AFDB are a clean test**: they were downloaded for this round and opened only after locking. DS2 and INCART
 results were seen with v5, and the causes found there guided the design of v6, although no numbers were tuned on them.
@@ -54,7 +60,7 @@ Atrial fibrillation and irregular rhythm:
 
 | Dataset and measure | v5 | v6 |
 |---|---:|---:|
-| **AFDB, 23 records, 233 h, second by second (clean test): Se / +P** | 83.3 / 95.2 | **80.9 / 99.1** |
+| **AFDB, 23 records, 233 h, second by second (clean test): Se / +P** | 83.3 / 95.2 | **80.7 / 99.1** |
 | AFDB: non-AF time classified correctly (specificity) | 97.1 | 99.5 |
 | AFDB: records where at least half of the AF was found | 21 / 23 | 18 / 23 |
 | MIT-BIH all, by beat: Se / +P | 82.4 / 87.1 | 93.4 / 75.6 |

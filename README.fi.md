@@ -4,7 +4,7 @@
 
 🇬🇧 [In English](README.md)
 
-**Uusin versio: 0.4.1 (analyysiversio 6).** [Mitä muuttui](CHANGELOG.fi.md) · [Julkaisut](https://github.com/JoonasFI/OpenHolter/releases)
+**Uusin versio: 0.4.2 (analyysiversio 6).** [Mitä muuttui](CHANGELOG.fi.md) · [Julkaisut](https://github.com/JoonasFI/OpenHolter/releases)
 
 ![Live-näkymä](docs/screenshots/fi/live.png)
 
@@ -43,7 +43,7 @@ lukittu. MIT-BIH ja INCART oli nähty edellisen version yhteydessä, joten niide
 | **SVES** (eteisperäiset lisälyönnit) | **53,6 % / 75,1 %** | 32,9 % / 69,4 % | 87,6 % / 66,3 % |
 | SVES, tyypillinen yksittäinen + tauko | 90,8 % | 90,0 % | 98,0 % |
 
-Eteisvärinä AFDB:ssä, puhdas testi (233 tuntia, sekunneittain): **80,9 % / 99,1 %**.
+Eteisvärinä AFDB:ssä, puhdas testi (233 tuntia, sekunneittain): **80,7 % / 99,1 %**.
 
 - **Lyönnit löytyvät luotettavasti:** 99,8–99,9 % kaikista sydämenlyönneistä, vääriä löydöksiä on vähän.
 - **Tyypilliset yksittäiset lisälyönnit**, jotka ovat yleisimpiä, löytyvät noin 9 tapauksessa 10:stä.
