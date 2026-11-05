@@ -277,6 +277,22 @@ def test_frequent_atrial_beats_are_not_af():
     assert np.mean([len(st) > 0 and np.min(np.abs(st - x)) < 0.06 for x in inner]) > 0.8
 
 
+def test_long_stretch_without_beats_is_fast():
+    """Strap off for 30 min: the detector must stay linear in time (found on real H10 data)."""
+    import time
+    from openholter.beats import detect_r_peaks
+    from openholter.simulator import SyntheticBody
+    fs = 130.0
+    body = SyntheticBody(seed=1, night=False)
+    body.beats = [(0.5 + i, "N") for i in range(125)] + [(1e4, "N")]
+    rng = np.random.default_rng(1)
+    x = np.r_[body.ecg(0, int(120 * fs), fs).astype(float), rng.normal(0, 4, int(1800 * fs))]
+    t0 = time.perf_counter()
+    r, _ = detect_r_peaks(np.arange(len(x)) / fs, x, fs)
+    assert time.perf_counter() - t0 < 30
+    assert 110 < len(r) < 130  # and nothing invented from the noise
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

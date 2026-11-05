@@ -60,6 +60,7 @@ DET_HIST = 8          # signal level: median height of the last 8 accepted peaks
 DET_SEARCH = 1.5      # search back when the gap exceeds 1.5 × median of the last 8 RR
 DET_BACK_K = 0.5      # in search-back the threshold is this × the normal one
 DET_T_S, DET_T_RATIO = 0.42, 0.5  # within 420 ms a peak under 0.5 × the previous one is a T wave
+DET_BACK_S = 5.0      # search back at most this far: RR intervals over 3 s are not analysed anyway
 DET_FLOOR = 0.12      # never below 12 % of the recording's typical peak (lost contact, noise)
 DET_LOC_PRE, DET_LOC_POST = 0.10, 0.10  # R is the largest |baseline-removed ECG| in this window
 
@@ -78,7 +79,7 @@ def _pick_peaks(h: np.ndarray, cand: np.ndarray, fs: float) -> List[int]:
     rrs: List[int] = []
     keep: List[int] = []  # indices into cand
     last_rej: List[int] = []  # rejected since the last accepted peak
-    t_gap, refr = int(DET_T_S * fs), int(DET_REFR * fs)
+    t_gap, refr, back_max = int(DET_T_S * fs), int(DET_REFR * fs), int(DET_BACK_S * fs)
 
     def level() -> float:
         return max(floor, npk + DET_K * (float(np.median(spk[-DET_HIST:])) - npk))
@@ -95,6 +96,9 @@ def _pick_peaks(h: np.ndarray, cand: np.ndarray, fs: float) -> List[int]:
                 spk[-1] = float(h[j])
                 keep[-1] = j
             continue
+        # a stretch without beats (strap off) must not make the list grow: keep only the last few seconds
+        if last_rej and cand[j] - cand[last_rej[0]] > back_max:
+            last_rej = [q for q in last_rej if cand[j] - cand[q] <= back_max]
         # search back: the gap has grown too long, take the highest rejected peak in it
         if keep and rrs and last_rej:
             med = float(np.median(rrs[-DET_HIST:]))
