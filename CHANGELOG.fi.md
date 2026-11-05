@@ -7,6 +7,11 @@ Tallenteet analysoidaan aina raakadatasta, joten uusi analyysiversio koskee myö
 
 Luvut ovat herkkyys / osuvuus. Heikentyneet tulokset kerrotaan yhtä tarkasti kuin parantuneet. Menetelmä ja tallennekohtaiset taulukot: [docs/VALIDATION.md](docs/VALIDATION.md).
 
+## 0.4.1: pitkien taukojen analyysi nopeammaksi
+
+- Korjattu: version 0.4.0 lyöntitunnistin hidastui jyrkästi pitkissä jaksoissa ilman lyöntejä, esimerkiksi kun vyö oli pois päältä. Taaksepäin haetaan nyt enintään 5 sekuntia.
+- Tulokset eivät muuttuneet: kaikki MIT-BIH-, INCART-, SVDB- ja AFDB-validoinnin tulokset ovat samat kuin versiossa 0.4.0. Vain sovellusversio ja ajoajat eroavat, joten julkaistuja tulostiedostoja ei ajettu uudelleen. AFDB:n analyysiaika putosi 747 sekunnista 197 sekuntiin.
+
 ## 0.4.0: analyysiversio 6
 
 Puhdas testi tarkoittaa dataa, joka avattiin vasta parametrien lukitsemisen jälkeen: SVDB (78 tallennetta) ja AFDB (23 tallennetta, 233 tuntia).

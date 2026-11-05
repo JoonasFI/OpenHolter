@@ -7,6 +7,11 @@ Recordings are always analysed from the raw data, so a new analysis version also
 
 Figures are sensitivity / precision. Weakened results are listed as carefully as improved ones. Full method and per-record tables: [docs/VALIDATION.en.md](docs/VALIDATION.en.md).
 
+## 0.4.1: faster analysis of long gaps
+
+- Fixed: the beat detector in 0.4.0 slowed down sharply on long stretches without beats, for example when the strap was off. It now searches back at most 5 seconds.
+- Results did not change: all validation results for MIT-BIH, INCART, SVDB and AFDB are identical to 0.4.0. Only the app version and run times differ, so the published result files were not regenerated. AFDB analysis time fell from 747 s to 197 s.
+
 ## 0.4.0: analysis version 6
 
 The clean test means data that was opened only after the parameters were locked: SVDB (78 recordings) and AFDB (23 recordings, 233 hours).
