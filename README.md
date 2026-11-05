@@ -4,6 +4,8 @@
 
 🇫🇮 [Suomeksi](README.fi.md)
 
+**Latest version: 0.4.0 (analysis version 6).** [What changed](CHANGELOG.md) · [Releases](https://github.com/JoonasFI/OpenHolter/releases)
+
 ![Live view](docs/screenshots/en/live.png)
 
 OpenHolter turns a Polar H10 heart-rate strap and a computer into a Holter-style ECG recorder.

@@ -4,6 +4,8 @@
 
 🇬🇧 [In English](README.md)
 
+**Uusin versio: 0.4.0 (analyysiversio 6).** [Mitä muuttui](CHANGELOG.fi.md) · [Julkaisut](https://github.com/JoonasFI/OpenHolter/releases)
+
 ![Live-näkymä](docs/screenshots/fi/live.png)
 
 OpenHolter tekee Polar H10 -sykevyöstä ja tietokoneesta Holter-tyyppisen EKG-tallentimen.
