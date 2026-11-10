@@ -5,6 +5,7 @@
 
 const $ = (sel, el = document) => el.querySelector(sel);
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const isEyesaver = () => document.documentElement.classList.contains("eyesaver");
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
@@ -13,6 +14,14 @@ async function api(path, opts = {}) {
   if (!r.ok) throw new Error(`${r.status} ${path}`);
   return r.json();
 }
+
+// ECG playback in the recording view
+const PLAY_SPEEDS = [1, 2, 5, 10, 30];
+const PLAY_MAX_SPAN = 60; // seconds; longer windows are min/max envelopes
+const SLOW_S = 1; // "slow at findings": seconds before and after a finding played at 1×
+const SLOW_RAMP_S = 1; // ...and the slow-down / speed-up takes about this long at full speed
+const PLAY_SVG = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.8v10.4a.6.6 0 0 0 .9.5l8.3-5.2a.6.6 0 0 0 0-1L5.4 2.3a.6.6 0 0 0-.9.5z" fill="currentColor"/></svg>`;
+const PAUSE_SVG = `<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3.5" y="2.5" width="3.2" height="11" rx="1" fill="currentColor"/><rect x="9.3" y="2.5" width="3.2" height="11" rx="1" fill="currentColor"/></svg>`;
 
 function setupCanvas(canvas) {
   const dpr = window.devicePixelRatio || 1;
@@ -1047,26 +1056,18 @@ function calSource(src) {
 }
 
 class RecordingView {
-  constructor(el, id, startAt = null) { this.el = el; this.id = id; this.startAt = startAt; this.cache = new Map(); this.span = 10; this.t = 0; }
+  constructor(el, id, startAt = null) {
+    this.el = el; this.id = id; this.startAt = startAt; this.cache = new Map(); this.span = 10; this.t = 0;
+    this.playing = false; this.speed = 1; this.stopAt = true; this.slowAt = false; this.gain = 1;
+  }
 
   async mount() {
     this.el.innerHTML = `<div class="hint">${t("Ladataan…")}</div>`;
     const W = Math.max(400, Math.min(2400, Math.round(this.el.clientWidth - 120)));
     try { this.d = await api(`/api/sessions/${encodeURIComponent(this.id)}?points=${W}`); }
     catch (e) { this.el.innerHTML = `<a class="back" href="#/recordings">← ${t("Tallenteet")}</a><div class="hint">${t("Tallennetta ei voitu ladata ({0}).", esc(e.message))}</div>`; return; }
+    this.prepare();
     const d = this.d, m = d.meta, s = d.summary;
-    this.t0 = m.started_wall_ns / 1e6;
-    this.dur = d.duration;
-    this.classes = postureClasses(d.posture);
-    const ar = d.analysis && d.analysis.result;
-    const ectRes = ar && (ar.ectopy || ar.ectopy_rr);
-    this.ectopics = ectRes ? ectRes.events.slice().sort((a, b) => a - b) : [];
-    this.ectKinds = new Map((ectRes && ectRes.details || []).map((x) => [x.t, x]));
-    this.ectFromEcg = !!(ectRes && ectRes.method === "ecg"); // ECG times are exact R peaks
-    this.refined = new Map(); // RR-estimate time -> R peak found in the ECG (strap-RR fallback only)
-    this.symptoms = (m.events || []).filter((e) => e.kind === "symptom" && e.wall_ns)
-      .map((e) => ({ id: e.id, t: (e.wall_ns - m.started_wall_ns) / 1e9, note: e.note || "" }));
-    this.marks = this.marks || [];
     const day = fmt.dayTitle(this.t0);
     const live = m.state === "recording";
     const gapTotal = d.gaps.reduce((a, g) => a + g[1] - g[0], 0);
@@ -1077,6 +1078,7 @@ class RecordingView {
         <h1 style="text-transform:capitalize">${esc(day.wd)} ${esc(day.date)}</h1>
         <div class="sub">${live ? fmt.clock(this.t0) + " – " + t("käynnissä") : fmt.range(this.t0, this.t0 + this.dur * 1000)} · ${esc(m.device?.name || "")}${m.end_reason ? ` · ${t("päättyi: {0}", esc(endReason(m.end_reason)))}` : ""}</div>
       </div><span class="spacer"></span>
+        <a class="btn sm" id="nv-viewer" href="#/viewer/${encodeURIComponent(this.id)}" title="${t("Koko tallenne yhdellä näytöllä")}">${t("Tarkastelu")}</a>
         <button class="btn sm" id="nv-pdf" ${live ? `disabled title="${t("Raportin voi tehdä, kun tallennus on päättynyt")}"` : ""}>
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14"/></svg>${t("PDF-raportti")}</button>
         <button class="btn sm ghost-danger" id="nv-del" ${live ? `disabled title="${t("Lopeta tallennus ennen poistamista")}"` : ""}>
@@ -1124,6 +1126,12 @@ class RecordingView {
         <div class="foot">
           <button class="btn sm" id="nv-prev" title="${t("Taaksepäin")} (←)">‹</button>
           <button class="btn sm" id="nv-next" title="${t("Eteenpäin")} (→)">›</button>
+          <div class="play-group">
+            <button class="btn sm play" id="nv-play" title="${t("Toista")} (${t("välilyönti")})" aria-label="${t("Toista")}">${PLAY_SVG}</button>
+            <div class="seg" id="nv-speeds" title="${t("Toistonopeus")}">${PLAY_SPEEDS.map((v) => `<button data-speed="${v}" class="${v === this.speed ? "on" : ""}">${v}×</button>`).join("")}</div>
+            <label class="check" title="${t("Toisto pysähtyy lisälyöntiin ja oiremerkintään.")}"><input type="checkbox" id="nv-stopat" ${this.stopAt ? "checked" : ""}> ${t("Pysähdy havaintoon")}</label>
+              <label class="check" title="${t("Toisto hidastuu 1×-nopeuteen {0} s ennen lisälyöntiä tai oiremerkintää ja {0} s sen jälkeen.", SLOW_S)}"><input type="checkbox" id="nv-slowat" ${this.slowAt ? "checked" : ""}> ${t("Hidasta havainnoissa")}</label>
+          </div>
           <div class="seg" id="nv-spans">${[5, 10, 30, 60, 300, 900, 1800, 3600].map((v) => `<button data-span="${v}">${v < 60 ? v + " s" : v < 3600 ? v / 60 + " min" : v / 3600 + " h"}</button>`).join("")}</div>
           <div class="ect-nav" id="nv-enav" ${this.ectopics.length ? "" : "hidden"}>
             <button class="btn sm" id="nv-eprev" title="${t("Edellinen lisälyönti")}">‹</button>
@@ -1138,21 +1146,7 @@ class RecordingView {
     this.renderSymptoms();
     this.renderCal();
     this.renderAnalysis(d.analysis);
-    $("#nv-pdf").onclick = async (e) => {
-      const b = e.currentTarget, label = b.innerHTML;
-      b.disabled = true; b.textContent = t("Luodaan PDF…");
-      try {
-        const r = await fetch(`/api/sessions/${encodeURIComponent(this.id)}/report.pdf?lang=${LANG}`, { headers: { "X-Lang": LANG } });
-        if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail || r.status);
-        const blob = await r.blob();
-        const name = (r.headers.get("content-disposition") || "").match(/filename="?([^";]+)/);
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob); a.download = name ? name[1] : "openholter-ekg.pdf";
-        document.body.appendChild(a); a.click(); a.remove();
-        setTimeout(() => URL.revokeObjectURL(a.href), 60000);
-      } catch (err) { toast(t("PDF:n luonti epäonnistui: {0}", esc(err.message))); }
-      b.disabled = false; b.innerHTML = label;
-    };
+    $("#nv-pdf").onclick = (e) => downloadPdf(this.id, e.currentTarget);
     $("#nv-del").onclick = async () => {
       const label = `${day.wd} ${day.date}, ${fmt.range(this.t0, this.t0 + this.dur * 1000)} (${fmt.dur(this.dur)})`;
       if (await deleteRecording(this.id, label)) location.hash = "#/recordings";
@@ -1165,15 +1159,48 @@ class RecordingView {
       : Math.min(Math.max(0, this.dur - this.span), 1800);
     this.startAt = null;
     this.drawTimeline();
+    this.loadOrientation(() => {
+      const hint = this.el.querySelector(".detail .foot .hint");
+      if (hint) hint.textContent += " " + t("Alareunan nuoli näyttää rintakehän suunnan jalkopäästä katsottuna: ylös selällään, alas vatsallaan, sivulle kyljellään.");
+    });
     this.ovData = await this.fetchEcg(0, this.dur, $("#nv-ov").clientWidth);
     this.drawOverview();
     this.bind();
     this.setSpan(10);
   }
 
+  // fields shared with the viewer, from the session payload in this.d
+  prepare() {
+    const d = this.d, m = d.meta;
+    this.t0 = m.started_wall_ns / 1e6;
+    this.dur = d.duration;
+    this.classes = postureClasses(d.posture);
+    const ar = d.analysis && d.analysis.result;
+    const ectRes = ar && (ar.ectopy || ar.ectopy_rr);
+    this.ect = ectRes || null;
+    this.ectopics = ectRes ? ectRes.events.slice().sort((a, b) => a - b) : [];
+    this.ectKinds = new Map((ectRes && ectRes.details || []).map((x) => [x.t, x]));
+    this.ectFromEcg = !!(ectRes && ectRes.method === "ecg"); // ECG times are exact R peaks
+    this.refined = new Map(); // RR-estimate time -> R peak found in the ECG (strap-RR fallback only)
+    this.symptoms = (m.events || []).filter((e) => e.kind === "symptom" && e.wall_ns)
+      .map((e) => ({ id: e.id, t: (e.wall_ns - m.started_wall_ns) / 1e9, note: e.note || "" }));
+    this.marks = this.marks || [];
+  }
+
+  // facing direction per second (only with a calibration)
+  loadOrientation(onLoad) {
+    api(`/api/sessions/${encodeURIComponent(this.id)}/orientation`).then((o) => {
+      if (this.dead || !o.calibrated) return;
+      this.orient = o;
+      if (onLoad) onLoad();
+      this.drawDetail();
+    }).catch(() => {});
+  }
+
   unmount() {
     window.removeEventListener("keydown", this.onKey); window.removeEventListener("resize", this.onResize);
     clearTimeout(this._poll); this.dead = true;
+    this.playing = false; cancelAnimationFrame(this._raf);
   }
 
   // ---------------------------------------------------------------- calibration card
@@ -1439,7 +1466,8 @@ class RecordingView {
       if (c == null) return;
       ctx.fillStyle = css(POSTURE[c].color);
       const x0 = (i / n) * w, x1 = ((i + 1) / n) * w;
-      ctx.fillRect(x0, 3, x1 - x0 + 0.6, h - 6);
+      const pad = h > 12 ? 3 : 0; // the viewer's strip is only a few pixels: fill it all
+      ctx.fillRect(x0, pad, x1 - x0 + 0.6, h - 2 * pad);
     });
     this.drawGaps(ctx, w, h);
     this.drawSymptoms(ctx, w, h, true);
@@ -1483,7 +1511,7 @@ class RecordingView {
     }
     const grad = ctx.createLinearGradient(0, 0, 0, h);
     grad.addColorStop(0, "#ff7a90"); grad.addColorStop(0.5, css("--hr")); grad.addColorStop(1, "#7c8cff");
-    ctx.strokeStyle = grad; ctx.lineWidth = 1.8; ctx.lineJoin = "round";
+    ctx.strokeStyle = isEyesaver() ? css("--hr") : grad; ctx.lineWidth = 1.8; ctx.lineJoin = "round";
     ctx.beginPath(); open = false;
     for (let i = 0; i < N; i++) {
       const v = hr.mean[i];
@@ -1624,10 +1652,116 @@ class RecordingView {
     ctx.restore();
   }
 
-  goto(t) { this.t = clamp(t, 0, Math.max(0, this.dur - this.span)); this.drawOverview(); this.drawDetail(); this.loadDetail(); }
+  goto(t) { this.pause(); this.t = clamp(t, 0, Math.max(0, this.dur - this.span)); this.drawOverview(); this.drawDetail(); this.loadDetail(); }
+
+  // ---------------------------------------------------------------- playback
+  // The window moves at `speed` × real time. Data comes in raw chunks fetched ahead of the window;
+  // with "stop at finding" on, playback stops with the extra beat or symptom mark on the centre line.
+
+  togglePlay() { if (this.playing) this.pause(); else this.play(); }
+
+  // seconds from time c to the nearest extra beat or symptom mark (Infinity if none)
+  findingDist(c) {
+    if (!this._findT) this._findT = [...this.ectopics.map((e) => this.markTime(e)), ...(this.symptoms || []).map((s) => s.t)].sort((a, b) => a - b);
+    const f = this._findT;
+    let lo = 0, hi = f.length;
+    while (lo < hi) { const m = (lo + hi) >> 1; if (f[m] < c) lo = m + 1; else hi = m; }
+    return Math.min(lo < f.length ? f[lo] - c : Infinity, lo > 0 ? c - f[lo - 1] : Infinity);
+  }
+
+  play() {
+    if (this.playing || !this.dur || this.dead) return;
+    if (this.span > PLAY_MAX_SPAN) this.setSpan(10);
+    if (this.t >= this.dur - this.span - 0.05) this.t = 0; // at the end: start again from the beginning
+    this.playing = true; this._last = null; this.playL = null; this._v = null; this._findT = null;
+    this.updatePlayButton();
+    this._raf = requestAnimationFrame(this.tick);
+  }
+
+  pause() {
+    if (!this.playing) return;
+    this.playing = false; cancelAnimationFrame(this._raf);
+    this.updatePlayButton();
+    if (!this.dead && $("#nv-detail")) { this.drawOverview(); this.loadDetail(); }
+  }
+
+  updatePlayButton() {
+    const b = $("#nv-play"); if (!b) return;
+    const label = this.playing ? t("Tauko") : t("Toista");
+    b.innerHTML = this.playing ? PAUSE_SVG : PLAY_SVG;
+    b.classList.toggle("on", this.playing);
+    b.title = `${label} (${t("välilyönti")})`; b.setAttribute("aria-label", label);
+  }
+
+  playStep(now) {
+    if (!this.playing || this.dead || !$("#nv-detail")) return;
+    const dt = this._last == null ? 0 : Math.min(0.1, (now - this._last) / 1000);
+    this._last = now;
+    if (this.playFeed()) {
+      const max = Math.max(0, this.dur - this.span);
+      // "slow at findings": 1× from SLOW_S before a finding until SLOW_S after it. Outside that the
+      // speed follows the distance to the nearest finding along an ease-in-out curve over about one
+      // second of playback at full speed, so it brakes in time and picks up again just as smoothly.
+      let target = this.speed;
+      if (this.slowAt && this.speed > 1) {
+        const dist = this.findingDist(this.t + this.span / 2) - SLOW_S;
+        const ramp = Math.max(2, this.speed * SLOW_RAMP_S);
+        const p = clamp(dist / ramp, 0, 1), e = p * p * (3 - 2 * p); // smoothstep
+        target = 1 + (this.speed - 1) * e;
+      }
+      this._v = this._v == null ? target : this._v + (target - this._v) * Math.min(1, dt * 12);
+      let nt = Math.min(max, this.t + dt * this._v), stop = nt >= max;
+      if (this.stopAt && nt > this.t) {
+        const c0 = this.t + this.span / 2 + 1e-6, c1 = nt + this.span / 2;
+        let hit = null;
+        for (const e of this.ectopics) { const m = this.markTime(e); if (m > c0 && m <= c1 && (hit == null || m < hit)) hit = m; }
+        for (const s of this.symptoms || []) if (s.t > c0 && s.t <= c1 && (hit == null || s.t < hit)) hit = s.t;
+        if (hit != null) { nt = hit - this.span / 2; stop = true; }
+      }
+      this.t = clamp(nt, 0, max);
+      this.drawDetail();
+      if (stop || now - (this._ovAt || 0) > 250) { this._ovAt = now; this.drawOverview(); }
+      if (stop) { this.pause(); return; }
+    }
+    this._raf = requestAnimationFrame(this.tick);
+  }
+
+  // make sure raw data covers the window (and a little ahead); false while it is still loading
+  playFeed() {
+    const L = clamp(this.span * 2, 20, 80); // ≤ 80 s keeps the server in raw mode at 6000 points
+    if (this.playL !== L) { this.playL = L; this.chunks = new Map(); this.chunkReq = new Set(); this._mergeKey = null; }
+    const first = Math.floor(Math.max(0, this.t - 4) / L); // 4 s margin so the high-pass filter has settled
+    const last = Math.floor(Math.min(this.dur, this.t + this.span + 0.5) / L);
+    const ahead = Math.floor(Math.min(this.dur, this.t + this.span + Math.max(3, this.speed * 1.5)) / L);
+    for (let i = first; i <= ahead && this.chunkReq.size < 3; i++) if (!this.chunks.has(i) && !this.chunkReq.has(i)) this.fetchChunk(i, L);
+    for (const k of [...this.chunks.keys()]) if (k < first) this.chunks.delete(k);
+    for (let i = first; i <= last; i++) if (!this.chunks.has(i)) return false;
+    const key = `${first}-${last}`;
+    if (key !== this._mergeKey) {
+      const parts = []; for (let i = first; i <= last; i++) parts.push(this.chunks.get(i));
+      this.detail = { mode: "raw", fs: parts[0].fs, start: parts[0].start, end: parts[parts.length - 1].end,
+        t: [].concat(...parts.map((p) => p.t)), v: [].concat(...parts.map((p) => p.v)) };
+      this._mergeKey = key;
+    }
+    return true;
+  }
+
+  fetchChunk(i, L) {
+    this.chunkReq.add(i);
+    const a = i * L, b = Math.min(this.dur, (i + 1) * L);
+    api(`/api/sessions/${encodeURIComponent(this.id)}/ecg?start=${a}&end=${b}&points=6000`)
+      .then((d) => {
+        if (this.playL !== L) return;
+        if (d.mode !== "raw") throw new Error("envelope");
+        this.chunks.set(i, d);
+      })
+      .catch(() => { if (this.playing) { this.pause(); toast(t("EKG:n lataus epäonnistui.")); } })
+      .finally(() => { if (this.playL === L) this.chunkReq.delete(i); });
+  }
 
   loadDetail() {
     clearTimeout(this._dl);
+    if (this.playing) { this._mergeKey = null; this.drawDetail(); return; } // playback feeds its own data
     this.drawOverview();
     this.drawDetail();
     this._dl = setTimeout(async () => {
@@ -1643,13 +1777,96 @@ class RecordingView {
   }
 
   drawDetail() {
+    if (!$("#nv-detail")) return;
+    this.drawDetailBody();
+    this.drawUnderCursor();
+    this.drawCursor();
+  }
+
+  drawUnderCursor() {} // the viewer draws its beat labels here, under the centre line and posture circle
+
+  // dashed centre line with the exact time above it; playback stops findings on this line
+  drawCursor() {
+    const cv = $("#nv-detail");
+    const ctx = cv.getContext("2d"), w = cv.clientWidth, h = cv.clientHeight;
+    const x = Math.round(w / 2) + 0.5;
+    const ms = this.t0 + (this.t + this.span / 2) * 1000;
+    const label = `${fmt.clockSec(ms)}${LANG === "fi" ? "," : "."}${Math.floor((((ms % 1000) + 1000) % 1000) / 100)}`;
+    const boxTop = this.drawFacing(ctx, x, h); // the line ends at the posture box, if there is one
+    ctx.save();
+    ctx.font = "600 12px " + css("--mono");
+    const pw = ctx.measureText(label).width + 16, ph = 20, py = 21; // below the extra-beat labels (y ≈ 13)
+    ctx.strokeStyle = "rgba(232,237,247,.5)"; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(x, py + ph); ctx.lineTo(x, boxTop ?? h); ctx.stroke(); ctx.setLineDash([]);
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x - pw / 2, py, pw, ph, 6); else ctx.rect(x - pw / 2, py, pw, ph);
+    ctx.fillStyle = "rgba(7,11,18,.88)"; ctx.fill();
+    ctx.strokeStyle = "rgba(232,237,247,.3)"; ctx.stroke();
+    ctx.fillStyle = "rgba(232,237,247,.95)"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(label, x, py + ph / 2 + 0.5);
+    ctx.restore();
+  }
+
+  // roll angle (deg, 0 = supine, left side positive) at time tc, interpolated between seconds along the short way round
+  rollAt(tc) {
+    const r = this.orient.roll, i = Math.floor(tc), f = tc - i;
+    const a = r[i], b = r[i + 1];
+    if (a == null && b == null) return null;
+    if (a == null) return b;
+    if (b == null) return a;
+    return a + f * ((((b - a) % 360) + 540) % 360 - 180);
+  }
+
+  // box at the bottom of the centre line: arrow = which way the chest faces seen from the foot end
+  // (up = supine, right = left side, left = right side, down = prone); turns smoothly between samples. Returns the box's top edge, or null.
+  drawFacing(ctx, x, h) {
+    const o = this.orient;
+    if (!o || !o.roll || !o.roll.length) return null;
+    const tc = this.t + this.span / 2;
+    const i = clamp(Math.floor(tc), 0, o.cls.length - 1);
+    const name = o.cls[i] >= 0 ? o.names[o.cls[i]] : "unknown";
+    const target = this.rollAt(tc);
+    if (target == null) this._dispRoll = null;
+    else if (this._dispRoll == null || this.playing) this._dispRoll = target;
+    else {
+      const d = ((((target - this._dispRoll) % 360) + 540) % 360) - 180;
+      if (Math.abs(d) > 1.5) {
+        this._dispRoll += d * 0.22; // ease towards a new posture after a jump
+        if (!this._easing) { this._easing = true; requestAnimationFrame(() => { this._easing = false; if (!this.dead) this.drawDetail(); }); }
+      } else this._dispRoll = target;
+    }
+    const upright = name === "upright";
+    if (!upright && this._dispRoll == null) return null; // no posture data here: no box
+    const r = 16, by = h - 2 * r - 8, cx = x, cy = by + r;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = css("--bg-2"); ctx.fill(); // opaque: whatever is under it is hidden, not shown through
+    ctx.strokeStyle = "rgba(232,237,247,.3)"; ctx.lineWidth = 1; ctx.stroke();
+    ctx.strokeStyle = ctx.fillStyle = "rgba(240,244,250,.95)";
+    if (upright) {
+      ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI * 2); ctx.fill(); // sitting or standing: no facing direction
+    } else {
+      // seen from the foot end, like the 3D figure: left side (roll +90°) faces right on screen
+      ctx.translate(cx, cy); ctx.rotate((this._dispRoll * Math.PI) / 180);
+      ctx.lineWidth = 1.4; ctx.lineCap = "round"; ctx.lineJoin = "round";
+      ctx.beginPath(); ctx.moveTo(0, 9); ctx.lineTo(0, -9); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-4.5, -4.5); ctx.lineTo(0, -9); ctx.lineTo(4.5, -4.5); ctx.stroke();
+    }
+    ctx.restore();
+    return by;
+  }
+
+  drawDetailBody() {
     const cv = $("#nv-detail");
     const { ctx, w, h } = setupCanvas(cv);
     ctx.clearRect(0, 0, w, h);
     const pxPerSec = w / this.span;
-    const pxPerMv = Math.min(h / 3.4, Math.max(40, pxPerSec * 0.4 * 2.5));
+    // gain: 1 = the default scale (10 mm/mV on the 25 mm/s grid when there is room); the grid keeps
+    // its size and only the trace is scaled, as on ECG paper
+    const gain = this.gain || 1;
+    const pxPerMm = Math.min(h / 3.4, Math.max(40, pxPerSec * 0.4 * 2.5)), pxPerMv = pxPerMm * gain;
     const mid = h * 0.55;
-    drawPaper(ctx, w, h, pxPerSec, pxPerMv, -this.t * pxPerSec, mid);
+    drawPaper(ctx, w, h, pxPerSec, pxPerMm, -this.t * pxPerSec, mid);
     const start = this.t, end = this.t + this.span;
     const tStart = this.t0 + start * 1000;
     $("#nv-dt").textContent = `${fmt.clockSec(tStart)} – ${fmt.clockSec(tStart + this.span * 1000)}`;
@@ -1666,12 +1883,12 @@ class RecordingView {
       ctx.fillStyle = css("--sym"); ctx.font = "600 11px " + css("--font"); ctx.fillText("♥ " + t("tunsin"), x + 5, 14); ctx.restore();
     }
     if (!d) return;
-    const color = css("--ecg");
+    const color = css("--ecg-trace"), mark = css("--ves"), soft = isEyesaver();
     if (d.mode === "raw") {
-      $("#nv-dmeta").textContent = t("täysi tarkkuus · {0} Hz · 25 mm/s-ruudukko", dec(d.fs, 2));
+      $("#nv-dmeta").textContent = t("täysi tarkkuus · {0} Hz · 25 mm/s-ruudukko", dec(d.fs, 2)) + (gain !== 1 ? ` · ${10 * gain} mm/mV` : "");
       const v = highpass(d.v, d.fs, 0.5);
       ctx.lineJoin = "round"; ctx.lineCap = "round";
-      for (const pass of [0, 1]) {
+      for (const pass of soft ? [1] : [0, 1]) { // no glow in the eye-saver mode
         ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = pass ? 1.6 : 5; ctx.globalAlpha = pass ? 1 : 0.14;
         let pen = false, prevT = null;
         for (let i = 0; i < d.t.length; i++) {
@@ -1692,8 +1909,8 @@ class RecordingView {
         if (tm < start || tm > end) continue;
         const x = Math.round((tm - start) * pxPerSec) + 0.5;
         ctx.save();
-        ctx.fillStyle = "rgba(255,84,112,.10)"; ctx.fillRect(x - 0.12 * pxPerSec, 0, 0.24 * pxPerSec, h);
-        ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x - 6, 4); ctx.lineTo(x + 6, 4); ctx.lineTo(x, 13); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = mark; ctx.globalAlpha = 0.1; ctx.fillRect(x - 0.12 * pxPerSec, 0, 0.24 * pxPerSec, h); ctx.globalAlpha = 1;
+        ctx.fillStyle = mark; ctx.beginPath(); ctx.moveTo(x - 6, 4); ctx.lineTo(x + 6, 4); ctx.lineTo(x, 13); ctx.closePath(); ctx.fill();
         const info = this.ectKinds.get(e);
         const lbl = info ? { ves: "VES", sves: "SVES" }[info.kind] || t("lisälyönti") : this.refined.has(e) ? t("lisälyönti") : t("lisälyönti") + " (≈)";
         ctx.font = "600 11px " + css("--font");
@@ -1748,7 +1965,7 @@ class RecordingView {
         if (e < start || e > end) continue;
         const x = Math.round((e - start) * pxPerSec) + 0.5;
         const info = this.ectKinds.get(e);
-        ctx.strokeStyle = info && info.kind === "sves" ? css("--fair") : color;
+        ctx.strokeStyle = info && info.kind === "sves" ? css("--sves") : mark;
         ctx.globalAlpha = 0.8; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(x, 12); ctx.lineTo(x, h - 46); ctx.stroke();
         ctx.globalAlpha = 1; ctx.fillStyle = ctx.strokeStyle;
@@ -1805,7 +2022,7 @@ class RecordingView {
 
     const det = $("#nv-detail");
     let drag = null;
-    det.addEventListener("pointerdown", (ev) => { drag = { x: ev.clientX, t: this.t }; det.setPointerCapture(ev.pointerId); det.classList.add("dragging"); });
+    det.addEventListener("pointerdown", (ev) => { this.pause(); drag = { x: ev.clientX, t: this.t }; det.setPointerCapture(ev.pointerId); det.classList.add("dragging"); });
     det.addEventListener("pointermove", (ev) => {
       if (!drag) return;
       const dt = ((drag.x - ev.clientX) / det.clientWidth) * this.span;
@@ -1823,6 +2040,7 @@ class RecordingView {
     det.addEventListener("wheel", (ev) => {
       if (Math.abs(ev.deltaX) > Math.abs(ev.deltaY)) {
         ev.preventDefault();
+        this.pause();
         this.t = clamp(this.t + (ev.deltaX / det.clientWidth) * this.span, 0, Math.max(0, this.dur - this.span));
         this.drawDetail(); this.drawOverview(); this.loadDetail();
       }
@@ -1833,15 +2051,1103 @@ class RecordingView {
       $("#nv-enext").onclick = () => this.jumpEctopic(1);
     }
     $("#nv-next").onclick = () => this.goto(this.t + this.span * 0.8);
-    this.el.querySelectorAll("#nv-spans button").forEach((b) => (b.onclick = () => this.setSpan(+b.dataset.span)));
+    this.el.querySelectorAll("#nv-spans button").forEach((b) => (b.onclick = () => {
+      if (+b.dataset.span > PLAY_MAX_SPAN) this.pause(); // long spans are min/max envelopes, not playable
+      this.setSpan(+b.dataset.span);
+    }));
+    this.tick = (now) => this.playStep(now);
+    $("#nv-play").onclick = () => this.togglePlay();
+    this.el.querySelectorAll("#nv-speeds button").forEach((b) => (b.onclick = () => {
+      this.speed = +b.dataset.speed;
+      this.el.querySelectorAll("#nv-speeds button").forEach((x) => x.classList.toggle("on", x === b));
+    }));
+    // "stop at" and "slow at" findings exclude each other: turning one on turns the other off
+    const stopBox = $("#nv-stopat"), slowBox = $("#nv-slowat");
+    stopBox.onchange = () => { this.stopAt = stopBox.checked; if (this.stopAt) { this.slowAt = false; slowBox.checked = false; } };
+    slowBox.onchange = () => { this.slowAt = slowBox.checked; if (this.slowAt) { this.stopAt = false; stopBox.checked = false; } };
     this.onKey = (ev) => {
       if (ev.key === "ArrowLeft") this.goto(this.t - this.span * 0.8);
       if (ev.key === "ArrowRight") this.goto(this.t + this.span * 0.8);
+      if (ev.key === " " && !/^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(ev.target.tagName) && !ev.target.isContentEditable) {
+        ev.preventDefault(); this.togglePlay();
+      }
     };
     window.addEventListener("keydown", this.onKey);
     this.onResize = () => { if (!$("#nv-posture")) return; this.drawTimeline(); this.drawOverview(); this.drawDetail(); };
     window.addEventListener("resize", this.onResize);
   }
+}
+
+// ------------------------------------------------------------------ advanced viewer
+// One-screen dashboard for reading a whole recording (aimed at ~1440 × 900): posture, the moment on
+// the centre line and a findings list on top, the whole night below that, then a wide ECG with beat
+// labels and RR intervals, and the analysis results along the bottom. Built on RecordingView, so the
+// ECG, playback and timeline behave exactly as on the recording page.
+
+const VW_SPANS = [5, 10, 30, 60, 300];
+const VW_FILTERS = [
+  ["all", "Kaikki"], ["ves", "VES"], ["sves", "SVES"], ["group", "Parit ja sarjat"],
+  ["rhythm", "Rytmi"], ["rate", "Syke ja tauot"], ["symptom", "Oireet"],
+];
+const VW_COLOR = { ves: "var(--ves)", sves: "var(--sves)", group: "var(--ves)", rhythm: "var(--p-d)", rate: "var(--hr)", symptom: "var(--sym)" };
+const VW_KEYS = [
+  ["Välilyönti", "Toista tai pysäytä"], ["← →", "Siirry taaksepäin tai eteenpäin"],
+  ["N / P", "Seuraava tai edellinen löydös"], ["#", "Siirry havaintoon numerolla"], ["V / S", "Seuraava VES tai SVES"],
+  ["1–5", "Näkymän leveys 5 s – 5 min"], ["?", "Näytä tai piilota tämä ohje"],
+  ["C", "Mittain päälle tai pois (myös Shift + veto)"], ["D", "RR-välit pisteinä tai tiheyskarttana"], ["Esc", "Poista mittaus"],
+  ["M", "Näytä tai piilota valikko"], ["E", "Silmäystävällinen tila päälle tai pois"],
+  ["Vedä", "Siirrä kohtaa koko yön kaistoilla"],
+  ["RR-pisteet", "Jokainen lyönti on piste: korkeus = edeltävä RR-väli."],
+];
+const PAUSE_MS = 2000; // pauses at least this long are listed as findings
+// zoom ladder colours (hex, read from the theme): 10 min box, 2 min box, ECG window
+const ladder = (i) => css(["--l1", "--l2", "--l3"][i]);
+const vwFont = (px) => px + (isEyesaver() ? 1 : 0); // canvas text one step larger in the eye-saver mode, like the small labels
+
+function bsearch(a, x) { // first index with a[i] >= x
+  let lo = 0, hi = a.length;
+  while (lo < hi) { const m = (lo + hi) >> 1; if (a[m] < x) lo = m + 1; else hi = m; }
+  return lo;
+}
+
+class ViewerView extends RecordingView {
+  constructor(el, id, startAt = null) {
+    super(el, id, startAt);
+    this.filter = "all"; this.items = []; this.curItem = -1;
+    try { this.rrMode = localStorage.getItem("openholter.rrmode") === "density" ? "density" : "dots"; } catch { this.rrMode = "dots"; }
+  }
+
+  async mount() {
+    document.body.classList.add("viewer-mode");
+    document.documentElement.classList.toggle("eyesaver", ViewerView.eyesaverPref());
+    ViewerView.setupTopbar();
+    this.el.innerHTML = `<div class="hint">${t("Ladataan…")}</div>`;
+    const W = Math.max(400, Math.min(2400, Math.round(this.el.clientWidth - 140)));
+    let list = [];
+    try {
+      [this.d, list] = await Promise.all([
+        api(`/api/sessions/${encodeURIComponent(this.id)}?points=${W}`),
+        api("/api/sessions").catch(() => []),
+      ]);
+    } catch (e) {
+      this.el.innerHTML = `<a class="back" href="#/viewer">← ${t("Tarkastelu")}</a><div class="hint">${t("Tallennetta ei voitu ladata ({0}).", esc(e.message))}</div>`;
+      return;
+    }
+    if (this.dead) return;
+    this.prepare();
+    const d = this.d, m = d.meta, live = m.state === "recording";
+    const day = fmt.dayTitle(this.t0);
+    const opts = (Array.isArray(list) ? list : []).map((x) => x.meta).filter((x) => x && x.started_wall_ns)
+      .sort((a, b) => b.started_wall_ns - a.started_wall_ns)
+      .map((x) => {
+        const t0 = x.started_wall_ns / 1e6, dy = fmt.dayTitle(t0);
+        const end = x.ended_wall_ns ? x.ended_wall_ns / 1e6 : null;
+        const label = `${dy.wd} ${dy.date} · ${end ? fmt.range(t0, end) + " · " + fmt.dur((end - t0) / 1000) : fmt.clock(t0) + " – " + t("käynnissä")}`;
+        // only the weekday is capitalised (CSS capitalize would also turn "min" into "Min")
+        return `<option value="${esc(x.id)}" ${x.id === this.id ? "selected" : ""}>${esc(label.charAt(0).toUpperCase() + label.slice(1))}</option>`;
+      }).join("");
+
+    this.el.innerHTML = `
+      <div class="vw" id="vw">
+        <div class="vw-head">
+          <a class="back" href="#/recording/${encodeURIComponent(this.id)}" title="${t("Tavallinen tallennenäkymä")}">←</a>
+          <select id="vw-sel" aria-label="${t("Tallenne")}">${opts || `<option>${esc(day.wd)} ${esc(day.date)}</option>`}</select>
+          <span class="vw-sub">${live ? t("tallennus käynnissä") : fmt.dur(this.dur)} · ${esc(m.device?.name || "")}</span>
+          <span class="spacer"></span>
+          <span class="vw-hover num" id="nv-cursor"></span>
+          <button class="btn sm" id="vw-eye" aria-pressed="${isEyesaver()}" title="${t("Silmäystävällinen tila pitkään katseluun: himmeämmät värit, ei hehkua, isompi teksti")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></svg>${t("Silmäystävällinen")}</button>
+          <button class="btn sm" id="vw-help-btn" aria-expanded="false" title="${t("Pikanäppäimet")} (?)">?</button>
+          <button class="btn sm" id="vw-menu" aria-label="${t("Näytä valikko")}" title="${t("Näytä valikko")} (M)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+          <button class="btn sm" id="nv-pdf" ${live ? "disabled" : ""}>${t("PDF-raportti")}</button>
+        </div>
+        <div class="vw-help" id="vw-help" hidden>
+          <div class="vw-k">${t("Pikanäppäimet")}</div>
+          ${VW_KEYS.map(([k, v]) => `<div><kbd>${t(k)}</kbd><span>${t(v)}</span></div>`).join("")}
+        </div>
+
+        <div class="vw-top">
+          <section class="card vw-pose">
+            <div class="vw-k">${t("Asento")}</div>
+            <div class="vw-fig" id="vw-fig"></div>
+            <div class="vw-pose-l" id="vw-pose-l">–</div>
+          </section>
+          <section class="card vw-now">
+            <div class="vw-k">${t("Keskiviivan kohta")}</div>
+            <div class="vw-now-grid" id="vw-now"></div>
+          </section>
+          <section class="card vw-find">
+            <div class="vw-find-head">
+              <div class="vw-tabs" role="tablist">
+                <button role="tab" class="on" data-tab="list" aria-selected="true">${t("Löydökset")}</button>
+                <button role="tab" data-tab="tpl" aria-selected="false">${t("Lyöntimuodot")}</button>
+              </div>
+              <div class="vw-chips" id="vw-chips"></div>
+              <label class="vw-jump" title="${t("Kirjoita havainnon numero ja paina Enter")}">#<input id="vw-jump" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="${t("Siirry havaintoon numero")}"></label></div>
+            <div class="vw-list" id="vw-list"><div class="hint">${t("Ladataan…")}</div></div>
+            <div class="vw-tpl" id="vw-tpl" hidden></div>
+          </section>
+        </div>
+
+        <section class="card vw-over">
+          <div class="track posture"><span class="lbl">${t("Asento")}</span><canvas id="nv-posture"></canvas></div>
+          <div class="track hr"><span class="lbl">${t("Syke")}</span><canvas id="nv-hr"></canvas></div>
+          <div class="track rr"><span class="lbl">${t("RR-välit")}<button class="vw-rrmode" id="vw-rrmode" title="${t("Pisteet tai tiheyskartta")} (D)"></button></span><canvas id="vw-rr"></canvas></div>
+          <div class="track axis"><span class="lbl">${t("Koko yö")}</span><canvas id="nv-axis"></canvas></div>
+          <div class="track mid l1"><span class="lbl">10 min</span><canvas id="vw-mid" title="${t("Vedä siirtääksesi.")}"></canvas></div>
+          <div class="track mid l2"><span class="lbl">2 min</span><canvas id="vw-ctx" title="${t("Vedä siirtääksesi.")}"></canvas></div>
+          <canvas id="nv-ov" hidden></canvas>
+        </section>
+
+        <section class="card detail vw-ecg">
+          <div class="vw-ecg-head">
+            <span class="card-title">${t("EKG")}</span>
+            <span class="num" id="nv-dt"></span>
+            <span class="meta" id="nv-dmeta"></span>
+            <button class="btn sm vw-cal-btn" id="vw-cal" aria-pressed="false" title="${t("Mittain: vedä EKG:n päällä mitataksesi välin (myös Shift + veto). Esc poistaa.")} (C)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 4v16M19 4v16M5 12h14M8 9l-3 3 3 3M16 9l3 3-3 3"/></svg>${t("Mittain")}</button>
+            <div class="seg vw-gain" id="vw-gain" title="${t("Vahvistus")}">${[0.5, 1, 2].map((g) => `<button data-gain="${g}" class="${g === 1 ? "on" : ""}">${10 * g}</button>`).join("")}<span class="vw-gain-u">mm/mV</span></div>
+          </div>
+          <div class="vw-ecg-wrap"><canvas id="nv-detail"></canvas></div>
+          <div class="foot">
+            <button class="btn sm" id="nv-prev" title="${t("Taaksepäin")} (←)">‹</button>
+            <button class="btn sm" id="nv-next" title="${t("Eteenpäin")} (→)">›</button>
+            <div class="play-group">
+              <button class="btn sm play" id="nv-play" title="${t("Toista")} (${t("välilyönti")})" aria-label="${t("Toista")}">${PLAY_SVG}</button>
+              <div class="seg" id="nv-speeds" title="${t("Toistonopeus")}">${PLAY_SPEEDS.map((v) => `<button data-speed="${v}" class="${v === this.speed ? "on" : ""}">${v}×</button>`).join("")}</div>
+              <label class="check" title="${t("Toisto pysähtyy lisälyöntiin ja oiremerkintään.")}"><input type="checkbox" id="nv-stopat" ${this.stopAt ? "checked" : ""}> ${t("Pysähdy havaintoon")}</label>
+              <label class="check" title="${t("Toisto hidastuu 1×-nopeuteen {0} s ennen lisälyöntiä tai oiremerkintää ja {0} s sen jälkeen.", SLOW_S)}"><input type="checkbox" id="nv-slowat" ${this.slowAt ? "checked" : ""}> ${t("Hidasta havainnoissa")}</label>
+            </div>
+            <div class="seg" id="nv-spans">${VW_SPANS.map((v, i) => `<button data-span="${v}" title="${i + 1}">${v < 60 ? v + " s" : v / 60 + " min"}</button>`).join("")}</div>
+            <div class="ect-nav" id="nv-enav" ${this.ectopics.length ? "" : "hidden"}>
+              <button class="btn sm" id="nv-eprev" title="${t("Edellinen havainto")} (P)">‹</button>
+              <span class="ect-count"><i></i><span id="nv-ecount"></span></span>
+              <button class="btn sm" id="nv-enext" title="${t("Seuraava havainto")} (N)">›</button>
+            </div>
+          </div>
+        </section>
+
+        <div class="vw-stats" id="vw-stats"></div>
+      </div>`;
+
+    this.fit();
+    this.t = this.startAt != null && isFinite(this.startAt)
+      ? clamp(this.startAt - this.span / 2, 0, Math.max(0, this.dur - this.span))
+      : Math.min(Math.max(0, this.dur - this.span), 1800);
+    this.startAt = null;
+    this.renderChips();
+    this.renderStats();
+    this.drawTimeline();
+    this.ovData = null; // the whole-night ECG row is replaced by the ±5 min strip
+    if (this.dead) return;
+    this.drawOverview();
+    this.bind();
+    this.bindViewer();
+    this.setSpan(10);
+    this.initFigure();
+    this.loadOrientation();
+    this.loadBeats();
+    this.renderFindings();
+  }
+
+  unmount() {
+    super.unmount();
+    document.body.classList.remove("viewer-mode", "topbar-open");
+    document.documentElement.classList.remove("eyesaver");
+    if (this.fig) { this.fig.dispose(); this.fig = null; }
+  }
+
+  static eyesaverPref() {
+    try { return localStorage.getItem("openholter.eyesaver") === "1"; } catch { return false; }
+  }
+
+  setEyesaver(on) {
+    document.documentElement.classList.toggle("eyesaver", on);
+    try { localStorage.setItem("openholter.eyesaver", on ? "1" : "0"); } catch { /* private mode: not remembered */ }
+    $("#vw-eye").setAttribute("aria-pressed", String(on));
+    this.rrCache = null;
+    this.drawTimeline(); this.drawOverview(); this.drawDetail();
+    if (this.tpl && this.findTab === "tpl") this.renderTemplates();
+  }
+
+  // the top bar is hidden in the viewer; a thin strip along the top edge brings it back
+  static setupTopbar() {
+    if (document.getElementById("topbar-peek")) return;
+    const peek = document.createElement("div");
+    peek.id = "topbar-peek";
+    document.body.appendChild(peek);
+    const bar = document.querySelector(".topbar");
+    let timer = null;
+    peek.addEventListener("mouseenter", () => { clearTimeout(timer); document.body.classList.add("topbar-open"); });
+    bar.addEventListener("mouseenter", () => clearTimeout(timer));
+    bar.addEventListener("mouseleave", () => { timer = setTimeout(() => document.body.classList.remove("topbar-open"), 350); });
+  }
+
+  // the dashboard fills the window below the top bar (it scrolls only on very small screens)
+  fit() {
+    const vw = $("#vw"); if (!vw) return;
+    vw.style.height = `${Math.max(760, window.innerHeight - vw.getBoundingClientRect().top - window.scrollY - 12)}px`;
+  }
+
+  async initFigure() {
+    const el = $("#vw-fig"); if (!el) return;
+    this.fig = await Figure3D.create(el, { interactive: false });
+    if (this.dead) { if (this.fig) this.fig.dispose(); this.fig = null; return; }
+    if (!this.fig) el.innerHTML = postureFigure("supine");
+    this.updateNow();
+  }
+
+  // ---------------------------------------------------------------- beats
+
+  loadBeats() {
+    const rr = $("#vw-rr");
+    this.beatsNote = t("Ladataan lyöntejä…");
+    this.drawRR();
+    // recordings analysed before beat lists were saved get them computed once (can take a while)
+    const slow = setTimeout(() => { this.beatsNote = t("Lasketaan lyöntejä ensimmäistä kertaa…"); this.drawRR(); }, 1500);
+    api(`/api/sessions/${encodeURIComponent(this.id)}/beats`).then((b) => {
+      clearTimeout(slow);
+      if (this.dead) return;
+      this.setBeats(b.t_ms || []);
+      this.renderFindings(); this.renderStats(); this.drawOverview(); this.drawDetail();
+    }).catch((e) => {
+      clearTimeout(slow);
+      this.beatsNote = t("Lyöntilistaa ei saatu ({0}).", e.message); this.drawRR();
+      this.renderFindings();
+    });
+  }
+
+  setBeats(ms) {
+    const n = ms.length, b = new Float64Array(n);
+    for (let i = 0; i < n; i++) b[i] = ms[i] / 1000;
+    this.beats = b;
+    // kind per beat: 0 = normal, 1 = VES, 2 = SVES (from the analysis details, matched by time)
+    const kind = new Int8Array(n);
+    this.beatDet = new Map(); // beat index -> analysis detail
+    for (const dt of (this.ect && this.ect.details) || []) {
+      const i = bsearch(b, dt.t - 0.004);
+      if (i < n && Math.abs(b[i] - dt.t) < 0.01) { kind[i] = dt.kind === "sves" ? 2 : 1; this.beatDet.set(i, dt); }
+    }
+    this.beatKind = kind;
+    // RR before each beat (ms); NaN across data gaps or when implausible
+    const rr = new Float64Array(n).fill(NaN);
+    const gaps = this.d.gaps || [];
+    let g = 0;
+    for (let i = 1; i < n; i++) {
+      const a = b[i - 1], c = b[i];
+      while (g < gaps.length && gaps[g][1] < a) g++;
+      const crossesGap = g < gaps.length && gaps[g][0] < c && gaps[g][1] > a;
+      const v = (c - a) * 1000;
+      if (!crossesGap && v >= 200 && v <= 10000) rr[i] = v;
+    }
+    this.rr = rr;
+    // heart rate extremes over 8 beats, longest pauses
+    let hiI = -1, loI = -1, hiV = 0, loV = Infinity, sum = 0, cnt = 0;
+    const K = 8;
+    for (let i = 1; i < n; i++) {
+      if (!isNaN(rr[i])) { sum += rr[i]; cnt++; }
+      if (i > K && !isNaN(rr[i - K])) { sum -= rr[i - K]; cnt--; }
+      if (i >= K && cnt === K) {
+        const hr = 60000 / (sum / K);
+        if (hr > hiV) { hiV = hr; hiI = i; }
+        if (hr < loV) { loV = hr; loI = i; }
+      }
+    }
+    this.hrMax = hiI >= 0 ? { t: b[hiI], v: hiV } : null;
+    this.hrMin = loI >= 0 ? { t: b[loI], v: loV } : null;
+    const pauses = [];
+    for (let i = 1; i < n; i++) if (rr[i] >= PAUSE_MS) pauses.push({ t: b[i - 1], v: rr[i] });
+    pauses.sort((x, y) => y.v - x.v);
+    this.pauses = pauses.slice(0, 25);
+    let longest = 0, lt = null;
+    for (let i = 1; i < n; i++) if (rr[i] > longest) { longest = rr[i]; lt = b[i - 1]; }
+    this.longest = lt != null ? { t: lt, v: longest } : null;
+    this.rrCache = null;
+  }
+
+  nearestBeat(tc) {
+    const b = this.beats; if (!b || !b.length) return -1;
+    const i = bsearch(b, tc);
+    if (i >= b.length) return b.length - 1;
+    if (i > 0 && tc - b[i - 1] < b[i] - tc) return i - 1;
+    return i;
+  }
+
+  // ---------------------------------------------------------------- findings
+
+  buildItems() {
+    const items = [], ect = this.ect || {};
+    const kindName = (k) => ({ ves: "VES", sves: "SVES" }[k] || t("VES ja SVES"));
+    for (const s of this.symptoms) items.push({ t: s.t, tags: ["symptom"], c: "symptom", label: t("Oiremerkintä"), sub: s.note || "" });
+    for (const r of ect.runs || []) {
+      items.push({ t: r.start, tags: ["group", r.kind === "sves" ? "sves" : "ves"], c: r.kind === "sves" ? "sves" : "ves",
+        label: t("Sarja: {0} lyöntiä", r.beats), sub: `${kindName(r.kind)} · ${r.rate_bpm}/min${r.in_af ? " · " + t("epäsäännöllisellä jaksolla") : ""}` });
+    }
+    for (const a of ect.af_episodes || []) {
+      items.push({ t: a.start, tags: ["rhythm"], c: "rhythm", label: t("Epäsäännöllinen rytmi"), sub: fmt.dur(a.duration_s) });
+    }
+    let lastPair = -1e9;
+    for (const d of ect.details || []) {
+      const k = d.kind === "sves" ? "sves" : "ves";
+      if (d.run) continue; // shown as part of its run
+      if (d.couplet) {
+        if (d.t - lastPair < 2.5) continue; // second beat of the pair
+        lastPair = d.t;
+        items.push({ t: d.t, tags: ["group", k], c: k, label: t("Pari"), sub: kindName(d.kind) });
+        continue;
+      }
+      items.push({ t: d.t, tags: [k], c: k, label: kindName(d.kind),
+        sub: d.premature === false ? t("muodon perusteella") : "" });
+    }
+    if (this.hrMax) items.push({ t: this.hrMax.t, tags: ["rate"], c: "rate", label: t("Suurin syke"), sub: `${Math.round(this.hrMax.v)} bpm` });
+    if (this.hrMin) items.push({ t: this.hrMin.t, tags: ["rate"], c: "rate", label: t("Pienin syke"), sub: `${Math.round(this.hrMin.v)} bpm` });
+    for (const p of this.pauses || []) {
+      items.push({ t: p.t, tags: ["rate"], c: "rate", label: t("Tauko"), sub: `${dec(p.v / 1000, 1)} s` });
+    }
+    items.sort((a, b) => a.t - b.t);
+    items.forEach((x, i) => { x.n = i + 1; }); // fixed numbers in time order: the same with any filter
+    this.allItems = items;
+  }
+
+  renderChips() {
+    const el = $("#vw-chips"); if (!el) return;
+    this.buildItems();
+    const n = (f) => (f === "all" ? this.allItems.length : this.allItems.filter((x) => x.tags.includes(f)).length);
+    el.innerHTML = VW_FILTERS.map(([f, label]) => {
+      const c = n(f);
+      return c || f === "all" || f === this.filter
+        ? `<button class="vw-chip ${f === this.filter ? "on" : ""}" data-f="${f}">${t(label)} <b>${c}</b></button>` : "";
+    }).join("");
+    el.querySelectorAll("[data-f]").forEach((b) => (b.onclick = () => this.setFilter(b.dataset.f)));
+  }
+
+  setFilter(f) {
+    this.filter = f;
+    this.renderFindings();
+  }
+
+  renderFindings() {
+    const el = $("#vw-list"); if (!el) return;
+    this.renderChips();
+    this.items = this.filter === "all" ? this.allItems : this.allItems.filter((x) => x.tags.includes(this.filter));
+    if (!this.ect) {
+      el.innerHTML = `<div class="hint">${t("Tallennetta ei ole vielä analysoitu. Analyysi tehdään tallennenäkymästä tai päivittäisen ajon yhteydessä.")}</div>`;
+      return;
+    }
+    el.innerHTML = this.items.length
+      ? this.items.map((x, i) => `<button class="vw-item" data-i="${i}">
+          <span class="vw-n num">#${x.n}</span>
+          <span class="num">${fmt.clockSec(this.t0 + x.t * 1000)}</span>
+          <i style="background:${VW_COLOR[x.c]}"></i>
+          <span class="vw-item-l">${esc(x.label)}</span><span class="vw-item-s">${esc(x.sub)}</span></button>`).join("")
+      : `<div class="hint">${t("Ei löydöksiä tällä suodattimella.")}</div>`;
+    el.querySelectorAll("[data-i]").forEach((b) => (b.onclick = () => this.gotoItem(+b.dataset.i)));
+    this.curItem = -1;
+    this.markItem();
+    this.updateEctopicCount();
+    const nav = $("#nv-enav"); if (nav) nav.hidden = !this.allItems.length;
+  }
+
+  // jump to finding #n (shows all findings again if the filter hides it)
+  gotoNumber(n) {
+    const x = (this.allItems || []).find((it) => it.n === n);
+    if (!x) { toast(t("Havaintoa #{0} ei ole. Numerot ovat 1–{1}.", n, (this.allItems || []).length)); return; }
+    if (!x.tags.includes(this.filter) && this.filter !== "all") this.setFilter("all");
+    this.gotoItem(this.items.indexOf(x));
+  }
+
+  // in the viewer the ‹ › navigator steps through the numbered findings, so its count matches the list
+  jumpEctopic(dir) { this.stepItem(dir); }
+
+  updateEctopicCount() {
+    const el = $("#nv-ecount"); if (!el) return;
+    const all = this.allItems || [], x = this.curItem >= 0 ? this.items[this.curItem] : null;
+    el.textContent = x ? t("Havainto #{0}/{1}", x.n, all.length) : t("Havainnot {0}", all.length);
+  }
+
+  gotoItem(i) {
+    const x = this.items[i]; if (!x) return;
+    if (this.span > 30) this.setSpan(10);
+    this.glide(x.t - this.span / 2);
+  }
+
+  stepItem(dir) {
+    if (!this.items.length) return;
+    const c = this.t + this.span / 2;
+    let i;
+    if (dir > 0) { i = this.items.findIndex((x) => x.t > c + 0.3); if (i < 0) i = 0; }
+    else { i = -1; for (let k = this.items.length - 1; k >= 0; k--) if (this.items[k].t < c - 0.3) { i = k; break; } if (i < 0) i = this.items.length - 1; }
+    this.gotoItem(i);
+  }
+
+  stepKind(kind) { // next beat of one kind, independent of the list filter
+    const c = this.t + this.span / 2;
+    const ts = ((this.ect && this.ect.details) || []).filter((d) => d.kind === kind).map((d) => d.t);
+    if (!ts.length) { toast(t("Ei {0}-lyöntejä tässä tallenteessa.", kind.toUpperCase())); return; }
+    const nx = ts.find((x) => x > c + 0.3);
+    if (this.span > 30) this.setSpan(10);
+    this.glide((nx != null ? nx : ts[0]) - this.span / 2);
+  }
+
+  // highlight the finding on the centre line and keep it in view
+  markItem() {
+    const el = $("#vw-list"); if (!el) return;
+    const c = this.t + this.span / 2;
+    let best = -1, bd = Math.min(1.5, this.span / 4);
+    this.items.forEach((x, i) => { const d = Math.abs(x.t - c); if (d < bd) { bd = d; best = i; } });
+    if (best === this.curItem) return;
+    el.querySelector(".vw-item.on")?.classList.remove("on");
+    this.curItem = best;
+    this.updateEctopicCount();
+    if (best >= 0) {
+      const b = el.querySelector(`[data-i="${best}"]`);
+      if (b) { b.classList.add("on"); b.scrollIntoView({ block: "nearest" }); }
+    }
+  }
+
+  // ---------------------------------------------------------------- panels
+
+  updateNow() {
+    const el = $("#vw-now"); if (!el) return;
+    const now = performance.now();
+    if (this.playing && now - (this._nowAt || 0) < 100) return; // 10 updates a second is plenty while playing
+    this._nowAt = now;
+    const c = this.t + this.span / 2;
+    const tile = (k, v, cls = "") => `<div class="vw-tile ${cls}"><span>${k}</span><b class="num">${v}</b></div>`;
+    let hr = "–", rrv = "–", beat = "–", prem = "–", beatCls = "";
+    const i = this.nearestBeat(c);
+    if (i >= 0 && Math.abs(this.beats[i] - c) < 2) {
+      const vals = [];
+      for (let k = Math.max(1, i - 4); k <= Math.min(this.beats.length - 1, i + 4); k++) if (!isNaN(this.rr[k])) vals.push(this.rr[k]);
+      vals.sort((a, b) => a - b);
+      if (vals.length >= 3) hr = `${Math.round(60000 / vals[vals.length >> 1])}<small>bpm</small>`;
+      if (!isNaN(this.rr[i])) rrv = `${Math.round(this.rr[i])}<small>ms</small>`;
+      const k = this.beatKind[i];
+      const det = k ? this.beatDet.get(i) : null;
+      beat = k === 1 ? "VES" : k === 2 ? "SVES" : t("normaali");
+      if (det && det.run) beat += `<small>${t("sarja")}</small>`; else if (det && det.couplet) beat += `<small>${t("pari")}</small>`; // the qualifier small, so it fits
+      beatCls = k === 1 ? "ves" : k === 2 ? "sves" : "";
+      if (k && !isNaN(this.rr[i]) && vals.length >= 3) prem = `${Math.round((this.rr[i] / vals[vals.length >> 1]) * 100)}<small>%</small>`;
+    } else if (this.d.hr && this.d.hr.mean.length) {
+      const v = this.d.hr.mean[Math.floor((c / this.dur) * this.d.hr.mean.length)];
+      if (v != null) hr = `${Math.round(v)}<small>bpm</small>`;
+    }
+    const sym = this.symptoms.find((s) => Math.abs(s.t - c) < 1.5);
+    el.innerHTML = tile(t("Syke"), hr) + tile(t("RR-väli"), rrv) + tile(t("RR / tavallinen"), prem)
+      + tile(t("Lyönti"), beat, beatCls) + tile(t("Kellonaika"), fmt.clockSec(this.t0 + c * 1000))
+      + tile(t("Oire"), sym ? "♥" : "–", sym ? "sym" : "");
+    // posture
+    let name = this.classes[Math.floor(clamp(c / this.dur, 0, 0.9999) * this.classes.length)] || null;
+    let roll = null;
+    if (this.orient) {
+      const s = clamp(Math.floor(c), 0, this.orient.cls.length - 1);
+      name = this.orient.cls[s] >= 0 ? this.orient.names[this.orient.cls[s]] : null;
+      roll = this.rollAt(c);
+    }
+    const pl = $("#vw-pose-l");
+    if (pl) {
+      const info = name ? POSTURE[name] : null;
+      pl.innerHTML = info ? `<i class="sw" style="background:var(${info.color})"></i>${info.label}${roll != null && name !== "upright" ? ` <span class="num faint">${Math.round(roll)}°</span>` : ""}`
+        : `<span class="faint">${t("Ei asentotietoa")}</span>`;
+    }
+    if (this.fig) {
+      const known = name && POSE[name];
+      this.fig.setGhost(!known);
+      if (known) {
+        const r = roll != null && name !== "upright" ? roll : POSE[name][0];
+        this.fig.setPose(r, POSE[name][1]);
+      }
+    }
+    this.markItem();
+  }
+
+  renderStats() {
+    const el = $("#vw-stats"); if (!el) return;
+    const ar = this.d.analysis && this.d.analysis.result, s = this.d.summary || {}, e = this.ect || {};
+    const beats = e.method === "ecg" ? e.beats : null;
+    const pctTxt = (x) => (x == null ? "–" : `${dec(x * 100, x * 100 < 1 ? 2 : 1)}<small>%</small>`);
+    const tile = (k, v, sub, act = "") => {
+      const inner = `<span>${k}</span><b class="num">${v}</b><small>${sub || "&nbsp;"}</small>`;
+      return act ? `<button class="vw-stat act" data-act="${act}">${inner}</button>` : `<div class="vw-stat">${inner}</div>`;
+    };
+    const hrv = ar && ar.hrv;
+    el.innerHTML = [
+      tile(t("Syke min / keski / max"),
+        `${this.hrMin ? Math.round(this.hrMin.v) : s.hr_min ?? "–"} / ${s.hr_mean ? Math.round(s.hr_mean) : "–"} / ${this.hrMax ? Math.round(this.hrMax.v) : s.hr_max ?? "–"}`,
+        this.hrMax ? t("max klo {0}", fmt.clock(this.t0 + this.hrMax.t * 1000)) : "bpm", this.hrMax ? `goto:${this.hrMax.t}` : ""),
+      tile(t("Lyöntejä"), beats != null ? fmt.int(beats) : "–", e.method === "ecg" ? t("EKG:n R-piikit") : ""),
+      tile("VES", e.ves != null ? fmt.int(e.ves) : "–", beats ? pctTxt(e.ves / beats) + " " + t("lyönneistä") : "", e.ves ? "filter:ves" : ""),
+      tile("SVES", e.sves != null ? fmt.int(e.sves) : "–", beats ? pctTxt(e.sves / beats) + " " + t("lyönneistä") : "", e.sves ? "filter:sves" : ""),
+      tile(t("Parit / sarjat"), `${e.couplets ?? "–"} / ${(e.runs || []).length}`, t("vähintään 3 lisälyöntiä = sarja"), (e.couplets || (e.runs || []).length) ? "filter:group" : ""),
+      tile(t("Epäsäännöllinen rytmi"), e.af_seconds != null ? fmt.dur(e.af_seconds) : "–", t("{0} jaksoa", (e.af_episodes || []).length), (e.af_episodes || []).length ? "filter:rhythm" : ""),
+      tile(t("Pisin tauko"), this.longest ? `${dec(this.longest.v / 1000, 1)}<small>s</small>` : "–", this.longest ? t("klo {0}", fmt.clockSec(this.t0 + this.longest.t * 1000)) : "", this.longest ? `goto:${this.longest.t + this.longest.v / 2000}` : ""),
+      tile("RMSSD", hrv && hrv.rmssd_median != null ? `${Math.round(hrv.rmssd_median)}<small>ms</small>` : "–", t("5 min mediaani")),
+      tile(t("Signaalin laatu"), s.quality_score != null ? `${fmt.pct(s.quality_score)}<small>%</small>` : "–", s.coverage != null ? t("tallennettu {0} %", fmt.pct(s.coverage, 1)) : ""),
+    ].join("");
+    el.querySelectorAll("[data-act]").forEach((b) => (b.onclick = () => {
+      const [k, v] = b.dataset.act.split(":");
+      if (k === "filter") this.setFilter(v);
+      else { if (this.span > 30) this.setSpan(10); this.glide(+v - this.span / 2); }
+    }));
+  }
+
+  // ---------------------------------------------------------------- drawing
+
+  drawDetail() {
+    super.drawDetail();
+    if (!$("#vw-now")) return;
+    this.drawCaliper();
+    this.updateNow();
+    this.drawStrip("#vw-ctx", "ecg");
+    if (this.playing) { this.drawRR(); this.drawStrip("#vw-mid", "#vw-ctx"); } // keep every level moving smoothly
+  }
+
+  drawOverview() {
+    super.drawOverview();
+    if ($("#vw-rr")) { this.drawRR(); this.drawStrip("#vw-mid", "#vw-ctx"); }
+  }
+
+  // the RR plot already shows every extra beat: on the ECG overview a short tick is enough
+  drawEctopics(ctx, w) {
+    ctx.save();
+    for (const e of this.ectopics) {
+      const info = this.ectKinds.get(e);
+      ctx.fillStyle = info && info.kind === "sves" ? css("--sves") : css("--ves");
+      ctx.fillRect(Math.round(this.X(e, w)), 0, 1, 5);
+    }
+    ctx.restore();
+  }
+
+  drawUnderCursor() { if ($("#vw-now")) this.annotateBeats(); }
+
+  // beat class under each beat and the RR interval (ms) between beats, Holter style, in a band
+  // along the bottom edge (the posture circle keeps the middle)
+  annotateBeats() {
+    const b = this.beats; if (!b || this.span > 30) return;
+    const cv = $("#nv-detail"), ctx = cv.getContext("2d"), w = cv.clientWidth, h = cv.clientHeight;
+    const pps = w / this.span, y = h - 11;
+    const i0 = Math.max(0, bsearch(b, this.t) - 1), i1 = bsearch(b, this.t + this.span);
+    ctx.save();
+    ctx.fillStyle = "rgba(7,11,18,.55)"; ctx.fillRect(0, h - 22, w, 22); // one band; the posture circle is drawn on top
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    for (let i = i0; i <= Math.min(i1, b.length - 1); i++) {
+      const x = (b[i] - this.t) * pps;
+      const k = this.beatKind[i];
+      if (x >= -10 && x <= w + 10) { // labels under the posture circle are simply covered by it
+        ctx.font = `600 ${vwFont(11)}px ` + css("--mono");
+        ctx.fillStyle = k === 1 ? css("--ves") : k === 2 ? css("--sves") : css("--beat-n");
+        ctx.fillText(k === 1 ? "V" : k === 2 ? "S" : "N", x, y);
+      }
+      if (i > 0 && !isNaN(this.rr[i])) {
+        const xa = (b[i - 1] - this.t) * pps;
+        if (x - xa > 46 && x > 0 && xa < w) {
+          ctx.font = `${vwFont(10)}px ` + css("--mono");
+          ctx.fillStyle = css("--beat-rr");
+          ctx.fillText(String(Math.round(this.rr[i])), (xa + x) / 2, y);
+        }
+      }
+    }
+    ctx.restore();
+  }
+
+  drawRR() {
+    const cv = $("#vw-rr"); if (!cv) return;
+    const { ctx, w, h } = setupCanvas(cv);
+    ctx.clearRect(0, 0, w, h);
+    if (!this.beats) {
+      ctx.font = "12px " + css("--font"); ctx.fillStyle = css("--muted");
+      ctx.fillText(this.beatsNote || "", 8, h / 2 + 4);
+      return;
+    }
+    const dpr = window.devicePixelRatio || 1;
+    if (!this.rrCache || this.rrCache.w !== w || this.rrCache.h !== h) {
+      const off = document.createElement("canvas");
+      off.width = Math.round(w * dpr); off.height = Math.round(h * dpr);
+      const o = off.getContext("2d"); o.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const vals = Array.from(this.rr).filter((v) => !isNaN(v)).sort((a, b) => a - b);
+      const top = clamp(Math.ceil(((vals[Math.floor(vals.length * 0.999)] || 1500) * 1.1) / 250) * 250, 1250, 3000);
+      const lo = 250, Y = (v) => 3 + (1 - (Math.min(v, top) - lo) / (top - lo)) * (h - 6);
+      o.font = `${vwFont(10)}px ` + css("--mono"); o.fillStyle = css("--faint"); o.strokeStyle = css("--line"); o.lineWidth = 1;
+      for (const v of [500, 1000, 1500, 2000, 2500]) {
+        if (v > top) break;
+        o.beginPath(); o.moveTo(0, Math.round(Y(v)) + 0.5); o.lineTo(w, Math.round(Y(v)) + 0.5); o.stroke();
+        o.fillText(String(v), 3, Y(v) - 2);
+      }
+      const b = this.beats, rr = this.rr, k = this.beatKind;
+      if (this.rrMode === "density") {
+        // density: how many normal beats fall in each pixel (time × RR), on a log scale, so the main
+        // band, its drift through the night and sparse outliers all stay visible at once
+        const W = Math.max(1, Math.round(w)), H = Math.max(1, Math.round(h)), cnt = new Uint32Array(W * H);
+        let mx = 0;
+        for (let i = 1; i < b.length; i++) {
+          if (k[i] || isNaN(rr[i])) continue;
+          const x = Math.min(W - 1, Math.floor((b[i] / this.dur) * W)), y = clamp(Math.round(Y(rr[i])), 0, H - 1);
+          const c = ++cnt[y * W + x]; if (c > mx) mx = c;
+        }
+        const img = new ImageData(W, H), L = Math.log1p(mx || 1);
+        const [r0, g0, b0] = css("--density").split(",").map(Number);
+        for (let p = 0; p < cnt.length; p++) {
+          if (!cnt[p]) continue;
+          const f = Math.log1p(cnt[p]) / L; // 0..1
+          img.data[p * 4] = r0 + (255 - r0) * f * f; img.data[p * 4 + 1] = g0 + (255 - g0) * f * f; img.data[p * 4 + 2] = b0 + (255 - b0) * f * f;
+          img.data[p * 4 + 3] = Math.round(70 + 185 * f);
+        }
+        const tmp = document.createElement("canvas"); tmp.width = W; tmp.height = H;
+        tmp.getContext("2d").putImageData(img, 0, 0);
+        o.imageSmoothingEnabled = false; o.drawImage(tmp, 0, 0, w, h);
+      } else {
+        o.fillStyle = css("--rr-dot");
+        for (let i = 1; i < b.length; i++) if (!k[i] && !isNaN(rr[i])) o.fillRect((b[i] / this.dur) * w, Y(rr[i]), 1, 1);
+      }
+      for (const [kind, col] of [[2, css("--sves")], [1, css("--ves")]]) {
+        o.fillStyle = col;
+        for (let i = 1; i < b.length; i++) if (k[i] === kind && !isNaN(rr[i])) o.fillRect((b[i] / this.dur) * w - 1, Y(rr[i]) - 1, 2.4, 2.4);
+      }
+      // the pause after each extra beat, so its "short-long" pair is visible
+      o.fillStyle = css("--ves") + "73";
+      for (let i = 1; i < b.length - 1; i++) if (k[i] === 1 && !isNaN(rr[i + 1])) o.fillRect((b[i + 1] / this.dur) * w - 0.5, Y(rr[i + 1]) - 0.5, 1.6, 1.6);
+      this.rrCache = { w, h, off, Y };
+    }
+    ctx.drawImage(this.rrCache.off, 0, 0, w, h);
+    this.drawGaps(ctx, w, h);
+    this.drawSymptoms(ctx, w, h);
+    // the 10 min strip's range (its colour), and the centre line
+    const r = this.stripRange("#vw-mid");
+    if (r) {
+      const x0 = this.X(r[0], w), x1 = Math.max(x0 + 2, this.X(r[1], w));
+      ctx.fillStyle = ladder(0) + "22"; ctx.fillRect(x0, 0, x1 - x0, h);
+      ctx.strokeStyle = ladder(0); ctx.lineWidth = 1.5; ctx.strokeRect(x0 + 0.75, 0.75, x1 - x0 - 1.5, h - 1.5);
+    }
+    const xc = Math.round(this.X(this.t + this.span / 2, w)) + 0.5;
+    ctx.strokeStyle = "rgba(255,255,255,.8)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(xc, 0); ctx.lineTo(xc, h); ctx.stroke();
+  }
+
+  // time range shown by a strip: centred on the centre line, clamped to the recording
+  stripRange(sel) {
+    const half = Math.min({ "#vw-mid": 300, "#vw-ctx": 60 }[sel] || 60, this.dur / 2);
+    const c = this.t + this.span / 2;
+    const a = clamp(c - half, 0, Math.max(0, this.dur - 2 * half));
+    return [a, a + 2 * half];
+  }
+
+  // move to a new place with a short glide, so the boxes on every level slide there instead of jumping
+  glide(target) {
+    this.pause();
+    const to = clamp(target, 0, Math.max(0, this.dur - this.span)), from = this.t;
+    cancelAnimationFrame(this._glide);
+    if (Math.abs(to - from) < 1e-3 || matchMedia("(prefers-reduced-motion: reduce)").matches) { this.goto(to); return; }
+    const t0 = performance.now(), D = 280;
+    const step = (now) => {
+      if (this.dead) return;
+      const p = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - p, 3);
+      if (p < 1) {
+        this.t = from + (to - from) * e;
+        this.drawOverview(); this.drawDetail();
+        this._glide = requestAnimationFrame(step);
+      } else this.goto(to);
+    };
+    this._glide = requestAnimationFrame(step);
+  }
+
+  // ECG strips as min/max envelopes that scroll with the centre line, with the next level's range boxed.
+  // Together they make a zoom ladder: whole night → 10 min → 2 min → the ECG (a whole night in one row is
+  // unreadable). Data is fetched with a margin on both sides, so the strip glides instead of jumping.
+  // Buckets with an unusually large range (artefact) are amber, flat ones (no contact) grey.
+  // child: the next level's selector (its range is boxed in that level's colour) or "ecg" (the ECG window)
+  drawStrip(sel, child) {
+    const cv = $(sel); if (!cv) return;
+    this.strips = this.strips || {};
+    const st = (this.strips[sel] = this.strips[sel] || {});
+    const [a, b] = this.stripRange(sel), len = b - a;
+    const w = cv.clientWidth;
+    // refetch when the view nears an edge of the data, unless that edge is already the recording's own
+    // start or end; never the same range twice (a cached reply resolves at once, and a repeat would
+    // loop without giving the browser a chance to draw)
+    const fa = Math.max(0, Math.round(a - len * 0.6)), fb = Math.min(Math.round(this.dur), Math.round(b + len * 0.6));
+    const pts = Math.max(50, Math.min(6000, Math.round((w * (fb - fa)) / len)));
+    const key = `${fa}|${fb}|${pts}`;
+    const dd = st.data;
+    const need = !dd || dd.w !== w || a < dd.a - 0.5 || b > dd.b + 0.5
+      || (dd.a > 0.5 && a < dd.a + len * 0.15) || (dd.b < this.dur - 0.5 && b > dd.b - len * 0.15);
+    if (need && !st.busy && w > 0 && key !== (dd && dd.key)) {
+      st.busy = true;
+      this.fetchEcg(fa, fb, pts).then((d) => {
+        st.busy = false;
+        if (this.dead) return;
+        // one baseline and scale per fetch, so the strip doesn't pulse while it scrolls
+        let base = 0, sc = 1, med = 200;
+        if (d.mode === "envelope") {
+          const cs = d.min.map((v, i) => (v == null ? null : (v + d.max[i]) / 2)).filter((v) => v != null).sort((p, q) => p - q);
+          base = cs[cs.length >> 1] || 0;
+          const sorted = d.max.map((v, i) => (v == null ? null : v - d.min[i])).filter((r) => r != null).sort((p, q) => p - q);
+          med = Math.max(200, sorted[sorted.length >> 1] || 1);
+          sc = Math.max(300, sorted[Math.floor(sorted.length * 0.95)] || 1);
+        }
+        st.data = { w, a: fa, b: fb, d, base, sc, med, key };
+        requestAnimationFrame(() => { if (!this.dead) this.drawStrip(sel, child); }); // next frame, never in a loop
+      }).catch(() => { st.busy = false; });
+    }
+    const { ctx, h } = setupCanvas(cv);
+    ctx.clearRect(0, 0, w, h);
+    const X = (tm) => ((tm - a) / len) * w;
+    const cd = st.data;
+    if (cd && cd.d.mode === "envelope") {
+      const d = cd.d, n = d.min.length, bw = (d.end - d.start) / n, mid = h / 2, k = (h * 0.45) / cd.sc;
+      const classify = bw >= 1; // a bucket shorter than a beat isn't comparable to its neighbours
+      const groups = { "--ecg": [], "--fair": [], "--none": [] };
+      const i0 = Math.max(0, Math.floor((a - d.start) / bw) - 1), i1 = Math.min(n - 1, Math.ceil((b - d.start) / bw) + 1);
+      for (let i = i0; i <= i1; i++) {
+        if (d.min[i] == null) continue;
+        const rel = (d.max[i] - d.min[i]) / cd.med;
+        groups[!classify ? "--ecg" : rel > 2.2 ? "--fair" : rel < 0.25 ? "--none" : "--ecg"].push(i);
+      }
+      ctx.lineWidth = 1;
+      for (const [color, idx] of Object.entries(groups)) {
+        ctx.strokeStyle = css(color === "--ecg" ? "--ecg-trace" : color); ctx.globalAlpha = color === "--ecg" ? 0.6 : 0.95;
+        ctx.beginPath();
+        for (const i of idx) {
+          const x = X(d.start + (i + 0.5) * bw);
+          ctx.moveTo(x, clamp(mid - (d.max[i] - cd.base) * k, 0, h)); ctx.lineTo(x, clamp(mid - (d.min[i] - cd.base) * k, 0, h) + 0.5);
+        }
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+    ctx.fillStyle = css("--gap");
+    for (const [ga, gb] of this.d.gaps) if (gb > a && ga < b) ctx.fillRect(X(ga), 0, Math.max(1, X(gb) - X(ga)), h);
+    for (const e of this.ectopics) {
+      if (e < a || e > b) continue;
+      const info = this.ectKinds.get(e);
+      ctx.fillStyle = info && info.kind === "sves" ? css("--sves") : css("--ves");
+      ctx.fillRect(X(e) - 1, 0, 2, 5);
+    }
+    for (const s of this.symptoms) if (s.t >= a && s.t <= b) { ctx.fillStyle = css("--sym"); ctx.fillRect(X(s.t) - 1, 0, 2, h); }
+    // the strip's own time range at its ends
+    ctx.font = `${vwFont(10)}px ` + css("--mono"); ctx.fillStyle = css("--muted");
+    ctx.textBaseline = "bottom";
+    ctx.textAlign = "left"; ctx.fillText(fmt.clock(this.t0 + a * 1000), 3, h - 1);
+    ctx.textAlign = "right"; ctx.fillText(fmt.clock(this.t0 + b * 1000), w - 3, h - 1);
+    const range = child === "ecg" ? [this.t, this.t + this.span] : this.stripRange(child);
+    const color = child === "ecg" ? ladder(2) : ladder(1);
+    const x0 = X(range[0]), x1 = Math.max(x0 + 2, X(range[1]));
+    ctx.fillStyle = color + "26"; ctx.fillRect(x0, 0, x1 - x0, h);
+    ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.strokeRect(x0 + 0.75, 0.75, x1 - x0 - 1.5, h - 1.5);
+    if (child !== "ecg") { // where the ECG is
+      const xc = Math.round(X(this.t + this.span / 2)) + 0.5;
+      ctx.strokeStyle = css("--l3"); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(xc, 0); ctx.lineTo(xc, h); ctx.stroke();
+    }
+  }
+
+  // press outside the window to jump there, then drag; the scale stays fixed for the whole drag
+  bindStrip(sel) {
+    const cv = $(sel); if (!cv) return;
+    let drag = null;
+    cv.addEventListener("pointerdown", (ev) => {
+      const [ra, rb] = this.stripRange(sel);
+      const sec = (rb - ra) / cv.clientWidth;
+      const tm = ra + (ev.clientX - cv.getBoundingClientRect().left) * sec;
+      if (tm < this.t || tm > this.t + this.span) this.goto(tm - this.span / 2);
+      drag = { x: ev.clientX, t: this.t, sec };
+      cv.setPointerCapture(ev.pointerId); cv.classList.add("dragging");
+    });
+    cv.addEventListener("pointermove", (ev) => { if (drag) this.goto(drag.t + (ev.clientX - drag.x) * drag.sec); });
+    const end = () => { drag = null; cv.classList.remove("dragging"); };
+    cv.addEventListener("pointerup", end); cv.addEventListener("pointercancel", end);
+  }
+
+  // ---------------------------------------------------------------- beat shapes
+
+  showTab(tab) {
+    this.findTab = tab;
+    this.el.querySelectorAll(".vw-tabs [data-tab]").forEach((b) => {
+      const on = b.dataset.tab === tab; b.classList.toggle("on", on); b.setAttribute("aria-selected", String(on));
+    });
+    $("#vw-list").hidden = tab !== "list"; $("#vw-chips").hidden = tab !== "list";
+    this.el.querySelector(".vw-jump").hidden = tab !== "list";
+    $("#vw-tpl").hidden = tab !== "tpl";
+    if (tab === "tpl") this.loadTemplates();
+  }
+
+  loadTemplates() {
+    const el = $("#vw-tpl"); if (!el || this.tpl || this._tplBusy) return;
+    if (!this.ect) { el.innerHTML = `<div class="hint">${t("Tallennetta ei ole vielä analysoitu.")}</div>`; return; }
+    this._tplBusy = true;
+    el.innerHTML = `<div class="hint">${t("Ryhmitellään lyöntejä muodon mukaan…")}</div>`;
+    api(`/api/sessions/${encodeURIComponent(this.id)}/templates`).then((r) => {
+      this._tplBusy = false;
+      if (this.dead) return;
+      this.tpl = r; this.renderTemplates();
+    }).catch((e) => { this._tplBusy = false; el.innerHTML = `<div class="hint">${t("Lyöntimuotoja ei saatu ({0}).", esc(e.message))}</div>`; });
+  }
+
+  tplLabel(g) {
+    if (g.kind === "N") return t("Tavallinen lyönti");
+    if (g.kind === "N_odd") return t("Poikkeava muoto");
+    if (g.kind === "SVES") return "SVES";
+    return g.label === "other" ? t("VES, muut muodot") : g.label === "all" ? "VES" : `VES ${g.label}`;
+  }
+
+  renderTemplates() {
+    const el = $("#vw-tpl"), r = this.tpl; if (!el || !r) return;
+    const groups = r.templates || [];
+    if (!groups.length) { el.innerHTML = `<div class="hint">${t("Ei lyöntejä ryhmiteltäväksi.")}</div>`; return; }
+    this.tplPos = this.tplPos || {};
+    el.innerHTML = `<div class="vw-tpl-grid">${groups.map((g, i) => `
+      <div class="vw-tpl-card ${g.kind === "N" ? "ref" : ""}" data-g="${i}">
+        <canvas></canvas>
+        <div class="vw-tpl-l"><i style="background:${g.kind === "VES" ? "var(--ves)" : g.kind === "SVES" ? "var(--sves)" : g.kind === "N_odd" ? "var(--fair)" : "var(--muted)"}"></i>
+          <b>${esc(this.tplLabel(g))}</b><span class="num">${fmt.int(g.count)}</span></div>
+        ${g.t.length ? `<div class="vw-tpl-nav"><button class="btn sm" data-d="-1" aria-label="${t("Edellinen")}">‹</button>
+          <span class="num" data-pos>–/${g.t.length}</span><button class="btn sm" data-d="1" aria-label="${t("Seuraava")}">›</button></div>`
+          : `<div class="vw-tpl-ref">${t("vertailukohta")}</div>`}
+      </div>`).join("")}</div>
+      <div class="hint vw-tpl-hint">${t("Paksu: keskiarvomuoto. Ohut: esimerkit. Katkoviiva: tavallinen lyönti. Ryhmittely ei muuta analyysia.")}</div>`;
+    el.querySelectorAll(".vw-tpl-card").forEach((card) => {
+      const i = +card.dataset.g, g = groups[i];
+      this.drawTemplate(card.querySelector("canvas"), g, groups);
+      card.querySelectorAll("[data-d]").forEach((b) => (b.onclick = () => this.stepTemplate(i, +b.dataset.d)));
+    });
+  }
+
+  // median waveform (thick), member beats (thin) and the usual beat (dashed) on one common scale
+  drawTemplate(cv, g, groups) {
+    const { ctx, w, h } = setupCanvas(cv);
+    ctx.clearRect(0, 0, w, h);
+    const peak = Math.max(300, ...groups.map((x) => Math.max(...x.mean.map(Math.abs))));
+    const n = g.mean.length, X = (i) => (i / (n - 1)) * w, Y = (v) => h / 2 - (v / peak) * (h * 0.44);
+    const line = (arr) => { ctx.beginPath(); arr.forEach((v, i) => (i ? ctx.lineTo(X(i), Y(v)) : ctx.moveTo(X(i), Y(v)))); ctx.stroke(); };
+    const rpk = (this.tpl.pre_s * this.tpl.fs) / (n - 1) * w;
+    ctx.strokeStyle = css("--line"); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(Math.round(rpk) + 0.5, 0); ctx.lineTo(Math.round(rpk) + 0.5, h); ctx.stroke();
+    const col = g.kind === "VES" ? css("--ves") : g.kind === "SVES" ? css("--sves") : g.kind === "N_odd" ? css("--fair") : css("--ecg-trace");
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = col; ctx.globalAlpha = 0.18; ctx.lineWidth = 1;
+    for (const ex of g.examples) line(ex);
+    const usual = groups.find((x) => x.kind === "N");
+    if (usual && g !== usual) {
+      ctx.globalAlpha = 0.7; ctx.strokeStyle = css("--muted"); ctx.setLineDash([3, 3]); line(usual.mean); ctx.setLineDash([]);
+    }
+    ctx.globalAlpha = 1; ctx.strokeStyle = col; ctx.lineWidth = 2; line(g.mean);
+  }
+
+  // step through the beats of one shape group (glides to each beat)
+  stepTemplate(i, d) {
+    const g = this.tpl.templates[i]; if (!g || !g.t.length) return;
+    const cur = this.tplPos[i];
+    const k = cur == null ? (d > 0 ? 0 : g.t.length - 1) : (cur + d + g.t.length) % g.t.length;
+    this.tplPos[i] = k;
+    const pos = this.el.querySelector(`.vw-tpl-card[data-g="${i}"] [data-pos]`);
+    if (pos) pos.textContent = `${k + 1}/${g.t.length}`;
+    if (this.span > 30) this.setSpan(10);
+    this.glide(g.t[k] - this.span / 2);
+  }
+
+  // ---------------------------------------------------------------- calipers
+
+  // the caliper: two lines and the interval between them in ms and as a rate; ends snap to R peaks
+  drawCaliper() {
+    const c = this.caliper; if (!c) return;
+    const cv = $("#nv-detail"), ctx = cv.getContext("2d"), w = cv.clientWidth, h = cv.clientHeight;
+    const X = (tm) => ((tm - this.t) / this.span) * w;
+    const a = Math.min(c.a, c.b), b = Math.max(c.a, c.b), xa = X(a), xb = X(b);
+    if (xb < -20 || xa > w + 20) return;
+    const col = css("--l1"), y = 72; // below the clock above the centre line
+    ctx.save();
+    ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(Math.round(xa) + 0.5, y - 10); ctx.lineTo(Math.round(xa) + 0.5, h - 26);
+    ctx.moveTo(Math.round(xb) + 0.5, y - 10); ctx.lineTo(Math.round(xb) + 0.5, h - 26); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(xa, y); ctx.lineTo(xb, y); ctx.stroke();
+    for (const [x, d] of [[xa, 1], [xb, -1]]) { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 6 * d, y - 4); ctx.lineTo(x + 6 * d, y + 4); ctx.closePath(); ctx.fill(); }
+    const ms = (b - a) * 1000;
+    const label = ms >= 1 ? `${Math.round(ms)} ms · ${Math.round(60000 / ms)} /min` : "";
+    if (label) {
+      ctx.font = `600 ${vwFont(12)}px ` + css("--mono");
+      const tw = ctx.measureText(label).width + 14, lx = clamp((xa + xb) / 2 - tw / 2, 2, w - tw - 2);
+      ctx.fillStyle = css("--bg-2"); ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(lx, y - 26, tw, 19, 6); else ctx.rect(lx, y - 26, tw, 19);
+      ctx.fill(); ctx.strokeStyle = col; ctx.stroke();
+      ctx.fillStyle = css("--text"); ctx.textBaseline = "middle"; ctx.fillText(label, lx + 7, y - 16);
+    }
+    ctx.restore();
+  }
+
+  // time under the pointer; snaps to an R peak within 6 px
+  caliperTime(ev) {
+    const cv = $("#nv-detail"), w = cv.clientWidth;
+    let tm = this.t + ((ev.clientX - cv.getBoundingClientRect().left) / w) * this.span;
+    const i = this.nearestBeat(tm);
+    if (i >= 0 && Math.abs(this.beats[i] - tm) * (w / this.span) < 6) tm = this.beats[i];
+    return tm;
+  }
+
+  setCaliperMode(on) {
+    this.calMode = on;
+    const b = $("#vw-cal"); if (b) b.setAttribute("aria-pressed", String(on));
+    $("#nv-detail").classList.toggle("measuring", on);
+  }
+
+  bindCaliper() {
+    const det = $("#nv-detail");
+    let move = null; // "a" | "b" | "new"
+    // capture phase on the canvas itself: runs before the recording view's drag-to-pan handler
+    det.addEventListener("pointerdown", (ev) => {
+      const w = det.clientWidth, X = (tm) => ((tm - this.t) / this.span) * w, x = ev.clientX - det.getBoundingClientRect().left;
+      const c = this.caliper;
+      if (c && Math.abs(X(c.a) - x) < 7) move = "a";
+      else if (c && Math.abs(X(c.b) - x) < 7) move = "b";
+      else if (this.calMode || ev.shiftKey) { move = "new"; const tm = this.caliperTime(ev); this.caliper = { a: tm, b: tm }; }
+      else return;
+      ev.stopImmediatePropagation(); ev.preventDefault();
+      this.pause();
+      try { det.setPointerCapture(ev.pointerId); } catch { /* pointer already gone */ }
+      this.drawDetail();
+    }, { capture: true });
+    det.addEventListener("pointermove", (ev) => {
+      if (!move) return;
+      ev.stopImmediatePropagation();
+      const tm = this.caliperTime(ev);
+      if (move === "a") this.caliper.a = tm; else this.caliper.b = tm;
+      this.drawDetail();
+    }, { capture: true });
+    const end = (ev) => {
+      if (!move) return;
+      ev.stopImmediatePropagation();
+      if (this.caliper && Math.abs(this.caliper.a - this.caliper.b) < 0.005) this.caliper = null; // a click, not a measurement
+      move = null; this.drawDetail();
+    };
+    det.addEventListener("pointerup", end, { capture: true });
+    det.addEventListener("pointercancel", end, { capture: true });
+  }
+
+  // ---------------------------------------------------------------- input
+
+  bindViewer() {
+    $("#vw-sel").onchange = (ev) => { location.hash = `#/viewer/${encodeURIComponent(ev.target.value)}`; };
+    $("#nv-pdf").onclick = (e) => downloadPdf(this.id, e.currentTarget);
+    const help = $("#vw-help"), hb = $("#vw-help-btn");
+    const toggleHelp = () => { help.hidden = !help.hidden; hb.setAttribute("aria-expanded", String(!help.hidden)); };
+    hb.onclick = toggleHelp;
+    const rrBtn = $("#vw-rrmode");
+    const setRr = (m) => {
+      this.rrMode = m; this.rrCache = null;
+      rrBtn.textContent = m === "density" ? t("tiheys") : t("pisteet");
+      try { localStorage.setItem("openholter.rrmode", m); } catch { /* not remembered */ }
+      this.drawRR();
+    };
+    rrBtn.onclick = () => setRr(this.rrMode === "density" ? "dots" : "density");
+    setRr(this.rrMode);
+    this.el.querySelectorAll(".vw-tabs [data-tab]").forEach((b) => (b.onclick = () => this.showTab(b.dataset.tab)));
+    this.bindCaliper();
+    $("#vw-cal").onclick = () => this.setCaliperMode(!this.calMode);
+    this.el.querySelectorAll("#vw-gain [data-gain]").forEach((b) => (b.onclick = () => {
+      this.gain = +b.dataset.gain;
+      this.el.querySelectorAll("#vw-gain [data-gain]").forEach((x) => x.classList.toggle("on", x === b));
+      this.drawDetail();
+    }));
+    const jump = $("#vw-jump");
+    jump.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter") { const n = parseInt(jump.value, 10); if (n > 0) this.gotoNumber(n); jump.select(); }
+      if (ev.key === "Escape") jump.blur();
+    });
+    $("#vw-eye").onclick = () => this.setEyesaver(!isEyesaver());
+    const toggleMenu = () => document.body.classList.toggle("topbar-open");
+    $("#vw-menu").onclick = toggleMenu;
+    const tAt = (cv, ev) => clamp(((ev.clientX - cv.getBoundingClientRect().left) / cv.clientWidth) * this.dur, 0, this.dur);
+    const rr = $("#vw-rr"), tip = $("#tooltip");
+    // press and drag on any whole-night track moves the ECG window along with the pointer
+    for (const sel of ["#vw-rr", "#nv-hr", "#nv-posture", "#nv-axis"]) {
+      const cv = $(sel); let dragging = false;
+      cv.addEventListener("pointerdown", (ev) => {
+        if (sel === "#nv-posture" && this.marking) return; // that strip is for marking postures then
+        dragging = true; cv.setPointerCapture(ev.pointerId); cv.classList.add("dragging");
+        this.goto(tAt(cv, ev) - this.span / 2);
+      });
+      cv.addEventListener("pointermove", (ev) => { if (dragging) this.goto(tAt(cv, ev) - this.span / 2); });
+      const end = () => { dragging = false; cv.classList.remove("dragging"); };
+      cv.addEventListener("pointerup", end); cv.addEventListener("pointercancel", end);
+    }
+    rr.addEventListener("mousemove", (ev) => {
+      const tm = tAt(rr, ev);
+      $("#nv-cursor").textContent = fmt.clockSec(this.t0 + tm * 1000);
+      if (!this.beats) return;
+      const i = this.nearestBeat(tm);
+      if (i < 1 || isNaN(this.rr[i])) { tip.style.display = "none"; return; }
+      const k = this.beatKind[i];
+      tip.innerHTML = `<span class="t">${fmt.clockSec(this.t0 + this.beats[i] * 1000)}</span><br>RR <b>${Math.round(this.rr[i])}</b> ms${k ? ` · ${k === 1 ? "VES" : "SVES"}` : ""}`;
+      tip.style.display = "block";
+      tip.style.left = `${Math.min(ev.clientX + 14, window.innerWidth - 180)}px`;
+      tip.style.top = `${ev.clientY + 14}px`;
+    });
+    rr.addEventListener("mouseleave", () => { tip.style.display = "none"; $("#nv-cursor").textContent = ""; });
+    this.bindStrip("#vw-ctx");
+    this.bindStrip("#vw-mid");
+    // keys on top of the recording view's (space, arrows)
+    const base = this.onKey;
+    window.removeEventListener("keydown", base);
+    this.onKey = (ev) => {
+      if (ev.metaKey || ev.ctrlKey || ev.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(ev.target.tagName)) return;
+      const k = ev.key.toLowerCase();
+      if (k === "n") this.stepItem(1);
+      else if (k === "p") this.stepItem(-1);
+      else if (k === "v") this.stepKind("ves");
+      else if (k === "s") this.stepKind("sves");
+      else if (k === "?") toggleHelp();
+      else if (k === "#" || k === "g") { jump.focus(); jump.select(); }
+      else if (k === "m") toggleMenu();
+      else if (k === "e") this.setEyesaver(!isEyesaver());
+      else if (k === "escape" && !help.hidden) toggleHelp();
+      else if (k === "escape" && (this.caliper || this.calMode)) { this.caliper = null; this.setCaliperMode(false); this.drawDetail(); }
+      else if (k === "c") this.setCaliperMode(!this.calMode);
+      else if (k === "d") rrBtn.click();
+      else if (/^[1-5]$/.test(k)) { const sp = VW_SPANS[+k - 1]; if (sp > PLAY_MAX_SPAN) this.pause(); this.setSpan(sp); }
+      else { base(ev); return; }
+      ev.preventDefault();
+    };
+    window.addEventListener("keydown", this.onKey);
+    const baseResize = this.onResize;
+    window.removeEventListener("resize", baseResize);
+    this.onResize = () => { if (!$("#vw")) return; this.fit(); this.rrCache = null; baseResize(); };
+    window.addEventListener("resize", this.onResize);
+  }
+}
+
+// #/viewer without a recording: pick one
+const ViewerPicker = {
+  async mount(view) {
+    document.body.classList.remove("viewer-mode");
+    view.innerHTML = `<div class="hint">${t("Ladataan…")}</div>`;
+    let list = [];
+    try { list = await api("/api/sessions"); } catch (e) { view.innerHTML = `<div class="hint">${esc(e.message)}</div>`; return; }
+    const rows = list.filter((x) => x.meta && x.meta.started_wall_ns).sort((a, b) => b.meta.started_wall_ns - a.meta.started_wall_ns);
+    view.innerHTML = `
+      <div class="page-head fade-in"><div><h1>${t("Tarkastelu")}</h1>
+        <div class="sub">${t("Koko tallenne yhdellä näytöllä: löydökset, RR-välit, EKG ja asento. Valitse tallenne.")}</div></div></div>
+      <section class="card fade-in vw-pick">
+        ${rows.length ? rows.map((x) => {
+          const m = x.meta, t0 = m.started_wall_ns / 1e6, dy = fmt.dayTitle(t0), end = m.ended_wall_ns ? m.ended_wall_ns / 1e6 : null;
+          return `<a class="vw-pick-row" href="#/viewer/${encodeURIComponent(m.id)}">
+            <b style="text-transform:capitalize">${esc(dy.wd)} ${esc(dy.date)}</b>
+            <span class="num">${end ? fmt.range(t0, end) : fmt.clock(t0) + " – " + t("käynnissä")}</span>
+            <span class="faint">${end ? fmt.dur((end - t0) / 1000) : ""}</span><span class="spacer"></span><span>›</span></a>`;
+        }).join("") : `<p class="hint">${t("Ei tallenteita vielä.")}</p>`}
+      </section>`;
+  },
+};
+
+async function downloadPdf(id, b) {
+  const label = b.innerHTML;
+  b.disabled = true; b.textContent = t("Luodaan PDF…");
+  try {
+    const r = await fetch(`/api/sessions/${encodeURIComponent(id)}/report.pdf?lang=${LANG}`, { headers: { "X-Lang": LANG } });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail || r.status);
+    const blob = await r.blob();
+    const name = (r.headers.get("content-disposition") || "").match(/filename="?([^";]+)/);
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = name ? name[1] : "openholter-ekg.pdf";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+  } catch (err) { toast(t("PDF:n luonti epäonnistui: {0}", esc(err.message))); }
+  b.disabled = false; b.innerHTML = label;
 }
 
 function stat(k, v, s) { return `<div class="card stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s || "&nbsp;"}</div></div>`; }
@@ -2211,9 +3517,12 @@ async function route() {
   const alias = { nights: "recordings", night: "recording" };
   if (alias[page]) { location.replace(`#/${alias[page]}${arg ? "/" + arg : ""}`); return; }
   document.querySelectorAll("[data-nav]").forEach((a) => a.classList.toggle("active", a.dataset.nav === (page === "recording" ? "recordings" : page)));
+  if (page !== "viewer") document.body.classList.remove("viewer-mode");
   if (page === "recordings") { current = RecordingsPage; await RecordingsPage.mount(view); }
   else if (page === "settings") { current = SettingsPage; await SettingsPage.mount(view); }
   else if (page === "about") { current = AboutPage; await AboutPage.mount(view, arg); }
+  else if (page === "viewer" && arg) { current = new ViewerView(view, decodeURIComponent(arg), arg2 != null ? Number(arg2) : null); await current.mount(); }
+  else if (page === "viewer") { current = ViewerPicker; await ViewerPicker.mount(view); }
   else if (page === "recording" && arg) { current = new RecordingView(view, decodeURIComponent(arg), arg2 != null ? Number(arg2) : null); await current.mount(); }
   else if (page === "calibrate") { // bookmarkable: opens the calibration wizard on top of Live
     current = LivePage; LivePage.mount(view);

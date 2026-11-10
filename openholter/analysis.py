@@ -33,6 +33,36 @@ def result_path(session_dir: Path) -> Path:
     return session_dir / "cache" / f"analysis-v{ANALYSIS_VERSION}.json"
 
 
+def beats_path(session_dir: Path) -> Path:
+    """Every R peak of the recording (ms from the start), for the viewer's RR plot."""
+    return session_dir / "cache" / f"beats-v{ANALYSIS_VERSION}.json"
+
+
+def read_beats(session_dir: Path) -> Optional[Dict[str, Any]]:
+    try:
+        return json.loads(beats_path(session_dir).read_text())
+    except (OSError, ValueError):
+        return None
+
+
+def write_beats(session_dir: Path, r_peaks: np.ndarray) -> Dict[str, Any]:
+    out = {"version": ANALYSIS_VERSION, "t_ms": [int(round(float(x) * 1000)) for x in r_peaks]}
+    write_json_atomic(beats_path(session_dir), out)
+    return out
+
+
+def compute_beats(session_dir: Path) -> Dict[str, Any]:
+    """R peaks for a recording analysed before beat lists were saved: the same detector as the analysis."""
+    from .beats import classify_beats
+    from .sessions import assemble
+
+    s = assemble(session_dir)
+    if len(s.ecg_uv) <= s.ecg_fs * 120:
+        return write_beats(session_dir, np.zeros(0))
+    res = classify_beats(s.ecg_t, s.ecg_uv, s.ecg_fs, s.duration, s.no_contact)
+    return write_beats(session_dir, np.asarray(res.get("r_peaks", np.zeros(0)), dtype=float))
+
+
 def progress_path(session_dir: Path) -> Path:
     return session_dir / "cache" / "analysis.progress"
 
@@ -128,6 +158,9 @@ def run_analysis(session_dir_str: str, home_str: str) -> Dict[str, Any]:
     else:
         ect = ectopy(s.rr_t, s.rr_ms, cls, t0)
 
+    r_peaks = ect.pop("_r_peaks", None)
+    if r_peaks is not None:
+        write_beats(d, np.asarray(r_peaks, dtype=float))
     result = {
         "version": ANALYSIS_VERSION,
         "created_at": datetime.now().astimezone().isoformat(timespec="seconds"),
@@ -188,6 +221,7 @@ def ectopy_ecg(ecg_t: np.ndarray, ecg_uv: np.ndarray, fs: float, duration: float
     out = _ectopy_summary(beats_t, idx.astype(int), cls, t0_wall, "ecg")
     out["events"] = [round(float(x), 3) for x in ev]
     out["details"] = res["details"]
+    out["_r_peaks"] = beats_t  # saved to its own file, not into the result
     out["ves"] = sum(1 for d in res["details"] if d["kind"] == "ves")
     out["sves"] = sum(1 for d in res["details"] if d["kind"] == "sves")
     out["unclassified"] = sum(1 for d in res["details"] if d["kind"] == "premature")

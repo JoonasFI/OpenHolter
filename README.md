@@ -57,6 +57,28 @@ its precision on the clean test from 95 % to 99 %. Overall VES did not improve o
 Full method, per-record tables and how to rerun the test yourself: [docs/VALIDATION.en.md](docs/VALIDATION.en.md).
 The numbers are for the algorithm on reference Holter recordings; the H10's chest lead is different (see below).
 
+## New: the viewer
+
+*All screenshots use the built-in simulator, not real patient data.*
+
+![The viewer](docs/screenshots/en/viewer.png)
+
+The viewer shows a whole recording on one screen of about 15 inches, and it is built for finding the abnormal parts quickly.
+Open it from **Viewer** in the top bar or from a recording's page.
+
+- **Numbered findings:** runs, couplets, VES, SVES, irregular rhythm, the longest pauses and the heart-rate extremes, in time order.
+  Filters, go to a number (#), and N/P for next and previous.
+- **The whole night at a glance:** posture, heart rate and the RR intervals as dots or as a density map. Extra beats and pauses stand
+  out from the whole night.
+- **Zoom ladder:** whole night → 10 min → 2 min → ECG. Boxes show what the next level magnifies, and every level can be dragged.
+- **The ECG at full resolution:** beat classes (N, V, S) and RR intervals between the beats, calipers (ms and /min, snapping to R peaks),
+  gain 5, 10 or 20 mm/mV, playback at 1–30×, and a stop or a smooth slow-down at findings.
+- **Posture** as a 3D figure and as an arrow at the centre line.
+- **Beat shapes:** beats grouped by shape (usual, unusual, each VES shape and SVES) with the median shape and examples.
+- **Eye-saver mode** for long reading sessions, and keyboard shortcuts for everything (? for help).
+
+![Beat shapes and eye-saver mode](docs/screenshots/en/viewer-shapes.png)
+
 ## Screenshots
 
 *All screenshots use the built-in simulator, not real patient data.*
@@ -80,7 +102,9 @@ The numbers are for the algorithm on reference Holter recordings; the H10's ches
   Irregular-rhythm episodes (compatible with atrial fibrillation) and runs of ≥ 3 extra beats are reported (indicative).
 - **Posture** from the accelerometer, with a guided calibration and retro-calibration from a recording.
 - **Symptom marker:** "I felt an extra beat"; the recording shows what the ECG did at that moment.
-- **PDF report:** summary, ECG strips and full disclosure.
+- **Viewer:** the whole recording on one screen, numbered findings, RR plot, zoom ladder, calipers and beat shapes (see above).
+- **ECG playback:** play a recording at 1–30× speed, optionally stopping or slowing down at every extra beat and symptom mark. The exact time is shown above the centre line.
+- **PDF report:** summary, ECG strips (symptom marks, runs, couplets, extra-beat examples and hourly samples) and full disclosure.
 - **Trends** across recordings, **trash** with 30-day retention, **settings** in the browser.
 - **Finnish and English** user interface and PDF (switch in the top bar).
 - **Analysis improves retroactively:** it is always recomputed from the raw data, so a better version also re-analyses old recordings.
@@ -115,6 +139,19 @@ We publish the weaknesses with the same care as the strengths. In version 6:
    result published, including the ones that get worse.
 
 Contributions to any of these are very welcome, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Testers wanted: your own H10
+
+All testing with a real strap so far has used one person's recordings. If you have a Polar H10, please try OpenHolter and tell us
+how it works for you. Most valuable:
+
+- **Do installation and recording work** on your computer (macOS, Windows or Linux, the machine and the H10's firmware version)?
+- **Do the beats look right:** is every beat found, and do the VES and SVES marks fall on the right beats when you look at the ECG yourself?
+- **Beat shapes:** how many beats end up as "unusual shape"? The limits were set on one person's recordings.
+- **Clinical comparison:** if you wore a doctor's Holter at the same time, what it found compared with OpenHolter is the most valuable of all.
+
+Report back in the [GitHub issues](https://github.com/JoonasFI/OpenHolter/issues). **Please don't post your ECG or other health data
+publicly.** Counts, times and a description are enough. If you'd like to share a recording for development, let's agree on that separately.
 
 ## Structure
 

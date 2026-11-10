@@ -6,6 +6,7 @@ import base64
 import hashlib
 import hmac
 import os
+import threading
 import time
 from pathlib import Path
 from typing import Any, Dict
@@ -16,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 
 from . import __version__, build_id
 from . import posture as P
-from .analysis import Analyzer, read_result
+from .analysis import Analyzer, compute_beats, read_beats, read_result
 from .storage import read_meta, write_json_atomic
 from .trash import Trash
 from .collector import Collector
@@ -448,6 +449,46 @@ def create_app(cfg: Config, collector: Collector, hub: LiveHub, analyzer: Analyz
         p = payload.get("posture")
         collector.sim_body.override = p if p in P.POSTURES else None
         return {"posture": collector.sim_body.override}
+
+    beats_lock = threading.Lock()
+
+    @app.get("/api/sessions/{session_id}/beats")
+    def beats(session_id: str) -> Any:
+        """Every R peak (ms from the start). Saved by the analysis; recordings analysed before that
+        get it computed once here with the same detector."""
+        s = _get(session_id)
+        d = store.dir(session_id)
+        b = read_beats(d)
+        if b is None:
+            if s.meta.get("state") != "closed" or read_result(d) is None:
+                raise HTTPException(409, tr("Tallennetta ei ole vielä analysoitu.", "The recording has not been analysed yet."))
+            with beats_lock:  # one computation at a time; a second request finds the file
+                b = read_beats(d) or compute_beats(d)
+        return b
+
+    templates_lock = threading.Lock()
+
+    @app.get("/api/sessions/{session_id}/templates")
+    def templates(session_id: str) -> Any:
+        """Beats grouped by QRS shape (median waveform, examples, beat times), computed once and cached."""
+        from .templates import compute_templates, read_templates
+        s = _get(session_id)
+        d = store.dir(session_id)
+        tp = read_templates(d)
+        if tp is None:
+            if s.meta.get("state") != "closed" or read_result(d) is None:
+                raise HTTPException(409, tr("Tallennetta ei ole vielä analysoitu.", "The recording has not been analysed yet."))
+            with templates_lock:
+                tp = read_templates(d) or compute_templates(d)
+        return tp
+
+    @app.get("/api/sessions/{session_id}/orientation")
+    def orientation(session_id: str) -> Any:
+        s = _get(session_id)
+        cal, _ = analyzer.calibrations.for_session(store.dir(session_id), s.meta)
+        if cal is None:
+            return {"calibrated": False}
+        return {"calibrated": True, **P.orientation_track(P.per_second(s.acc_t, s.acc_mg, s.duration), cal)}
 
     @app.get("/api/sessions/{session_id}/ecg")
     def ecg(session_id: str, start: float = 0.0, end: float = 10.0, points: int = Query(1500, ge=50, le=6000)) -> Any:

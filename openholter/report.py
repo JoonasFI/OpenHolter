@@ -398,10 +398,37 @@ class Report:
         items: List[Tuple[float, str]] = []
         for t, note in self.symptoms[:12]:
             items.append((t - sec * 0.7, f"{T('Oiremerkintä', 'Symptom mark')} {_clock(self.t0 + t, True)}" + (f" – {note}" if note else "")))
+        ect = (self.res or {}).get("ectopy") or {}
+        shown: List[float] = []  # extra beats already on a run or couplet strip
+        # runs of >= 3 extra beats: the longest first, at most 6, shown in time order
+        runs = sorted(ect.get("runs") or [], key=lambda r: (-r.get("beats", 0), r["start"]))[:6]
+        for r in sorted(runs, key=lambda r: r["start"]):
+            kind = {"ves": "VES", "sves": "SVES"}.get(r.get("kind"), T("VES ja SVES", "VES and SVES"))
+            cap = T("Sarja: {0} lyöntiä, {1}, {2}/min", "Run: {0} beats, {1}, {2}/min").format(
+                r.get("beats", 3), kind, r.get("rate_bpm", "–"))
+            if r.get("in_af"):
+                cap += T(", epäsäännöllisellä jaksolla", ", in an irregular stretch")
+            items.append((r["start"] - 1.5, f"{cap} {_clock(self.t0 + r['start'], True)}"))
+            shown += [r["start"], r["end"]]
+        # couplets: the first beat of each pair, at most 4 spread through the recording
+        pairs: List[Tuple[float, str]] = []
+        for d in sorted((d for d in ect.get("details") or [] if d.get("couplet")), key=lambda d: d["t"]):
+            if pairs and d["t"] - pairs[-1][0] < 2.5:
+                continue  # the second beat of the same pair
+            if any(abs(d["t"] - x) < 7 for x in shown):
+                continue  # already on a run strip
+            pairs.append((d["t"], {"ves": "VES", "sves": "SVES"}.get(d.get("kind"), "")))
+        if len(pairs) > 4:
+            pairs = [pairs[i] for i in np.linspace(0, len(pairs) - 1, 4).astype(int)]
+        for tp, kind in pairs:
+            items.append((tp - sec * 0.4, f"{T('Pari', 'Couplet')}{f' ({kind})' if kind else ''} {_clock(self.t0 + tp, True)}"))
+            shown.append(tp)
         # ectopic examples spread through the night, one per posture first
         ex: List[float] = []
         seen = set()
         for e in self.ectopics:
+            if any(abs(e - x) < 7 for x in shown):
+                continue
             p = self.posture_at(e)
             if p not in seen and all(abs(e - x) > 120 for x in ex):
                 ex.append(e); seen.add(p)
@@ -409,7 +436,7 @@ class Report:
             for e in self.ectopics[np.linspace(0, len(self.ectopics) - 1, 8).astype(int)]:
                 if len(ex) >= 8:
                     break
-                if all(abs(e - x) > 300 for x in ex):
+                if all(abs(e - x) > 300 for x in ex) and all(abs(e - x) >= 7 for x in shown):
                     ex.append(float(e))
         for e in sorted(ex):
             items.append((e - sec * 0.5, f"{T('Lisälyönti', 'Extra beat')} {self.kind_label(e)} {_clock(self.t0 + e, True)}"))

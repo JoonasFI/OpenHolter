@@ -273,6 +273,26 @@ def classify_night(sec: Dict[str, np.ndarray], cal: Calibration) -> Dict[str, An
     return {"cls": cls, "dist": dist, "warnings": _fit_warnings(u, cls, dist, cal)}
 
 
+def orientation_track(sec: Dict[str, np.ndarray], cal: Calibration) -> Dict[str, Any]:
+    """Per-second roll angle (deg, 0 = supine, left side positive, None = no data) smoothed over 3 s,
+    and the posture class per second, for the facing-direction arrow in the recording view."""
+    u, have = sec["u"], sec["have"]
+    n = len(have)
+    roll = np.full(n, np.nan)
+    if have.any():
+        roll[have] = cal.roll(u[have])
+    # circular 3 s moving average over the seconds that have data
+    rad = np.radians(np.nan_to_num(roll))
+    k = np.ones(3)
+    s = np.convolve(np.where(have, np.sin(rad), 0.0), k, mode="same")
+    c = np.convolve(np.where(have, np.cos(rad), 0.0), k, mode="same")
+    w = np.convolve(have.astype(float), k, mode="same")
+    sm = np.where(have & (w > 0), np.degrees(np.arctan2(s, c)), np.nan)
+    cls = classify_night(sec, cal)["cls"]
+    return {"roll": [None if np.isnan(x) else int(round(x)) for x in sm], "cls": [int(x) for x in cls],
+            "names": CLASS_NAMES}
+
+
 def _merge_short(cls: np.ndarray) -> np.ndarray:
     """Merge posture runs shorter than MIN_SEGMENT_S (ignoring movement/no-data) into the previous posture."""
     out = cls.copy()

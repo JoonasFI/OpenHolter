@@ -58,6 +58,27 @@ puuttumisen, mikä nosti sen osuvuuden puhtaassa testissä 95 %:sta 99 %:iin. VE
 Menetelmä, tallennekohtaiset taulukot ja ohje testin toistamiseen: [docs/VALIDATION.md](docs/VALIDATION.md).
 Luvut kuvaavat algoritmia vertailuaineiston Holter-tallenteilla; H10:n rintakytkentä on erilainen (ks. alla).
 
+## Uutta: tarkastelunäkymä
+
+*Kaikki kuvat on otettu sisäänrakennetulla simulaattorilla, eivät ole oikeaa potilasdataa.*
+
+![Tarkastelunäkymä](docs/screenshots/fi/viewer.png)
+
+Tarkastelunäkymä näyttää koko tallenteen yhdellä noin 15 tuuman näytöllä, ja se on tehty niin, että poikkeamat löytyvät nopeasti.
+Avaa se yläpalkin **Tarkastelu**-kohdasta tai tallenteen sivulta.
+
+- **Löydökset numeroituina:** sarjat, parit, VES, SVES, epäsäännöllinen rytmi, pisimmät tauot ja sykkeen ääripäät aikajärjestyksessä.
+  Suodattimet, siirtyminen numerolla (#) ja N/P seuraavaan ja edelliseen.
+- **Koko yö yhdellä silmäyksellä:** asento, syke ja RR-välit pisteinä tai tiheyskarttana. Lisälyönnit ja tauot erottuvat koko yön joukosta.
+- **Zoomausportaat:** koko yö → 10 min → 2 min → EKG. Laatikot näyttävät, mitä seuraava taso suurentaa, ja kaikkia voi raahata.
+- **EKG täydellä tarkkuudella:** lyöntiluokat (N, V, S) ja RR-välit lyöntien välissä, mittain (ms ja /min, kiinnittyy R-piikkiin),
+  vahvistus 5, 10 tai 20 mm/mV, toisto 1–30× sekä pysähdys tai pehmeä hidastus havainnoissa.
+- **Asento** 3D-hahmona ja nuolena keskiviivan kohdalla.
+- **Lyöntimuodot:** lyönnit ryhmiteltynä muodon mukaan (tavallinen, poikkeava, jokainen VES-muoto ja SVES) keskiarvoineen ja esimerkkeineen.
+- **Silmäystävällinen tila** pitkään katseluun ja pikanäppäimet kaikkeen (?-ohje).
+
+![Lyöntimuodot ja silmäystävällinen tila](docs/screenshots/fi/viewer-shapes.png)
+
 ## Kuvakaappaukset
 
 *Kaikki kuvat on otettu sisäänrakennetulla simulaattorilla, eivät ole oikeaa potilasdataa.*
@@ -81,7 +102,9 @@ Luvut kuvaavat algoritmia vertailuaineiston Holter-tallenteilla; H10:n rintakytk
   Epäsäännöllisen rytmin jaksot (sopivat eteisvärinään) ja vähintään kolmen lisälyönnin sarjat raportoidaan (suuntaa antava).
 - **Asento** kiihtyvyysanturista: ohjattu kalibrointi ja jälkikalibrointi tallenteesta.
 - **Oiremerkintä:** "Tunsin lisälyönnin"; tallenteesta näkee, mitä EKG:ssä tapahtui sillä hetkellä.
-- **PDF-raportti:** yhteenveto, EKG-liuskat ja koko tallenne.
+- **Tarkastelunäkymä:** koko tallenne yhdellä näytöllä, numeroidut löydökset, RR-kaavio, zoomausportaat, mittain ja lyöntimuodot (ks. yllä).
+- **EKG:n toisto:** tallennetta voi toistaa 1–30-kertaisella nopeudella, ja toisto voi pysähtyä tai hidastua jokaisessa lisälyönnissä ja oiremerkinnässä. Keskiviivan yläpuolella näkyy tarkka kellonaika.
+- **PDF-raportti:** yhteenveto, EKG-liuskat (oiremerkinnät, sarjat, parit, lisälyöntiesimerkit ja tuntinäytteet) ja koko tallenne.
 - **Trendit**, **roskakori** (30 päivän säilytys) ja **asetukset** selaimessa.
 - **Suomi ja englanti** käyttöliittymässä ja PDF:ssä (valinta yläpalkissa).
 - **Analyysi paranee myös jälkikäteen:** se lasketaan aina raakadatasta, joten parempi versio analysoi myös vanhat tallenteet uudelleen.
@@ -117,6 +140,19 @@ Kerromme heikkoudet yhtä tarkasti kuin vahvuudet. Versiossa 6:
    tulokset julkaistaan, myös heikentyneet.
 
 Apu kaikissa näissä on erittäin tervetullutta, ks. [CONTRIBUTING.fi.md](CONTRIBUTING.fi.md).
+
+## Testaajia haetaan: oma H10
+
+Kaikki tähänastinen testaus oikealla vyöllä on tehty yhden ihmisen tallenteilla. Jos sinulla on Polar H10, kokeile OpenHolteria
+ja kerro, miten se toimii sinulla. Erityisen arvokasta on:
+
+- **Toimiiko asennus ja tallennus** koneellasi (macOS, Windows tai Linux, kone ja H10:n laiteohjelmistoversio)?
+- **Näyttävätkö lyönnit oikeilta:** löytyykö jokainen lyönti, ja osuvatko VES- ja SVES-merkinnät oikeisiin kohtiin, kun katsot EKG:tä itse?
+- **Lyöntimuodot:** montako lyöntiä päätyy ryhmään "poikkeava muoto"? Rajat on säädetty yhden ihmisen tallenteilla.
+- **Kliininen vertailu:** jos sinulla on samaan aikaan ollut lääkärin Holter, tieto siitä, mitä se löysi verrattuna OpenHolteriin, on kaikkein arvokkainta.
+
+Kerro tuloksista [GitHubin issueissa](https://github.com/JoonasFI/OpenHolter/issues). **Älä julkaise EKG:täsi tai muuta terveystietoasi
+julkisesti.** Lukumäärät, kellonajat ja kuvaus riittävät. Jos haluat jakaa tallenteen kehitystä varten, sovitaan siitä erikseen.
 
 ## Rakenne
 

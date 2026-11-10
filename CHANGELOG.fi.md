@@ -7,6 +7,23 @@ Tallenteet analysoidaan aina raakadatasta, joten uusi analyysiversio koskee myö
 
 Luvut ovat herkkyys / osuvuus. Heikentyneet tulokset kerrotaan yhtä tarkasti kuin parantuneet. Menetelmä ja tallennekohtaiset taulukot: [docs/VALIDATION.md](docs/VALIDATION.md).
 
+## Julkaisematon
+
+- EKG-näkymään toisto: toista ja tauko (myös välilyönnillä), nopeudet 1×, 2×, 5×, 10× ja 30× sekä valinnainen pysähdys jokaiseen lisälyöntiin ja oiremerkintään.
+- EKG-näkymän keskelle pystykatkoviiva, jonka yläpuolella näkyy tarkka kellonaika kymmenyssekunnin tarkkuudella.
+- PDF-raportin EKG-liuskoihin sarjat (enintään 6, pisimmät ensin) ja parit (enintään 4, tasaisesti tallenteen ajalta).
+- EKG-näkymän alareunaan asentopallo, jonka nuoli näyttää rintakehän suunnan jalkopäästä katsottuna ja kääntyy pehmeästi.
+- Toistoon valinta "Hidasta havainnoissa": 1× sekunnin ennen ja jälkeen jokaisen havainnon, pehmeällä hidastuksella ja kiihdytyksellä.
+- **Uusi tarkastelunäkymä** (`#/viewer`): koko tallenne yhdellä noin 15 tuuman näytöllä. Numeroidut löydökset suodattimineen ja
+  siirtyminen numerolla, keskiviivan kohdan tiedot (syke, RR, lyönnin luokka, ennenaikaisuus), 3D-asento, koko yön asento-, syke- ja
+  RR-kaistat (RR pisteinä tai tiheyskarttana), zoomausportaat koko yö → 10 min → 2 min → EKG, lyöntiluokat ja RR-välit EKG:ssä,
+  mittain, vahvistus 5/10/20 mm/mV, analyysin yhteenvetorivi, lyöntimuodot (lyönnit ryhmiteltynä QRS-muodon mukaan),
+  silmäystävällinen tila, automaattisesti piiloutuva yläpalkki ja pikanäppäimet.
+- Analyysi tallentaa jokaisen lyönnin ajan omaan tiedostoonsa. Aiemmin analysoiduille tallenteille lyönnit lasketaan kerran,
+  kun tallenne avataan tarkastelussa ensimmäisen kerran.
+- Lyöntimuotojen rajat on säädetty tekijän omilla H10-tallenteilla (yksi yö ja neljä lyhyttä tallennetta). Ryhmittely on pelkkää esitystä
+  eikä muuta analyysin lukuja tai luokkia.
+
 ## 0.4.2: lyöntitunnistin toipuu häiriöpiikeistä
 
 - **Korjattu vakava virhe (0.4.0 ja 0.4.1):** vyön pukemisen häiriöpiikit saattoivat nostaa lyöntitunnistimen kynnyksen pysyvästi liian korkealle, jolloin tallenteen loppuosasta ei löytynyt yhtään lyöntiä. Virhe löytyi oikeasta H10-tallenteesta: 7 000 lyönnin tallenteesta löytyi nolla lyöntiä. Raakadataa virhe ei koskenut.

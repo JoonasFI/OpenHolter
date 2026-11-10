@@ -7,6 +7,23 @@ Recordings are always analysed from the raw data, so a new analysis version also
 
 Figures are sensitivity / precision. Weakened results are listed as carefully as improved ones. Full method and per-record tables: [docs/VALIDATION.en.md](docs/VALIDATION.en.md).
 
+## Unreleased
+
+- ECG playback in the recording view: play and pause (also with the space bar), speeds 1×, 2×, 5×, 10× and 30×, and an optional stop at every extra beat and symptom mark.
+- A dashed centre line in the ECG view with the exact time above it, to a tenth of a second.
+- PDF report strips now include runs (at most 6, longest first) and couplets (at most 4, spread through the recording).
+- A posture circle at the bottom of the ECG view: its arrow shows which way the chest faces, seen from the foot end, and turns smoothly.
+- "Slow at findings" playback option: 1× from one second before to one second after each finding, with a smooth slow-down and speed-up.
+- **New viewer** (`#/viewer`): the whole recording on one screen of about 15 inches. Numbered findings with filters and go-to-number,
+  details at the centre line (heart rate, RR, beat class, prematurity), 3D posture, whole-night posture, heart-rate and RR tracks (RR as
+  dots or a density map), a zoom ladder whole night → 10 min → 2 min → ECG, beat classes and RR intervals on the ECG, calipers, gain
+  5/10/20 mm/mV, an analysis summary row, beat shapes (beats grouped by QRS shape), eye-saver mode, an auto-hiding top bar and
+  keyboard shortcuts.
+- The analysis saves the time of every beat to a file of its own. For recordings analysed earlier, the beats are found once, the
+  first time the recording is opened in the viewer.
+- The beat-shape limits were set on the author's own H10 recordings (one night and four short recordings). The grouping is for display
+  only and changes no counts or classes.
+
 ## 0.4.2: the beat detector recovers from artefact spikes
 
 - **Serious bug fixed (0.4.0 and 0.4.1):** artefact spikes while the strap was being put on could raise the beat detector's threshold for good, so that no beats were found in the rest of the recording. It was found on a real H10 recording: zero beats in a 7,000-beat recording. The raw data was not affected.
