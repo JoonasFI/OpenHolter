@@ -7,7 +7,9 @@ Tallenteet analysoidaan aina raakadatasta, joten uusi analyysiversio koskee myö
 
 Luvut ovat herkkyys / osuvuus. Heikentyneet tulokset kerrotaan yhtä tarkasti kuin parantuneet. Menetelmä ja tallennekohtaiset taulukot: [docs/VALIDATION.md](docs/VALIDATION.md).
 
-## Julkaisematon
+## 0.5.0: tarkastelunäkymä
+
+Analyysiversio on yhä 6: lisälyöntien määrät ja luokat eivät muutu.
 
 - EKG-näkymään toisto: toista ja tauko (myös välilyönnillä), nopeudet 1×, 2×, 5×, 10× ja 30× sekä valinnainen pysähdys jokaiseen lisälyöntiin ja oiremerkintään.
 - EKG-näkymän keskelle pystykatkoviiva, jonka yläpuolella näkyy tarkka kellonaika kymmenyssekunnin tarkkuudella.

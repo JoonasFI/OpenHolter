@@ -7,7 +7,9 @@ Recordings are always analysed from the raw data, so a new analysis version also
 
 Figures are sensitivity / precision. Weakened results are listed as carefully as improved ones. Full method and per-record tables: [docs/VALIDATION.en.md](docs/VALIDATION.en.md).
 
-## Unreleased
+## 0.5.0: the viewer
+
+The analysis version is still 6: extra-beat counts and classes do not change.
 
 - ECG playback in the recording view: play and pause (also with the space bar), speeds 1×, 2×, 5×, 10× and 30×, and an optional stop at every extra beat and symptom mark.
 - A dashed centre line in the ECG view with the exact time above it, to a tenth of a second.
