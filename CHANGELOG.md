@@ -7,6 +7,14 @@ Recordings are always analysed from the raw data, so a new analysis version also
 
 Figures are sensitivity / precision. Weakened results are listed as carefully as improved ones. Full method and per-record tables: [docs/VALIDATION.en.md](docs/VALIDATION.en.md).
 
+## 0.5.1: Windows fixes
+
+Thanks to koskrik, who tested OpenHolter on Windows 11 and reported the bug with a fix ([#1](https://github.com/JoonasFI/OpenHolter/issues/1)).
+
+- Fixed: `openholter run` crashed on Windows right at start (`NotImplementedError`), because asyncio's signal handling works only on macOS and Linux. Windows now uses a plain signal handler, so Ctrl+C stops the program cleanly.
+- Fixed: the background process for the analysis and the PDF report would have crashed on Windows, because `os.nice` exists only on Unix.
+- `openholter doctor` no longer shows a CoreBluetooth error on Windows and Linux. Only macOS asks for Bluetooth permission.
+
 ## 0.5.0: the viewer
 
 The analysis version is still 6: extra-beat counts and classes do not change.

@@ -15,6 +15,17 @@ from pathlib import Path
 from .config import load_config
 
 
+def _stop_on_signals(loop: asyncio.AbstractEventLoop, stop: asyncio.Event) -> None:
+    """Ctrl+C and SIGTERM end the run cleanly. The asyncio way is Unix-only: on Windows
+    add_signal_handler raises NotImplementedError, so fall back to plain signal handlers there
+    (reported and tested on Windows 11 by koskrik in issue #1)."""
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        try:
+            loop.add_signal_handler(sig, stop.set)
+        except (NotImplementedError, RuntimeError):
+            signal.signal(sig, lambda *_: loop.call_soon_threadsafe(stop.set))
+
+
 def setup_logging(cfg, verbose: bool = False) -> None:
     fmt = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
     root = logging.getLogger()
@@ -56,8 +67,7 @@ async def _run(cfg, simulate: bool) -> None:
     server.install_signal_handlers = lambda: None  # handled below
     loop = asyncio.get_running_loop()
     stop = asyncio.Event()
-    for sig in (signal.SIGINT, signal.SIGTERM):
-        loop.add_signal_handler(sig, stop.set)
+    _stop_on_signals(loop, stop)
     tasks = [loop.create_task(collector.run()), loop.create_task(server.serve()), loop.create_task(analyzer.run())]
     logging.getLogger("openholter").info("OpenHolter on http://%s:%s %s", cfg.host, cfg.port, "(simulator)" if simulate else "")
     await stop.wait()
@@ -125,12 +135,16 @@ def _doctor(cfg) -> None:
     fw = app.split("/bin/")[0] if ".framework/Versions/" in app else None
     if fw and os.path.isdir(f"{fw}/Resources/Python.app"):
         print(f"Python.app:       {fw}/Resources/Python.app  <- Bluetooth-oikeus kirjautuu tälle")
-    try:
-        from CoreBluetooth import CBManager  # type: ignore
-        states = {0: "ei vielä kysytty", 1: "rajoitettu", 2: "EVÄTTY", 3: "sallittu"}
-        print(f"Bluetooth-oikeus: {states.get(int(CBManager.authorization()), '?')}")
-    except Exception as e:
-        print(f"Bluetooth-oikeus: ei voitu tarkistaa ({e})")
+    if sys.platform != "darwin":
+        # only macOS asks the user for Bluetooth permission; CoreBluetooth exists only there
+        print("Bluetooth-oikeus: ei koske tätä käyttöjärjestelmää (vain macOS kysyy luvan)")
+    else:
+        try:
+            from CoreBluetooth import CBManager  # type: ignore
+            states = {0: "ei vielä kysytty", 1: "rajoitettu", 2: "EVÄTTY", 3: "sallittu"}
+            print(f"Bluetooth-oikeus: {states.get(int(CBManager.authorization()), '?')}")
+        except Exception as e:
+            print(f"Bluetooth-oikeus: ei voitu tarkistaa ({e})")
     print(f"Basic auth:       {'päällä' if cfg.auth.password_hash else 'POIS (aja set-password)'}")
 
 

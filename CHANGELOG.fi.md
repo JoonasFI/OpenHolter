@@ -7,6 +7,14 @@ Tallenteet analysoidaan aina raakadatasta, joten uusi analyysiversio koskee myö
 
 Luvut ovat herkkyys / osuvuus. Heikentyneet tulokset kerrotaan yhtä tarkasti kuin parantuneet. Menetelmä ja tallennekohtaiset taulukot: [docs/VALIDATION.md](docs/VALIDATION.md).
 
+## 0.5.1: Windows-korjaukset
+
+Kiitos koskrik, joka testasi OpenHolteria Windows 11:llä ja raportoi virheen korjausehdotuksineen ([#1](https://github.com/JoonasFI/OpenHolter/issues/1)).
+
+- Korjattu: `openholter run` kaatui Windowsilla heti käynnistyessä (`NotImplementedError`), koska asyncion signaalinkäsittely toimii vain macOS:llä ja Linuxilla. Windowsilla käytetään nyt tavallista signaalinkäsittelijää, joten Ctrl+C pysäyttää ohjelman siististi.
+- Korjattu: analyysin ja PDF-raportin taustaprosessi olisi kaatunut Windowsilla, koska `os.nice` on vain Unixissa.
+- `openholter doctor` ei enää näytä Windowsilla ja Linuxilla CoreBluetooth-virhettä. Bluetooth-lupaa kysyy vain macOS.
+
 ## 0.5.0: tarkastelunäkymä
 
 Analyysiversio on yhä 6: lisälyöntien määrät ja luokat eivät muutu.

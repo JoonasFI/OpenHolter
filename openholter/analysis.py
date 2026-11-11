@@ -79,7 +79,7 @@ def read_result(session_dir: Path) -> Optional[Dict[str, Any]]:
 def _lower_priority() -> None:
     try:
         os.nice(10)
-    except OSError:
+    except (OSError, AttributeError):  # os.nice does not exist on Windows
         pass
     # one core is plenty and keeps a small home server's fan quiet
     for var in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "MKL_NUM_THREADS"):
