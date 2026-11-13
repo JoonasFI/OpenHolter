@@ -48,6 +48,11 @@ class Config:
     session_timeout_min: float = 10.0
     # Watchdog: reconnect if connected but no PMD data arrives for this long.
     data_timeout_s: float = 15.0
+    # A connected H10 keeps streaming (and draining its battery) even when nobody wears it. With no skin
+    # contact and no recording for this long the strap is let go, and left alone for `rest_after_release_s`
+    # so it can fall asleep; it advertises again when it is put on. 0 = never let go.
+    release_unworn_s: float = 120.0
+    rest_after_release_s: float = 180.0
     # "always" keeps the computer awake while the app runs (needed for auto-detecting the strap),
     # "recording" only during a session, "never" leaves sleep alone.
     prevent_sleep: str = "always"

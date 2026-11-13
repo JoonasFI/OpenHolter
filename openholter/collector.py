@@ -179,6 +179,9 @@ class Collector:
         # skin contact from the HR service: an unworn but connected H10 streams noise
         self.contact: Optional[bool] = None
         self.contact_since = time.monotonic()  # when `contact` last changed
+        # an unworn strap that was let go is left alone until then, so it can sleep (see Config)
+        self._rest_until = 0.0
+        self._release_reason: Optional[str] = None
         # link quality: ECG samples received per notification over the last seconds
         self._arrivals: Deque[Tuple[float, int]] = deque(maxlen=600)
         self.rssi: Optional[int] = None
@@ -297,6 +300,12 @@ class Collector:
         self.sleep.release()
 
     async def _find(self) -> Any:
+        rest = self._rest_until - time.monotonic()
+        if rest > 0:
+            # don't reconnect right away: the strap still advertises for a moment after being let go
+            self._set("scanning", "vyö lepää: ei ihokontaktia")
+            await asyncio.sleep(min(5.0, rest))
+            return None
         if self.link_factory is not None:
             await asyncio.sleep(1.0)
             now = time.time()
@@ -314,6 +323,7 @@ class Collector:
         self._set("connecting", "yhdistetään")
         self._link = link
         self._disconnected.clear()
+        self._release_reason = None
         self._last_ecg_ts = None
         info = await link.open(self._on_pmd, self._on_hr, self._disconnected.set)
         self.device = {k: v for k, v in info.items() if not k.endswith("_available")}
@@ -339,7 +349,7 @@ class Collector:
                 log.warning("no data for %.0f s, reconnecting", self.cfg.data_timeout_s)
                 self._end_connection("data timeout")
                 return
-        self._end_connection("link lost")
+        self._end_connection(self._release_reason or "link lost")
 
     def _after_disconnect(self) -> None:
         if self.connected_since is not None:
@@ -481,6 +491,14 @@ class Collector:
                 self._close_session(f"no skin contact for {self.cfg.session_timeout_min:g} min")
                 self.auto_armed = True
                 self._publish()
+            if (self.cfg.release_unworn_s > 0 and self.state == "streaming" and self.session is None
+                    and self.contact is False and time.monotonic() - self.contact_since > self.cfg.release_unworn_s):
+                # nobody wears it and nothing is being recorded: let it go so it can sleep
+                log.info("strap not worn for %.0f s and not recording: letting it go to save its battery",
+                         self.cfg.release_unworn_s)
+                self._rest_until = time.monotonic() + self.cfg.rest_after_release_s
+                self._release_reason = "vyö vapautettu: ei ihokontaktia"
+                self._disconnected.set()
             if self.state == "streaming" and self._link is not None and tick % 3 == 0:
                 self.rssi = await self._link.rssi()
             self._update_link()

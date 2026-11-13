@@ -161,6 +161,53 @@ def test_no_skin_contact_is_excluded():
     assert all(not (302 < t < 498) for t in ectopy(s.rr_t, s.rr_ms, None, 0)["events"])
 
 
+def test_unworn_strap_is_let_go_to_sleep():
+    """A connected but unworn H10 keeps streaming and drains its battery (found when a strap went flat
+    overnight): with no skin contact and no recording the link is dropped and the strap left alone."""
+    import asyncio
+    from openholter.collector import Collector
+    from openholter.config import load_config
+    from openholter.live import LiveHub
+    from openholter.simulator import SimLink, SyntheticBody
+
+    async def run(home):
+        cfg = load_config()  # OPENHOLTER_HOME points at the temporary folder
+        cfg.release_unworn_s, cfg.rest_after_release_s, cfg.prevent_sleep = 1.0, 2.0, "never"
+        body = SyntheticBody(seed=3, night=False)
+        body.in_off = lambda t: True  # nobody wears it
+        opened = []
+        def factory():
+            opened.append(time.monotonic())
+            return SimLink(body)
+        col = Collector(cfg, LiveHub(), link_factory=factory)
+        task = asyncio.get_running_loop().create_task(col.run())
+        states = []
+        t0 = time.monotonic()
+        while time.monotonic() - t0 < 8:
+            await asyncio.sleep(0.2)
+            states.append((round(time.monotonic() - t0, 1), col.state, col.detail))
+        task.cancel()
+        return opened, states, col
+
+    import os
+    import time
+    with tempfile.TemporaryDirectory() as d:
+        old = os.environ.get("OPENHOLTER_HOME")
+        os.environ["OPENHOLTER_HOME"] = d
+        try:
+            opened, states, col = asyncio.run(run(d))
+        finally:
+            if old is None:
+                os.environ.pop("OPENHOLTER_HOME", None)
+            else:
+                os.environ["OPENHOLTER_HOME"] = old
+    assert col.session is None  # never recorded: nobody wore it
+    rested = [s for s in states if "lepää" in s[2]]
+    assert rested, states  # it was let go and left to rest
+    # it is not reconnected while resting: the next connection comes only after the 2 s rest
+    assert len(opened) >= 2 and opened[1] - opened[0] > 3.0, opened
+
+
 def test_ecg_beat_detection_and_morphology():
     """Premature beats found from the ECG itself, couplets included, simulated VES classified as VES."""
     import json

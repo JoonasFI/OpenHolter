@@ -4,7 +4,7 @@
 
 🇫🇮 [Suomeksi](README.fi.md)
 
-**Latest version: 0.5.1 (analysis version 6).** [What changed](CHANGELOG.md) · [Releases](https://github.com/JoonasFI/OpenHolter/releases)
+**Latest version: 0.5.2 (analysis version 6).** [What changed](CHANGELOG.md) · [Releases](https://github.com/JoonasFI/OpenHolter/releases)
 
 ![Live view](docs/screenshots/en/live.png)
 
@@ -400,6 +400,7 @@ suspend off in the system settings.
 | `acc_sample_rate` / `acc_range_g` | `50` / `4` | H10: 25/50/100/200 Hz, 2/4/8 G |
 | `session_timeout_min` | `10` | |
 | `data_timeout_s` | `15` | reconnect if no data arrives |
+| `release_unworn_s` / `rest_after_release_s` | `120` / `180` | an unworn strap is let go after 2 min and left alone for 3 min so it can sleep and save its battery; `0` = never |
 | `prevent_sleep` | `"always"` | `always` / `recording` / `never` |
 | `analysis_time` | `"12:00"` | daily analysis of finished recordings, `""` = button only |
 | `host` / `port` | `0.0.0.0` / `8765` | **do not expose the port to the internet** |

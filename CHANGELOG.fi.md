@@ -7,6 +7,10 @@ Tallenteet analysoidaan aina raakadatasta, joten uusi analyysiversio koskee myö
 
 Luvut ovat herkkyys / osuvuus. Heikentyneet tulokset kerrotaan yhtä tarkasti kuin parantuneet. Menetelmä ja tallennekohtaiset taulukot: [docs/VALIDATION.md](docs/VALIDATION.md).
 
+## 0.5.2: riisuttu vyö saa levätä
+
+- Korjattu: Mac tai PC piti yhteyden riisuttuun vyöhön auki ja vyö lähetti EKG:tä tuntikausia, mikä tyhjensi pariston yön aikana. Nyt vyö vapautetaan, kun siinä ei ole ollut ihokontaktia 2 minuuttiin eikä tallennus ole käynnissä, ja siihen ei yhdistetä uudelleen 3 minuuttiin, jotta se ehtii mennä lepoon. Kun vyö puetaan, yhteys ja automaattinen tallennus alkavat kuten ennenkin (enintään noin 3 minuutin viiveellä, jos vyö puetaan juuri lepoajan aikana). Käsin aloitettu tallennus pitää yhteyden aina auki. Asetukset `release_unworn_s` ja `rest_after_release_s`.
+
 ## 0.5.1: Windows-korjaukset
 
 Kiitos koskrik, joka testasi OpenHolteria Windows 11:llä ja raportoi virheen korjausehdotuksineen ([#1](https://github.com/JoonasFI/OpenHolter/issues/1)).

@@ -7,6 +7,10 @@ Recordings are always analysed from the raw data, so a new analysis version also
 
 Figures are sensitivity / precision. Weakened results are listed as carefully as improved ones. Full method and per-record tables: [docs/VALIDATION.en.md](docs/VALIDATION.en.md).
 
+## 0.5.2: an unworn strap is let go
+
+- Fixed: the computer kept the link to an unworn strap open, and the strap went on streaming ECG for hours, which drained its battery overnight. Now the strap is let go after 2 minutes without skin contact when nothing is being recorded, and it is not reconnected for 3 minutes so it can fall asleep. When the strap is put on, the connection and automatic recording start as before (with up to about 3 minutes' delay if that happens during the rest). A recording started by hand always keeps the link open. Settings `release_unworn_s` and `rest_after_release_s`.
+
 ## 0.5.1: Windows fixes
 
 Thanks to koskrik, who tested OpenHolter on Windows 11 and reported the bug with a fix ([#1](https://github.com/JoonasFI/OpenHolter/issues/1)).

@@ -4,7 +4,7 @@
 
 🇬🇧 [In English](README.md)
 
-**Uusin versio: 0.5.1 (analyysiversio 6).** [Mitä muuttui](CHANGELOG.fi.md) · [Julkaisut](https://github.com/JoonasFI/OpenHolter/releases)
+**Uusin versio: 0.5.2 (analyysiversio 6).** [Mitä muuttui](CHANGELOG.fi.md) · [Julkaisut](https://github.com/JoonasFI/OpenHolter/releases)
 
 ![Live-näkymä](docs/screenshots/fi/live.png)
 
@@ -403,6 +403,7 @@ lepotila järjestelmän asetuksista.
 | `acc_sample_rate` / `acc_range_g` | `50` / `4` | H10: 25/50/100/200 Hz, 2/4/8 G |
 | `session_timeout_min` | `10` | |
 | `data_timeout_s` | `15` | yhdistetään uudelleen, jos dataa ei tule |
+| `release_unworn_s` / `rest_after_release_s` | `120` / `180` | riisuttu vyö vapautetaan 2 min jälkeen ja jätetään 3 min rauhaan, jotta se menee lepoon eikä paristo kulu; `0` = ei koskaan |
 | `prevent_sleep` | `"always"` | `always` / `recording` / `never` |
 | `analysis_time` | `"12:00"` | päivittäinen analyysi päättyneille tallenteille, `""` = vain painikkeesta |
 | `host` / `port` | `0.0.0.0` / `8765` | **älä avaa porttia internetiin** (ei porttiohjausta reitittimeen) |
