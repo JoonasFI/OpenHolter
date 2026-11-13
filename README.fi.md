@@ -4,7 +4,7 @@
 
 🇬🇧 [In English](README.md)
 
-**Uusin versio: 0.5.2 (analyysiversio 6).** [Mitä muuttui](CHANGELOG.fi.md) · [Julkaisut](https://github.com/JoonasFI/OpenHolter/releases)
+**Uusin versio: 0.5.3 (analyysiversio 6).** [Mitä muuttui](CHANGELOG.fi.md) · [Julkaisut](https://github.com/JoonasFI/OpenHolter/releases)
 
 ![Live-näkymä](docs/screenshots/fi/live.png)
 

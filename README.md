@@ -4,7 +4,7 @@
 
 🇫🇮 [Suomeksi](README.fi.md)
 
-**Latest version: 0.5.2 (analysis version 6).** [What changed](CHANGELOG.md) · [Releases](https://github.com/JoonasFI/OpenHolter/releases)
+**Latest version: 0.5.3 (analysis version 6).** [What changed](CHANGELOG.md) · [Releases](https://github.com/JoonasFI/OpenHolter/releases)
 
 ![Live view](docs/screenshots/en/live.png)
 

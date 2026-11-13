@@ -273,7 +273,8 @@ class Collector:
         asyncio.get_running_loop().create_task(self._housekeeping())
         while True:
             try:
-                self._set("scanning", f"etsitään {self.cfg.device_name_prefix}")
+                if time.monotonic() >= self._rest_until:  # while resting, _find shows the rest instead
+                    self._set("scanning", f"etsitään {self.cfg.device_name_prefix}")
                 link = await self._find()
                 if link is None:
                     continue
@@ -284,7 +285,11 @@ class Collector:
             except asyncio.CancelledError:
                 raise
             except Exception as e:
-                log.exception("collector loop error")
+                if "turned off" in str(e):
+                    # macOS reports Bluetooth as off for a moment now and then; scanning resumes in 5 s
+                    log.warning("Bluetooth unavailable for a moment: %s", e)
+                else:
+                    log.exception("collector loop error")
                 self._set("error", str(e))
                 await asyncio.sleep(5)
             finally:

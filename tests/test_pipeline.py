@@ -204,6 +204,10 @@ def test_unworn_strap_is_let_go_to_sleep():
     assert col.session is None  # never recorded: nobody wore it
     rested = [s for s in states if "lepää" in s[2]]
     assert rested, states  # it was let go and left to rest
+    # while resting the state stays "resting" (no flip-flop back to "searching" every few seconds)
+    first = states.index(rested[0])
+    rest_part = [s for s in states[first:] if s[0] < rested[0][0] + 1.8]
+    assert all("lepää" in s[2] for s in rest_part), rest_part
     # it is not reconnected while resting: the next connection comes only after the 2 s rest
     assert len(opened) >= 2 and opened[1] - opened[0] > 3.0, opened
 
